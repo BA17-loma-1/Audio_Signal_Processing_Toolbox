@@ -12,14 +12,11 @@ android:
     # - tools
 
     # The BuildTools version used by your project
-    - android update sdk --no-ui --all --filter "build-tools-25.0.2"
-
-    # The SDK version used to compile your project
-    - android-24
+    # and the SDK version used to compile your project
+    - android update sdk --no-ui --all --filter "build-tools-25.0.2", android-25, extra-android-m2repository
 
     # Additional components
     - extra-google-m2repository
-    - extra-android-m2repository
     - addon-google_apis-google-19
 
     # Specify at least one system image,
