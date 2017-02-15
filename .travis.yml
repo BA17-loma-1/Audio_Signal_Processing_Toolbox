@@ -20,11 +20,11 @@ android:
     # Additional components
     - extra-android-m2repository
     - extra-google-m2repository
-    - addon-google_apis-google-19
+    #- addon-google_apis-google-19
 
     # Specify at least one system image,
     # if you need to run emulator(s) during your tests
-    - sys-img-armeabi-v7a-android-24
+    #- sys-img-armeabi-v7a-android-24
     
 licenses:
   - 'android-sdk-preview-license-.+'
