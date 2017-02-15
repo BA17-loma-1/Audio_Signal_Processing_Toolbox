@@ -1,31 +1,38 @@
-# Generic .travis.yml file for running continuous integration on Travis-CI with Android
+# .travis.yml file for running continuous integration on Travis-CI with Android
 
 language: android
 jdk: oraclejdk8
-sudo: recuired
+sudo: false
 
 android:
   components:
     # Uncomment the lines below if you want to
     # use the latest revision of Android SDK Tools
-    # - platform-tools
-    # - tools
+    - tools
+    - platform-tools
 
     # The BuildTools version used by your project
     # and the SDK version used to compile your project
-    - android update sdk --no-ui --all --filter build-tools-25.0.2, android-24,
+    - build-tools-23.0.3
+    - android-23
 
     # Additional components
     - extra-android-m2repository
     - extra-google-m2repository
-    - addon-google_apis-google-19
+    #- addon-google_apis-google-19
 
     # Specify at least one system image,
     # if you need to run emulator(s) during your tests
-    - sys-img-armeabi-v7a-android-24
+    #- sys-img-armeabi-v7a-android-24
     
+licenses:
+  - android-sdk-preview-license-52d11cd2
+  - android-sdk-license-c81a61d9
+  - android-sdk-license-.+
+  - google-gdk-license-.+
+
 before_install:
   - chmod +x gradlew
 
 script:
-  - ./gradlew build
+  - "./gradlew build connectedCheck --stacktrace"
