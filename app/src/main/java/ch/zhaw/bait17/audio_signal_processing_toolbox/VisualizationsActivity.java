@@ -1,10 +1,19 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import org.achartengine.GraphicalView;
+import java.io.InputStream;
 
-public class VisualizationsActivity extends AppCompatActivity {
+/**
+ * Created by georgrem, stockan1 on 15.02.2017.
+ */
+public class VisualizationsActivity extends Activity {
+
+    private static GraphicalView view;
+    private SpectrumVisualiser spectrumVisualiser = new SpectrumVisualiser();
+    private static Thread thread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -12,7 +21,36 @@ public class VisualizationsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_visualizations);
 
         Intent intent = getIntent();  // get the intent
-        String data = intent.getStringExtra(MainActivity.KEY_SONG); // retrieve the data
+        //String data = intent.getStringExtra(MainActivity.KEY_SONG); // retrieve the data
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        view = spectrumVisualiser.getView(this);
+        setContentView(view);
+
+        thread = new Thread() {
+            @Override
+            public void run() {
+                // Example from http://docs.oracle.com/javase/tutorial/sound/converters.html
+                try {
+                    InputStream in = getResources().openRawResource(R.raw.sawtooth);
+                    byte[] sound = new byte[in.available()];
+
+                    in.close();
+                    view.repaint();
+                } catch (Exception ex) {
+
+                }
+            }
+        };
+        thread.start();
+    }
+
+    private WaveHeaderInfo readHeader(InputStream waveStream) {
+
+        return null;
     }
 
 }

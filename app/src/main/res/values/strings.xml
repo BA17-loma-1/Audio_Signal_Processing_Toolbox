@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Audio_Signal_Processing_Toolbox</string>
+    <string name="play_button">Play</string>
+    <string name="stop_button">Stop</string>
 </resources>
