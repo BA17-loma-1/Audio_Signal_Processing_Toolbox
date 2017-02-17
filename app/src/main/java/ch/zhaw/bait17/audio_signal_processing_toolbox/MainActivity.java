@@ -18,6 +18,8 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.MediaController.MediaPlayerControl;
@@ -35,6 +37,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private Intent playIntent;
     private MusicController controller;
     private boolean musicBound = false;
+    private boolean paused = false, playbackPaused = false;
     public final static String KEY_SONG = "ch.zhaw.bait17.audio_signal_processing_toolbox.SONG";
     static final Integer READ_EXST = 0x1;
 
@@ -47,18 +50,14 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         songView = (ListView) findViewById(R.id.song_list);
         songList = new ArrayList<Song>();
-
-        SongAdapter songAdt = new SongAdapter(this, songList);
-        songView.setAdapter(songAdt);
-
         getSongList();
-
         Collections.sort(songList, new Comparator<Song>() {
             public int compare(Song a, Song b) {
                 return a.getTitle().compareTo(b.getTitle());
             }
         });
-
+        SongAdapter songAdt = new SongAdapter(this, songList);
+        songView.setAdapter(songAdt);
         setController();
     }
 
@@ -121,6 +120,45 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
     }
 
+    public void songPicked(View view) {
+        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
+        musicSrv.playSong();
+        if (playbackPaused) {
+            setController();
+            playbackPaused = false;
+        }
+        controller.show(0);
+        /*
+        // create intent to an other activity
+        Intent intent = new Intent(this, VisualizationsActivity.class);
+        intent.putExtra(KEY_SONG, "TODO");  // write the data
+        startActivity(intent); // and start the activity
+        */
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //menu item selected
+        switch (item.getItemId()) {
+            case R.id.action_shuffle:
+                musicSrv.setShuffle();
+                break;
+            case R.id.action_end:
+                stopService(playIntent);
+                musicSrv = null;
+                System.exit(0);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public void getSongList() {
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -144,18 +182,72 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
     }
 
-    public void songPicked(View view) {
-        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
-        musicSrv.playSong();
-
-        // create intent to an other activity
-        Intent intent = new Intent(this, VisualizationsActivity.class);
-        intent.putExtra(KEY_SONG, "TODO");  // write the data
-        startActivity(intent); // and start the activity
+    @Override
+    public boolean canPause() {
+        return true;
     }
 
+    @Override
+    public boolean canSeekBackward() {
+        return true;
+    }
+
+    @Override
+    public boolean canSeekForward() {
+        return true;
+    }
+
+    @Override
+    public int getAudioSessionId() {
+        return 0;
+    }
+
+    @Override
+    public int getBufferPercentage() {
+        return 0;
+    }
+
+    @Override
+    public int getCurrentPosition() {
+        if (musicSrv != null && musicBound && musicSrv.isPng())
+            return musicSrv.getPosn();
+        else return 0;
+    }
+
+    @Override
+    public int getDuration() {
+        if (musicSrv != null && musicBound && musicSrv.isPng())
+            return musicSrv.getDur();
+        else return 0;
+    }
+
+    @Override
+    public boolean isPlaying() {
+        if (musicSrv != null && musicBound)
+            return musicSrv.isPng();
+        return false;
+    }
+
+    @Override
+    public void pause() {
+        playbackPaused = true;
+        musicSrv.pausePlayer();
+    }
+
+    @Override
+    public void seekTo(int pos) {
+        musicSrv.seek(pos);
+    }
+
+    @Override
+    public void start() {
+        musicSrv.go();
+    }
+
+    //set the controller up
     private void setController() {
         controller = new MusicController(this);
+        //set previous and next button listeners
         controller.setPrevNextListeners(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -167,6 +259,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 playPrev();
             }
         });
+        //set and show
         controller.setMediaPlayer(this);
         controller.setAnchorView(findViewById(R.id.song_list));
         controller.setEnabled(true);
@@ -174,68 +267,49 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     private void playNext() {
         musicSrv.playNext();
+        if (playbackPaused) {
+            setController();
+            playbackPaused = false;
+        }
         controller.show(0);
     }
 
     private void playPrev() {
         musicSrv.playPrev();
+        if (playbackPaused) {
+            setController();
+            playbackPaused = false;
+        }
         controller.show(0);
     }
 
-
     @Override
-    public void start() {
-
+    protected void onPause() {
+        super.onPause();
+        paused = true;
     }
 
     @Override
-    public void pause() {
-
+    protected void onResume() {
+        super.onResume();
+        if (paused) {
+            setController();
+            paused = false;
+        }
     }
 
     @Override
-    public int getDuration() {
-        return 0;
+    protected void onStop() {
+        controller.hide();
+        super.onStop();
     }
 
     @Override
-    public int getCurrentPosition() {
-        return 0;
+    protected void onDestroy() {
+        stopService(playIntent);
+        musicSrv = null;
+        super.onDestroy();
     }
 
-    @Override
-    public void seekTo(int pos) {
-
-    }
-
-    @Override
-    public boolean isPlaying() {
-        return false;
-    }
-
-    @Override
-    public int getBufferPercentage() {
-        return 0;
-    }
-
-    @Override
-    public boolean canPause() {
-        return false;
-    }
-
-    @Override
-    public boolean canSeekBackward() {
-        return false;
-    }
-
-    @Override
-    public boolean canSeekForward() {
-        return false;
-    }
-
-    @Override
-    public int getAudioSessionId() {
-        return 0;
-    }
 
 }

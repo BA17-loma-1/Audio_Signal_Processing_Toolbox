@@ -48,9 +48,11 @@ public class VisualizationsActivity extends Activity {
         thread.start();
     }
 
+    /*
     private WaveHeaderInfo readHeader(InputStream waveStream) {
 
         return null;
     }
+    */
 
 }
