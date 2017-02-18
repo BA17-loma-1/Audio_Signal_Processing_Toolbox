@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by georgrem, stockan1 on 18.02.2017.
  *
- * Local unit tests of the FFT class.
+ * Local unit tests of the Window class.
  * @see ch.zhaw.bait17.audio_signal_processing_toolbox.Window
  */
 public class WindowTest {
