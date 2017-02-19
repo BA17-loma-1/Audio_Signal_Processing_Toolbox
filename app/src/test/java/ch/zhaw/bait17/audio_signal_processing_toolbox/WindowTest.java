@@ -2,8 +2,13 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
 import static org.junit.Assert.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -12,13 +17,36 @@ import java.util.List;
  * Local unit tests of the Window class.
  * @see ch.zhaw.bait17.audio_signal_processing_toolbox.Window
  */
+
+@RunWith(Parameterized.class)
 public class WindowTest {
 
-    private static final int SAMPLE_SIZE = 127;
+    private int sampleSize;
     private static final double BLACKMAN_COEFFICIENT_0 = 0.42 - 0.5 + 0.08;
     private static final double HAMMING_ALPHA = 0.53836;
     private static final double HAMMING_BETA = 1 - HAMMING_ALPHA;
     private List<Window> windows = new ArrayList<>();
+
+    /**
+     * Constructor.
+     * The JUnit test runner will instantiate this class once for every element in the Collection
+     * returned by the method annotated with @Parameterized.Parameters.
+     * @param sampleSize
+     */
+    public WindowTest(int sampleSize) {
+        this.sampleSize = sampleSize;
+    }
+
+    /**
+     * Test data generator.
+     * This method is called by the JUnit parameterized test runner and returns a Collection of Integers.
+     * Each Integer in the Collection corresponds to a parameter in the constructor.
+     * @return A collection of sample sizes as integers
+     */
+    @Parameterized.Parameters
+    public static Collection<Integer> generatedData() {
+        return Arrays.asList(new Integer[]{7, 8, 64, 127, 128});
+    }
 
     /**
      * Sets up test fixture.
@@ -41,17 +69,17 @@ public class WindowTest {
 
     @Test
     public void testWindowSizeEqualSampleSize() {
-        int windowSize = SAMPLE_SIZE;
+        int windowSize = sampleSize;
         for (Window window : windows) {
-            assertEquals(window.getWindow(windowSize).length, SAMPLE_SIZE);
+            assertEquals(window.getWindow(windowSize).length, sampleSize);
         }
     }
 
     @Test
     public void testWindowSizeNotEqualSampleSize() {
-        int windowSize = SAMPLE_SIZE / 2;
+        int windowSize = sampleSize / 2;
         for (Window window : windows) {
-            assertNotEquals(window.getWindow(windowSize).length, SAMPLE_SIZE);
+            assertNotEquals(window.getWindow(windowSize).length, sampleSize);
         }
     }
 
@@ -64,7 +92,7 @@ public class WindowTest {
         for (Window window : windows) {
             if (window.toString().equals(WindowType.RECTANGLE.toString())) {
                 System.out.println("Window type: rectangular");
-                rect = window.getWindow(SAMPLE_SIZE);
+                rect = window.getWindow(sampleSize);
             }
         }
         // Can't use DoubleStream in API 19  :(
@@ -81,7 +109,7 @@ public class WindowTest {
         for (Window window : windows) {
             if (window.toString().equals(WindowType.BLACKMAN.toString())) {
                 System.out.println("Window type: blackman");
-                double[] blackman = window.getWindow(SAMPLE_SIZE);
+                double[] blackman = window.getWindow(sampleSize);
                 assertTrue(Double.compare(blackman[0], BLACKMAN_COEFFICIENT_0) == 0);
             }
         }
@@ -92,7 +120,7 @@ public class WindowTest {
         for (Window window : windows) {
             if (window.toString().equals(WindowType.HAMMING.toString())) {
                 System.out.println("Window type: hamming");
-                double[] hamming = window.getWindow(SAMPLE_SIZE);
+                double[] hamming = window.getWindow(sampleSize);
                 assertTrue(Double.compare(hamming[0], HAMMING_ALPHA - HAMMING_BETA) == 0);
                 assertTrue(Double.compare(hamming[hamming.length-1], HAMMING_ALPHA - HAMMING_BETA) == 0);
             }
@@ -104,7 +132,7 @@ public class WindowTest {
         for (Window window : windows) {
             if (window.toString().equals(WindowType.HANN.toString())) {
                 System.out.println("Window type: " + window.toString());
-                double[] hann = window.getWindow(SAMPLE_SIZE);
+                double[] hann = window.getWindow(sampleSize);
                 assertTrue(hann[0] == 0.0);
                 assertTrue(hann[hann.length-1] == 0.0);
             }
@@ -115,13 +143,19 @@ public class WindowTest {
      * Applies to all windows but Blackman
      */
     @Test
-    public void testCenterCoefficientEqualsOne() {
-        int center = (SAMPLE_SIZE-1) / 2;
+    public void testCenterCoefficientLessOrEqualOne() {
+        int center = sampleSize / 2;
+        if (sampleSize % 2 != 0) {
+            center = (sampleSize-1) / 2;
+        }
         System.out.println("Center n = " + center);
         for (Window window : windows) {
             if (!(window.toString().equals(WindowType.BLACKMAN.toString()))) {
-                double[] win = window.getWindow(SAMPLE_SIZE);
-                assertTrue(Double.compare(win[center], 1.0) == 0);
+                double[] win = window.getWindow(sampleSize);
+                assertTrue(Double.compare(win[center], 1.0) <= 0);
+                if (sampleSize % 2 == 0) {
+                    assertTrue(Double.compare(win[center], win[center-1]) == 0);
+                }
             }
         }
     }
@@ -132,7 +166,7 @@ public class WindowTest {
     @Test
     public void testAllWindowsNormalised() {
         for (Window window : windows) {
-            double[] win = window.getWindow(SAMPLE_SIZE);
+            double[] win = window.getWindow(sampleSize);
             for (int i = 0; i < win.length; i++) {
                 assertTrue(Double.compare(win[i], 1.0) <= 0);
             }
