@@ -2,9 +2,18 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
 import android.os.Bundle;
 import org.achartengine.GraphicalView;
+
+import java.io.BufferedReader;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by georgrem, stockan1 on 15.02.2017.
@@ -35,10 +44,8 @@ public class VisualizationsActivity extends Activity {
             public void run() {
                 // Example from http://docs.oracle.com/javase/tutorial/sound/converters.html
                 try {
-                    InputStream in = getResources().openRawResource(R.raw.sawtooth);
-                    byte[] sound = new byte[in.available()];
 
-                    in.close();
+
                     view.repaint();
                 } catch (Exception ex) {
 

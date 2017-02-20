@@ -10,7 +10,7 @@ fs = 48e3;              % Sampling frequency
 T = 10;                 % Signal duration
 t = 0:1/fs:T;
 f0 = 500;               % Fundamental frequency
-t0 = 1/f0;              % Signal periode
+t0 = 1/f0;              % Signal period
 w = 2*pi*f0;            % Omega (angular frequency)
 A = 0.2;                % Amplitude
 
@@ -20,9 +20,9 @@ x_sawtooth = A * sawtooth(w*t);
 x_square = A * square(w*t);
 
 % Write PCM data to files
-audiowrite('audio/sawtooth.wav', x_sawtooth, fs);
-audiowrite('audio/square.wav', x_square, fs);
-audiowrite('audio/sine.wav', x_sine, fs);
+audiowrite('output/sawtooth.wav', x_sawtooth, fs);
+audiowrite('output/square.wav', x_square, fs);
+audiowrite('output/sine.wav', x_sine, fs);
 
 % Plot signals
 figure(1);
