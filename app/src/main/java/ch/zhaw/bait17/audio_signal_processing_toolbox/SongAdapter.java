@@ -10,18 +10,14 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-/**
- * Created by georgrem and stockan1 on 13.02.2017.
- */
-
 public class SongAdapter extends BaseAdapter {
 
     private ArrayList<Song> songs;
-    private LayoutInflater songInf;
+    private LayoutInflater inflater;
 
-    public SongAdapter(Context c, ArrayList<Song> songs) {
+    public SongAdapter(Context context, ArrayList<Song> songs) {
         this.songs = songs;
-        songInf = LayoutInflater.from(c);
+        inflater = LayoutInflater.from(context);
     }
 
     @Override
@@ -41,18 +37,13 @@ public class SongAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // map to song layout
-        LinearLayout songLay = (LinearLayout) songInf.inflate(R.layout.song, parent, false);
-        // get title and artist views
-        TextView songView = (TextView) songLay.findViewById(R.id.song_title);
-        TextView artistView = (TextView) songLay.findViewById(R.id.song_artist);
-        // get song using position
-        Song currSong = songs.get(position);
-        // get title and artist strings
-        songView.setText(currSong.getTitle());
-        artistView.setText(currSong.getArtist());
-        // set position as tag
-        songLay.setTag(position);
-        return songLay;
+        LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.media_list_item, parent, false);
+        TextView songView = (TextView) layout.findViewById(R.id.song_title);
+        TextView artistView = (TextView) layout.findViewById(R.id.song_artist);
+        Song song = songs.get(position);
+        songView.setText(song.getTitle());
+        artistView.setText(song.getArtist());
+        return layout;
     }
+
 }

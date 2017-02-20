@@ -52,7 +52,7 @@ public class MusicService extends Service implements
         player.setOnErrorListener(this);
     }
 
-    //pass song list
+    //pass media_list_item list
     public void setList(ArrayList<Song> theSongs) {
         songs = theSongs;
     }
@@ -78,16 +78,18 @@ public class MusicService extends Service implements
         return false;
     }
 
-    //play a song
+    //play a media_list_item
     public void playSong() {
         //play
         player.reset();
-        //get song
+        //get media_list_item
         Song playSong = songs.get(songPosn);
         //get title
         songTitle = playSong.getTitle();
         //get id
-        long currSong = playSong.getId();
+        //long currSong = playSong.getId();
+        long currSong = 1;
+
         //set uri
         Uri trackUri = ContentUris.withAppendedId(
                 android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -101,7 +103,7 @@ public class MusicService extends Service implements
         player.prepareAsync();
     }
 
-    //set the song
+    //set the media_list_item
     public void setSong(int songIndex) {
         songPosn = songIndex;
     }

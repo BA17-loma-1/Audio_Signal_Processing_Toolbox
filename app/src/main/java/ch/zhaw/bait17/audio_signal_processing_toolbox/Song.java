@@ -1,19 +1,19 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
+import android.net.Uri;
+
 public class Song {
 
-    private String name, title, artist, album, duration;
+    private String title, artist, album, duration;
+    private Uri uri;
 
-    public Song(String name, String title, String artist, String album, String duration) {
-        this.name = name;
+
+    public Song(String title, String artist, String album, String duration, Uri uri) {
         this.title = title;
         this.artist = artist;
         this.album = album;
         this.duration = duration;
-    }
-
-    public String getName() {
-        return name;
+        this.uri = uri;
     }
 
     public String getTitle() {
@@ -32,14 +32,18 @@ public class Song {
         return duration;
     }
 
+    public Uri getUri() {
+        return uri;
+    }
+
     @Override
     public String toString() {
         return "Song{" +
-                "name='" + name + '\'' +
-                ", title='" + title + '\'' +
+                "title='" + title + '\'' +
                 ", artist='" + artist + '\'' +
                 ", album='" + album + '\'' +
                 ", duration='" + duration + '\'' +
+                ", uri=" + uri +
                 '}';
     }
 }

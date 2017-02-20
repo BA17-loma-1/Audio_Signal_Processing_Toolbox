@@ -83,8 +83,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             switch (requestCode) {
                 //Read External Storage
                 case 1:
-                    Intent imageIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    startActivityForResult(imageIntent, 11);
+                    Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(intent, 11);
                     break;
             }
             Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show();
@@ -121,7 +121,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     public void songPicked(View view) {
-        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
+        //musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
         musicSrv.playSong();
         if (playbackPaused) {
             setController();
@@ -176,7 +176,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 long thisId = musicCursor.getLong(idColumn);
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtist = musicCursor.getString(artistColumn);
-                songList.add(new Song(thisId, thisTitle, thisArtist));
+                // songList.add(new Song(thisId, thisTitle, thisArtist));
             }
             while (musicCursor.moveToNext());
         }
