@@ -10,11 +10,11 @@ function[] = dds()
 
 format compact; format shortE; clear; clc;
 
-W = 10;                 % Number of bits
+W = 8;                 % Number of bits
 M = [1 2 10 25];        % Tuning words, M = 1 = longest period
 N = 2^W;                % Number of entries in the lookup table
 fs = 48e3;              % Sampling frequency
-t = 0:1:N-1;            % "Time" samples
+t = 0:1:N;            % "Time" samples
 A = 1;                  % Amplitude
 plotSignal = 1;         % plot waveforms
 
