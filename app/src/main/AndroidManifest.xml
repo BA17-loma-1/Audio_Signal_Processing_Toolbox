@@ -24,9 +24,8 @@
 
         <activity android:name=".MediaListActivity"></activity>
 
-
+        <service android:name=".MusicService" />
         <!--
-            <service android:name=".MusicService" />
 
         <activity android:name=".VisualizationsActivity" />
         -->
