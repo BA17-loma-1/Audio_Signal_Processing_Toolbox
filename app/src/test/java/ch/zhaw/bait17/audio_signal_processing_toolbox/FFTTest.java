@@ -3,12 +3,6 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Created by georgrem, stockan1 on 18.02.2017.
@@ -59,7 +53,7 @@ public class FFTTest {
         double[] dft = fft.getForwardTransform(signal);
         double[] Re = new double[4];
         double[] Im = new double[4];
-        // Im[0] is 0, although JTransforms returns dft[1] as Re[n/2] = dft[0], which is DC value.
+        // Im[0] is 0, although JTransforms returns dft[1] as Re[n/2] = fs/2 = dft[0], which is DC value.
         for (int i = 0; i < dft.length; i++) {
             if (i % 2 == 0 && i >= 0 && i < dft.length) {
                 Re[i/2] = dft[i];
@@ -94,14 +88,6 @@ public class FFTTest {
         }
         assertArrayEquals(Re, EXPECTED_DFT_REAL, TOLERANCE);
         assertArrayEquals(Im, EXPECTED_DFT_IMAG, TOLERANCE);
-    }
-
-    private void fillSamplesWithZeros() {
-        Arrays.fill(signal, 0.0d);
-    }
-
-    private void fillSamplesWithOnes() {
-        Arrays.fill(signal, 1.0d);
     }
 
 }
