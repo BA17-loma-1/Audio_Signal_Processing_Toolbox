@@ -67,12 +67,18 @@ public class WaveHeaderInfo implements HeaderInfo {
     }
 
     /**
-     * Returns the file size.
+     * Returns the PCM data size in bytes.
      * @return
      */
     @Override
     public int getDataSize() {
         return dataSize;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("WAVE header:  encoding format=%s  channels=%d  sample rate=%d  bits per sample=%d",
+                AudioCodingFormat.LINEAR_PCM.toString(), channels, sampleRate, bitsPerSample);
     }
 
 }

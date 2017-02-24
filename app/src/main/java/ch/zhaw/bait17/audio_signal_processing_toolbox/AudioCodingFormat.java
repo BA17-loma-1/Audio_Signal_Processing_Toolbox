@@ -6,14 +6,16 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
 public enum AudioCodingFormat {
     // Linear pulse-code modulation
-    LINEAR_PCM("LPCM", 1);
+    LINEAR_PCM(1);
 
     private String stringValue = "";
     private int intValue = 0;
 
-    private AudioCodingFormat(String toString, int value) {
-        stringValue = toString;
+    private AudioCodingFormat(int value) {
         intValue = value;
+        if (value == 1) {
+            stringValue = "LPCM";
+        }
     }
 
     @Override

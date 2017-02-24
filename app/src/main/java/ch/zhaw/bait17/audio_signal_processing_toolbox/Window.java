@@ -21,11 +21,11 @@ public class Window {
     }
 
     /**
-     * Creates a window of specified type with length L = size and returns it as a double array.
+     * Creates a window of specified type with length L = size and returns it as a float array.
      * @param size Size of the window.
-     * @return a double array containing the coefficients of the window.
+     * @return a float array containing the coefficients of the window.
      */
-    public double[] getWindow(int size) {
+    public float[] getWindow(int size) {
         switch (windowType) {
             case HANN:
                 return getHannWindow(size);
@@ -46,11 +46,11 @@ public class Window {
     /**
      * Creates a rectangular window with length L = size.
      * @param size Size of the window
-     * @return a double array containing only coefficients of value 1.0.
+     * @return a float array containing only coefficients of value 1.0.
      */
-    private double[] getRectangularWindow(int size) {
-        double[] rectWindow = new double[size];
-        Arrays.fill(rectWindow, 1.0d);
+    private float[] getRectangularWindow(int size) {
+        float[] rectWindow = new float[size];
+        Arrays.fill(rectWindow, 1.0f);
         return rectWindow;
     }
 
@@ -58,14 +58,14 @@ public class Window {
      * Creates a Hamming window with length L = size.
      * See: http://mathworks.com/help/signal/ref/hamming.html
      * @param size Size of the window
-     * @return a double array containing the coefficients of the window
+     * @return a float array containing the coefficients of the window
      */
-    private double[] getHammingWindow(int size) {
+    private float[] getHammingWindow(int size) {
         double alpha = 0.53836;
         double beta = 1 - alpha;
-        double[] hammingWindow = new double[size];
+        float[] hammingWindow = new float[size];
         for (int n = 0; n < size; n++) {
-            hammingWindow[n] = alpha - (beta * Math.cos(2 * Math.PI * n / (size - 1)));
+            hammingWindow[n] = (float) (alpha - (beta * Math.cos(2 * Math.PI * n / (size - 1))));
         }
         return hammingWindow;
     }
@@ -74,12 +74,12 @@ public class Window {
      * Creates a Hann window with length L = size.
      * See: https://ch.mathworks.com/help/signal/ref/hann.html
      * @param size Size of the window
-     * @return a double array containing the coefficients of the window
+     * @return a float array containing the coefficients of the window
      */
-    private double[] getHannWindow(int size) {
-        double[] hannWindow = new double[size];
+    private float[] getHannWindow(int size) {
+        float[] hannWindow = new float[size];
         for (int n = 0; n < size; n++) {
-            hannWindow[n] = 0.5 * (1 - Math.cos(2 * Math.PI * n / (size - 1)));
+            hannWindow[n] = (float) (0.5 * (1 - Math.cos(2 * Math.PI * n / (size - 1))));
         }
         return hannWindow;
     }
@@ -89,13 +89,13 @@ public class Window {
      * The Blackman window is useful for single tone measurement.
      * See: http://zone.ni.com/reference/en-XX/help/371361E-01/lvanlsconcepts/char_smoothing_windows/
      * @param size Size of the window
-     * @return a double array containing the coefficients of the window
+     * @return a float array containing the coefficients of the window
      */
-    private double[] getBlackmanWindow(int size) {
-        double[] blackmanWindow = new double[size];
+    private float[] getBlackmanWindow(int size) {
+        float[] blackmanWindow = new float[size];
         for (int n = 0; n < size; n++) {
-            blackmanWindow[n] = 0.42 - (0.5 * Math.cos(2 * Math.PI * n / (size - 1)))
-                                     + (0.08 * Math.cos(4 * Math.PI * n / (size - 1)));
+            blackmanWindow[n] = (float) (0.42 - (0.5 * Math.cos(2 * Math.PI * n / (size - 1)))
+                                     + (0.08 * Math.cos(4 * Math.PI * n / (size - 1))));
         }
         return blackmanWindow;
     }

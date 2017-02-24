@@ -1,5 +1,7 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
+import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -47,107 +49,126 @@ public class WaveDecoder {
     private static final int LINEAR_PCM_ENCODING = AudioCodingFormat.LINEAR_PCM.getValue();
     private static final int MIN_SUPPORTED_SAMPLE_RATE = 8000;
     private static final int MAX_SUPPORTED_SAMPLE_RATE = 96000;
-    private static final int MAX_BITS_PER_SAMPLE = 24;
-    private int dataOffset = 44;                                // wave header size by default
+    private static final int MAX_BITS_PER_SAMPLE = 16;
+    private int dataOffset = 0;
     private WaveHeaderInfo header;
-    private InputStream waveStream;
+    private float[] pcmData = new float[0];
 
     /**
-     * @param waveStream, The InputStream to read from.
+     * @param input The InputStream to read from.
      * @throws DecoderException
      */
-    public WaveDecoder(InputStream waveStream) throws DecoderException {
-        if (waveStream == null) {
+    public WaveDecoder(InputStream input) throws DecoderException {
+        if (input == null) {
             throw new DecoderException("InputStream is null.");
         }
-        this.waveStream = waveStream;
-        readHeader();
+        readStream(input);
     }
 
     /**
      * Allocates a non-direct ByteBuffer in little endian byte order.
      * Remember, little endian saves the least significant byte (LSB) at the lowest address.
+     * Closes the underlying InputStream. Consecutive calls to this method will result in a DecoderException
+     * @param input The InputStream of the wave file.
      * @throws DecoderException
      */
-    private void readHeader() throws DecoderException {
+    private void readStream(InputStream input) throws DecoderException {
         // The wave file header should not exceed 4KB.
         ByteBuffer buffer = ByteBuffer.allocate(MAX_HEADER_SIZE);
         buffer.limit(buffer.capacity());
         buffer.order(ByteOrder.LITTLE_ENDIAN);
+        DataInputStream waveStream = new DataInputStream(input);
         try {
-            waveStream.read(buffer.array(), 0, buffer.capacity());
-            buffer.rewind();
-            // Check if file container format is RIFF (Resource Interchange File Format) and WAVE
-            if (buffer.getInt(0) != RIFF_HEADER || buffer.getInt(8) != WAVE_HEADER) {
-                throw new DecoderException("Unknown file format.");
-            }
+            if (input.read(buffer.array(), 0, buffer.capacity()) > 0) {
+                buffer.rewind();
+                // Check if file container format is RIFF (Resource Interchange File Format) and WAVE
+                if (buffer.getInt(0) != RIFF_HEADER || buffer.getInt(8) != WAVE_HEADER) {
+                    throw new DecoderException("Unknown file format.");
+                }
 
-            // Read two bytes at position 20 and check if the format is linear PCM encoding.
-            short encodingFormat = buffer.getShort(20);
-            if (encodingFormat != LINEAR_PCM_ENCODING) {
-                throw new DecoderException("Unsupported encoding");
-            }
+                // Read two bytes at position 20 and check if the format is linear PCM encoding.
+                short encodingFormat = buffer.getShort(20);
+                if (encodingFormat != LINEAR_PCM_ENCODING) {
+                    throw new DecoderException("Unsupported encoding");
+                }
 
-            // Read two bytes at position 22 and check for the number of channels.
-            short channels = buffer.getShort(22);
-            if (channels < 1 || channels > 2) {
-                throw new DecoderException("Unsupported number of channels.");
-            }
+                // Read two bytes at position 22 and check for the number of channels.
+                short channels = buffer.getShort(22);
+                if (channels < 1 || channels > 2) {
+                    throw new DecoderException("Unsupported number of channels.");
+                }
 
-            // Read four bytes and check if the sample rate is supported.
-            int sampleRate = buffer.getInt(24);
-            if (sampleRate < MIN_SUPPORTED_SAMPLE_RATE || sampleRate > MAX_SUPPORTED_SAMPLE_RATE) {
-                throw new DecoderException("Unsupported sample rate.");
-            }
+                // Read four bytes and check if the sample rate is supported.
+                int sampleRate = buffer.getInt(24);
+                if (sampleRate < MIN_SUPPORTED_SAMPLE_RATE || sampleRate > MAX_SUPPORTED_SAMPLE_RATE) {
+                    throw new DecoderException("Unsupported sample rate.");
+                }
 
-            // Read two bytes and check if bits per sample is supported.
-            int bitsPerSample = buffer.getShort(34);
-            if (bitsPerSample < 0 || bitsPerSample > MAX_BITS_PER_SAMPLE) {
-                throw new DecoderException("Unsupported number of bits per sample.");
-            }
+                // Read two bytes and check if bits per sample is supported.
+                int bitsPerSample = buffer.getShort(34);
+                if (bitsPerSample <= 0 || bitsPerSample > MAX_BITS_PER_SAMPLE) {
+                    throw new DecoderException("Unsupported number of bits per sample.");
+                }
 
-            /* In case there are additional subchunks of meta data, we need to skip over it.
-               In general, the "data" marker is at position 36. */
-            buffer.position(36);
-            int subChunkSize = 0;
-            while (buffer.getInt() != DATA_HEADER && buffer.position() < buffer.limit()) {
-                // subChunkID corresponds NOT to "data" marker -> skip over
-                // Read four bytes of data to determine the subchunk size
-                subChunkSize = buffer.getInt();
-                buffer.position(buffer.position() + (subChunkSize / 8));
-            }
-            int dataSize = buffer.getInt();
-            // Important: set the dataOffset marker
-            dataOffset = buffer.position();
-            if (dataSize == 0) {
-                throw new DecoderException("Could not determine audio data size.");
-            }
+                /* In case there are additional subchunks of meta data, we need to skip over it.
+                   In general, the "data" marker is at position 36. */
+                buffer.position(36);
+                int subChunkSize = 0;
+                while (buffer.getInt() != DATA_HEADER && buffer.position() < buffer.limit()) {
+                    // subChunkID corresponds NOT to "data" marker -> skip over
+                    // Read four bytes of data to determine the subchunk size
+                    subChunkSize = buffer.getInt();
+                    buffer.position(buffer.position() + (subChunkSize / 8));
+                }
+                int dataSize = buffer.getInt();
+                // Important: set the dataOffset marker
+                dataOffset = buffer.position();
+                if (dataSize == 0) {
+                    throw new DecoderException("Could not determine audio data size.");
+                }
 
-            header = new WaveHeaderInfo(encodingFormat, channels, sampleRate, bitsPerSample, dataSize);
-            // Don't close the stream yet...
+                header = new WaveHeaderInfo(encodingFormat, channels, sampleRate, bitsPerSample, dataSize);
+
+                // Don't close the stream just yet...
+
+                if (dataOffset > 0) {
+                    // float size = byte size / 4 + 1
+                    pcmData = new float[(header.getDataSize()/4) + 1];
+                    // Skip over the header
+                    waveStream.reset();
+
+                    try {
+                        if (waveStream.skip(dataOffset) == dataOffset) {
+                            float data = 0;
+                            int i = 0;
+                            while (waveStream.available() > 0) {
+                                // Read the next four bytes of data and convert it to float
+                                pcmData[i++] = waveStream.readFloat();
+                            }
+                        }
+                    } catch (EOFException e) { }
+                }
+                waveStream.close();
+            }
         } catch (IOException ex) {
             throw new DecoderException("Cannot read from stream.");
         }
     }
 
     /**
-     * Returns the audio data in PCM format.
-     * Closes the underlying InputStream. Consecutive calls to this method will return an empty byte array.
-     * @return byte array containing the PCM audio data.
+     * Returns the raw audio data in PCM format.
+     * In case of a decoder problem, this method will return an empty float array.
+     * @return A float array containing the PCM audio data.
      * @throws IOException
      */
-    public byte[] getRawPCM() throws IOException {
-        byte[] pcmData = new byte[header.getDataSize()];
-        if (waveStream != null) {
-            waveStream.skip(dataOffset);
-            waveStream.read(pcmData, 0, pcmData.length);
-            waveStream.close();
-        }
-        return pcmData;
+    public float[] getRawPCM() throws IOException {
+        float[] pcm = new float[pcmData.length];
+        System.arraycopy(pcmData, 0, pcm, 0, pcmData.length);
+        return pcm;
     }
 
     /**
-     * Returns WAV header information.
+     * Returns the WAV file header information.
      * @return
      */
     public WaveHeaderInfo getHeader() {

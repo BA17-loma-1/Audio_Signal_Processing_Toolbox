@@ -1,17 +1,18 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
-import org.jtransforms.fft.DoubleFFT_1D;
+import org.jtransforms.fft.FloatFFT_1D;
 import android.util.Log;
 
 /**
- * Created by georgrem, stockan1 on 16.02.2017.
  * <p>Calculates the Fourier spectrum of a signal.<br>
  * If not specified explicitly a hamming window is used to weight the sampled data.</p>
+ *
+ * Created by georgrem, stockan1 on 16.02.2017.
  */
 public class FFT {
 
     private static final String TAG = FFT.class.getSimpleName();
-    private Window win = null;
+    private Window win;
 
     public FFT() {
         win = new Window(WindowType.HAMMING);
@@ -32,12 +33,12 @@ public class FFT {
      * @param samples the data to transform
      * @return weightedSamples, the transformed sample data
      */
-    public double[] getForwardTransform(double[] samples) {
+    public float[] getForwardTransform(float[] samples) {
         // Apply window to sample input data
-        double[] windowCoefficients = win.getWindow(samples.length);
-        double[] weightedSamples = applyWindowToSamples(samples, windowCoefficients);
+        float[] windowCoefficients = win.getWindow(samples.length);
+        float[] weightedSamples = applyWindowToSamples(samples, windowCoefficients);
         int N = weightedSamples.length;
-        DoubleFFT_1D fft = new DoubleFFT_1D(N);
+        FloatFFT_1D fft = new FloatFFT_1D(N);
         fft.realForward(weightedSamples);
         return weightedSamples;
     }
@@ -51,16 +52,16 @@ public class FFT {
      * </p>
      *
      * @param samples
-     * @return zeroPaddedSamples, the transformed data
+     * @return zeroPaddedSamples, the transformed data as a float array
      */
-    public double[] getForwardTransformFull(double[] samples) {
+    public float[] getForwardTransformFull(float[] samples) {
         // Apply window to sample input data
-        double[] windowCoefficients = win.getWindow(samples.length);
-        double[] weightedSamples = applyWindowToSamples(samples, windowCoefficients);
+        float[] windowCoefficients = win.getWindow(samples.length);
+        float[] weightedSamples = applyWindowToSamples(samples, windowCoefficients);
         // Pad with zeros
-        double[] zeroPaddedSamples = addZeroPadding(weightedSamples, weightedSamples.length);
+        float[] zeroPaddedSamples = addZeroPadding(weightedSamples, weightedSamples.length);
         int N = zeroPaddedSamples.length/2;
-        DoubleFFT_1D fft = new DoubleFFT_1D(N);
+        FloatFFT_1D fft = new FloatFFT_1D(N);
         fft.realForwardFull(zeroPaddedSamples);
         return zeroPaddedSamples;
     }
@@ -72,15 +73,21 @@ public class FFT {
      * @param samplingFrequency
      * @return
      */
-    public double[] backwardTransform(double[] spectrum, int samplingFrequency) {
-        double[] samples = new double[spectrum.length];
+    public float[] backwardTransform(float[] spectrum, int samplingFrequency) {
+        float[] samples = new float[spectrum.length];
 
 
         return samples;
     }
 
-    public double[] addZeroPadding(double[] samples, int paddingLength) {
-        double[] zeroPaddedSamples = new double[samples.length + paddingLength];
+    /**
+     * Adds zero padding of specified length to samples.
+     * @param samples The samples input.
+     * @param paddingLength The padding length.
+     * @return Zero padded samples as a float array.
+     */
+    public float[] addZeroPadding(float[] samples, int paddingLength) {
+        float[] zeroPaddedSamples = new float[samples.length + paddingLength];
         System.arraycopy(samples, 0, zeroPaddedSamples, 0, samples.length);
         return zeroPaddedSamples;
     }
@@ -102,11 +109,11 @@ public class FFT {
     }
 
     /**
-     * Applies a window function to the sample data
-     * @param samples input sample data
-     * @return filtered sample data
+     * Applies a window function to the sample data.
+     * @param samples Input sample data.
+     * @return Filtered sample data.
      */
-    private double[] applyWindowToSamples(double[] samples, double[] window) {
+    private float[] applyWindowToSamples(float[] samples, float[] window) {
         if (samples.length != window.length) {
             Log.e(TAG, "Sample and window length do not match.");
         } else {
