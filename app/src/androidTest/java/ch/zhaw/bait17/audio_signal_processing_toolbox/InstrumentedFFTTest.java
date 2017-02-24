@@ -6,12 +6,9 @@ import android.support.test.runner.AndroidJUnit4;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -61,15 +58,15 @@ public class InstrumentedFFTTest {
     @Test
     public void testSineWaveTransformM1() throws Exception {
         for (Map.Entry<Integer,Integer> entry : WAVEFORM_RESOURCES.entrySet()) {
-            double[] signal = getSamples(entry.getValue());
+            float[] signal = getSamples(entry.getValue());
             FFT fft = new FFT(WindowType.RECTANGLE);
-            double[] fullDFT = fft.getForwardTransform(signal);
+            float[] fullDFT = fft.getForwardTransform(signal);
             // Only lower half of DFT is of interest
-            double[] dft = new double[fullDFT.length / 2];
+            float[] dft = new float[fullDFT.length / 2];
             System.arraycopy(fullDFT, 0, dft, 0, fullDFT.length / 2);
             // Can't use Arrays.stream(dft).max().getAsDouble() in API 19  :(
-            double max = Double.MIN_VALUE;
-            double bin = 0;
+            float max = Float.MIN_VALUE;
+            int bin = 0;
             for (int i = 0; i < dft.length; i++) {
                 if (dft[i] > max) {
                     max = dft[i];
@@ -81,21 +78,20 @@ public class InstrumentedFFTTest {
         }
     }
 
-    private double[] getSamples(int resource) throws Exception {
+    private float[] getSamples(int resource) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(
                 context.getResources().openRawResource(resource)));
-        List<Double> samples = new ArrayList<>();
+        List<Float> samples = new ArrayList<>();
         for (String s : br.readLine().split(",")) {
-            samples.add(Double.parseDouble(s));
+            samples.add(Float.parseFloat(s));
         }
         br.close();
 
-        double[] signal = new double[samples.size()];
-        Iterator<Double> iter = samples.iterator();
+        float[] signal = new float[samples.size()];
+        Iterator<Float> iter = samples.iterator();
         int index = 0;
         while (iter.hasNext()) {
-            signal[index] = (double) iter.next();
-            index++;
+            signal[index++] = (float) iter.next();
         }
         return signal;
     }

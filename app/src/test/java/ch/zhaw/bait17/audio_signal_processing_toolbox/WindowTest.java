@@ -21,7 +21,7 @@ import java.util.List;
 public class WindowTest {
 
     private int sampleSize;
-    private static final double BLACKMAN_COEFFICIENT_0 = 0.42 - 0.5 + 0.08;
+    private static final float BLACKMAN_COEFFICIENT_0 = (float) (0.42 - 0.5 + 0.08);
     private static final double HAMMING_ALPHA = 0.53836;
     private static final double HAMMING_BETA = 1 - HAMMING_ALPHA;
     private List<Window> windows = new ArrayList<>();
@@ -87,7 +87,7 @@ public class WindowTest {
      */
     @Test
     public void testRectangularWindow() {
-        double[] rect = new double[0];
+        float[] rect = new float[0];
         for (Window window : windows) {
             if (window.toString().equals(WindowType.RECTANGLE.toString())) {
                 System.out.println("Window type: rectangular");
@@ -95,7 +95,7 @@ public class WindowTest {
             }
         }
         // Can't use DoubleStream in API 19  :(
-        double sum = 0;
+        float sum = 0;
         for (int i = 0; i < rect.length; i++) {
             sum += rect[i];
             assertEquals(rect[i], 1.0, 0.0);
@@ -108,8 +108,8 @@ public class WindowTest {
         for (Window window : windows) {
             if (window.toString().equals(WindowType.BLACKMAN.toString())) {
                 System.out.println("Window type: blackman");
-                double[] blackman = window.getWindow(sampleSize);
-                assertTrue(Double.compare(blackman[0], BLACKMAN_COEFFICIENT_0) == 0);
+                float[] blackman = window.getWindow(sampleSize);
+                assertTrue(Float.compare(blackman[0], BLACKMAN_COEFFICIENT_0) == 0);
             }
         }
     }
@@ -119,21 +119,24 @@ public class WindowTest {
         for (Window window : windows) {
             if (window.toString().equals(WindowType.HAMMING.toString())) {
                 System.out.println("Window type: hamming");
-                double[] hamming = window.getWindow(sampleSize);
-                assertTrue(Double.compare(hamming[0], HAMMING_ALPHA - HAMMING_BETA) == 0);
-                assertTrue(Double.compare(hamming[hamming.length-1], HAMMING_ALPHA - HAMMING_BETA) == 0);
+                float[] hamming = window.getWindow(sampleSize);
+                assertTrue(Float.compare(hamming[0], (float) (HAMMING_ALPHA - HAMMING_BETA)) == 0);
+                assertTrue(Float.compare(hamming[hamming.length-1], (float) (HAMMING_ALPHA - HAMMING_BETA)) == 0);
             }
         }
     }
 
+    /**
+     * First and last window coefficients must be 0.
+     */
     @Test
     public void testFirstAndLastCoefficientHannWindow() {
         for (Window window : windows) {
             if (window.toString().equals(WindowType.HANN.toString())) {
                 System.out.println("Window type: " + window.toString());
-                double[] hann = window.getWindow(sampleSize);
-                assertTrue(hann[0] == 0.0);
-                assertTrue(hann[hann.length-1] == 0.0);
+                float[] hann = window.getWindow(sampleSize);
+                assertTrue(hann[0] == 0.0f);
+                assertTrue(hann[hann.length-1] == 0.0f);
             }
         }
     }
@@ -150,10 +153,10 @@ public class WindowTest {
         System.out.println("Center n = " + center);
         for (Window window : windows) {
             if (!(window.toString().equals(WindowType.BLACKMAN.toString()))) {
-                double[] win = window.getWindow(sampleSize);
-                assertTrue(Double.compare(win[center], 1.0) <= 0);
+                float[] win = window.getWindow(sampleSize);
+                assertTrue(Float.compare(win[center], 1.0f) <= 0);
                 if (sampleSize % 2 == 0) {
-                    assertTrue(Double.compare(win[center], win[center-1]) == 0);
+                    assertTrue(Float.compare(win[center], win[center-1]) == 0);
                 }
             }
         }
@@ -165,9 +168,9 @@ public class WindowTest {
     @Test
     public void testAllWindowsNormalised() {
         for (Window window : windows) {
-            double[] win = window.getWindow(sampleSize);
+            float[] win = window.getWindow(sampleSize);
             for (int i = 0; i < win.length; i++) {
-                assertTrue(Double.compare(win[i], 1.0) <= 0);
+                assertTrue(Float.compare(win[i], 1.0f) <= 0);
             }
         }
     }

@@ -12,10 +12,10 @@ import static org.junit.Assert.*;
  */
 public class FFTTest {
 
-    private static final double TOLERANCE = 1e-6;
+    private static final float TOLERANCE = 1e-6f;
     private static final int SAMPLE_SIZE = 8;
     private FFT fft = null;
-    private double[] signal;
+    private float[] signal;
 
     /**
      * Sets up test fixture.
@@ -23,7 +23,7 @@ public class FFTTest {
      */
     @Before
     public void setUp() {
-        signal = new double[SAMPLE_SIZE];
+        signal = new float[SAMPLE_SIZE];
     }
 
     @Test
@@ -47,12 +47,12 @@ public class FFTTest {
     @Test
     public void testFFTEvenSampleLengthWithoutWindow() {
         fft = new FFT(WindowType.RECTANGLE);
-        signal = new double[]{2,0,3,0,0,0,3,0};
-        final double[] EXPECTED_DFT_REAL = new double[]{8,2,-4,2};
-        final double[] EXPECTED_DFT_IMAG = new double[]{0,0,0,0};
-        double[] dft = fft.getForwardTransform(signal);
-        double[] Re = new double[4];
-        double[] Im = new double[4];
+        signal = new float[]{2,0,3,0,0,0,3,0};
+        final float[] EXPECTED_DFT_REAL = new float[]{8,2,-4,2};
+        final float[] EXPECTED_DFT_IMAG = new float[]{0,0,0,0};
+        float[] dft = fft.getForwardTransform(signal);
+        float[] Re = new float[4];
+        float[] Im = new float[4];
         // Im[0] is 0, although JTransforms returns dft[1] as Re[n/2] = fs/2 = dft[0], which is DC value.
         for (int i = 0; i < dft.length; i++) {
             if (i % 2 == 0 && i >= 0 && i < dft.length) {
@@ -72,12 +72,12 @@ public class FFTTest {
     @Test
     public void testFFTOddSampleLengthWithoutWindow() {
         fft = new FFT(WindowType.RECTANGLE);
-        signal = new double[]{1,2,2,2,2,2,2};
-        final double[] EXPECTED_DFT_REAL = new double[]{13,-1,-1,-1};
-        final double[] EXPECTED_DFT_IMAG = new double[]{0,0,0,0};
-        double[] dft = fft.getForwardTransform(signal);
-        double[] Re = new double[4];
-        double[] Im = new double[4];
+        signal = new float[]{1,2,2,2,2,2,2};
+        final float[] EXPECTED_DFT_REAL = new float[]{13,-1,-1,-1};
+        final float[] EXPECTED_DFT_IMAG = new float[]{0,0,0,0};
+        float[] dft = fft.getForwardTransform(signal);
+        float[] Re = new float[4];
+        float[] Im = new float[4];
         for (int i = 0; i < dft.length; i++) {
             if (i % 2 == 0 && i >= 0 && i < dft.length+1) {
                 Re[i/2] = dft[i];

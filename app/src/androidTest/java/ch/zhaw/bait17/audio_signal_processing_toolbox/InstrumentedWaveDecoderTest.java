@@ -5,6 +5,9 @@ import android.support.test.InstrumentationRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -17,20 +20,27 @@ import static org.junit.Assert.*;
 public class InstrumentedWaveDecoderTest {
 
     // Context of the app under test.
-    private Context context = InstrumentationRegistry.getTargetContext();
-    private WaveDecoder decoder = null;
+    private static Context context = InstrumentationRegistry.getTargetContext();
+    private static List<InputStream> audioResources = new ArrayList<>();
+    private WaveDecoder decoder;
     private static final int LINEAR_PCM_ENCODING = AudioCodingFormat.LINEAR_PCM.getValue();
     private static final int CHANNELS = 1;
     private static final int SAMPLE_RATE = 48000;
     private static final int BITS_PER_SAMPLE = 16;
+
+    static {
+        audioResources.add(context.getResources().openRawResource(R.raw.sawtooth));
+        audioResources.add(context.getResources().openRawResource(R.raw.square));
+        audioResources.add(context.getResources().openRawResource(R.raw.sine));
+    }
 
     /**
      * Sets up test fixture.
      * Called before every test case method.
      */
     @Before
-    public void setUp() throws DecoderException{
-        decoder = new WaveDecoder(context.getResources().openRawResource(R.raw.square));
+    public void setUp() throws DecoderException {
+        decoder = new WaveDecoder(context.getResources().openRawResource(R.raw.sawtooth));
     }
 
     @Test
@@ -64,10 +74,13 @@ public class InstrumentedWaveDecoderTest {
     }
 
     @Test
-    public void testGetRawPCM() throws IOException {
-        byte[] pcm = decoder.getRawPCM();
-        assertNotNull(pcm);
-        assertTrue(pcm.length != 0);
+    public void testGetRawPCM() throws DecoderException, IOException {
+        for (InputStream in : audioResources) {
+            decoder = new WaveDecoder(in);
+            float[] pcm = decoder.getRawPCM();
+            assertNotNull(pcm);
+            assertTrue(pcm.length != 0);
+        }
     }
 
 }
