@@ -21,8 +21,11 @@ android:
     - extra-google-m2repository
     
   licenses:
-    - android-sdk-preview-license-52d11cd2
-    - android-sdk-license-c81a61d9
+    #- android-sdk-preview-license-52d11cd2
+    #- android-sdk-license-c81a61d9
+    #- android-sdk-license-.+
+    - android-sdk-preview-licence-504667f4c0de7af1a06de9f4b1727b84351f2910
+    - android-sdk-licence-8933bad161af4178b1185d1a37fbf41ea5269c55
     - android-sdk-license-.+
     - google-gdk-license-.+
 
