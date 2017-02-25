@@ -1,4 +1,4 @@
-package ch.zhaw.bait17.audio_signal_processing_toolbox;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -14,6 +14,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+
+import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.SpectrumVisualiser;
 
 /**
  * Created by georgrem, stockan1 on 15.02.2017.

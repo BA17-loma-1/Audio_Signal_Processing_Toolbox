@@ -6,7 +6,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:label="@string/title_activity_media_browser"
-    tools:context=".MediaBrowserActivity" >
+    tools:context=".ui.MediaBrowserActivity" >
 
     <ListView
         android:id="@+id/mediumType_list"

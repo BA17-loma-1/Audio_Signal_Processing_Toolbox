@@ -14,6 +14,9 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Song;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.ui.MediaListActivity;
+
 /**
  * Created by georgrem and stockan1 on 13.02.2017.
  */
@@ -49,7 +52,7 @@ public class MusicService extends Service implements
     }
 
     public class MusicBinder extends Binder {
-        MusicService getService() {
+        public MusicService getService() {
             return MusicService.this;
         }
     }

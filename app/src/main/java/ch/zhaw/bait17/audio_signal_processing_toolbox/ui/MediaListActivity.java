@@ -1,4 +1,4 @@
-package ch.zhaw.bait17.audio_signal_processing_toolbox;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
 import android.Manifest;
 import android.content.ComponentName;
@@ -29,6 +29,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.MusicController;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.MusicService;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.SongAdapter;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Song;
+
 public class MediaListActivity extends AppCompatActivity implements MediaPlayerControl {
 
     private static MediaPlayer mediaPlayer;
@@ -40,7 +46,7 @@ public class MediaListActivity extends AppCompatActivity implements MediaPlayerC
     private MusicController musicController;
     private boolean musicBound = false;
     private boolean paused = false, playbackPaused = false;
-    public final static String KEY_SONG = "ch.zhaw.bait17.audio_signal_processing_toolbox.SONG";
+    public final static String KEY_SONG =  "ch.zhaw.bait17.audio_signal_processing_toolbox.SONG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,26 +81,28 @@ public class MediaListActivity extends AppCompatActivity implements MediaPlayerC
         ListView listView = (ListView) findViewById(R.id.media_list);
         SongAdapter songAdapter = new SongAdapter(this, songs);
         listView.setAdapter(songAdapter);
+        setController();
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Song song = (Song) adapterView.getItemAtPosition(i);
+
+                /*
                 musicService.play(song);
                 if (playbackPaused) {
                     setController();
                     playbackPaused = false;
                 }
                 musicController.show();
-                /*
+                */
+
                 // create intent to an other activity
-                Intent intent = new Intent(MediaListActivity.this, VisualizationsActivity.class);
-                intent.putExtra(KEY_SONG, "TODO");  // write the data
+                Intent intent = new Intent(MediaListActivity.this, ChartEvaluationActivity.class);
+                intent.putExtra(KEY_SONG, song);  // write the data
                 startActivity(intent); // and start the activity
-                 */
             }
         });
-        setController();
     }
 
     private ArrayList<Song> getSongListFromRawFolder() {

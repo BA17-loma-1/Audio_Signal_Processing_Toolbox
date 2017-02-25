@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Song;
+
 public class SongAdapter extends BaseAdapter {
 
     private ArrayList<Song> songs;
