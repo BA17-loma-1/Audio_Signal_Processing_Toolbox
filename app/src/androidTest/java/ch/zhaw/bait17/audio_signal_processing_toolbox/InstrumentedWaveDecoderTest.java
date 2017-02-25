@@ -3,12 +3,13 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
+import java.util.Arrays;
+import java.util.Collection;
 import static org.junit.Assert.*;
 
 /**
@@ -17,21 +18,41 @@ import static org.junit.Assert.*;
  * Instrumented tests of the WaveDecoder class.
  * @see ch.zhaw.bait17.audio_signal_processing_toolbox.WaveDecoder
  */
+@RunWith(Parameterized.class)
 public class InstrumentedWaveDecoderTest {
 
     // Context of the app under test.
     private static Context context = InstrumentationRegistry.getTargetContext();
-    private static List<InputStream> audioResources = new ArrayList<>();
     private WaveDecoder decoder;
     private static final int LINEAR_PCM_ENCODING = AudioCodingFormat.LINEAR_PCM.getValue();
     private static final int CHANNELS = 1;
     private static final int SAMPLE_RATE = 48000;
     private static final int BITS_PER_SAMPLE = 16;
+    private int idResource;
 
-    static {
-        audioResources.add(context.getResources().openRawResource(R.raw.sawtooth));
-        audioResources.add(context.getResources().openRawResource(R.raw.square));
-        audioResources.add(context.getResources().openRawResource(R.raw.sine));
+    /**
+     * Constructor.
+     * The JUnit test runner will instantiate this class once for every element in the Collection
+     * returned by the method annotated with @Parameterized.Parameters.
+     * @param idResource
+     */
+    public InstrumentedWaveDecoderTest(int idResource) {
+        this.idResource = idResource;
+    }
+
+    /**
+     * Test data generator.
+     * This method is called by the JUnit parameterized test runner and returns a Collection of Integers.
+     * Each Integer in the Collection corresponds to a parameter in the constructor.
+     * @return A collection of resource id's
+     */
+    @Parameterized.Parameters
+    public static Collection<Integer> generatedData() {
+        return Arrays.asList(new Integer[]{
+                R.raw.sawtooth,
+                R.raw.square,
+                R.raw.sine
+        });
     }
 
     /**
@@ -40,7 +61,7 @@ public class InstrumentedWaveDecoderTest {
      */
     @Before
     public void setUp() throws DecoderException {
-        decoder = new WaveDecoder(context.getResources().openRawResource(R.raw.sawtooth));
+        decoder = new WaveDecoder(context.getResources().openRawResource(idResource));
     }
 
     @Test
@@ -69,18 +90,27 @@ public class InstrumentedWaveDecoderTest {
     }
 
     @Test
+    public void testBytesPerSample() {
+        assertTrue(decoder.getHeader().getBytesPerSample() > 0);
+    }
+
+    @Test
     public void testDataSizeNotNull() {
         assertNotEquals(0, decoder.getHeader().getDataSize());
     }
 
     @Test
     public void testGetRawPCM() throws DecoderException, IOException {
-        for (InputStream in : audioResources) {
-            decoder = new WaveDecoder(in);
-            float[] pcm = decoder.getRawPCM();
-            assertNotNull(pcm);
-            assertTrue(pcm.length != 0);
-        }
+        byte[] pcm = decoder.getRawPCM();
+        assertNotNull(pcm);
+        assertTrue(pcm.length != 0);
+    }
+
+    @Test
+    public void testGetFloat() throws DecoderException, IOException {
+        float[] values = decoder.getFloat();
+        assertNotNull(values);
+        assertTrue(values.length != 0);
     }
 
 }

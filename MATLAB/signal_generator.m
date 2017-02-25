@@ -12,7 +12,7 @@ t = 0:1/fs:T;
 f0 = 500;               % Fundamental frequency
 t0 = 1/f0;              % Signal period
 w = 2*pi*f0;            % Omega (angular frequency)
-A = 0.2;                % Amplitude
+A = 0.25;                % Amplitude
 
 % Generate signals
 x_sine = A * sin(w*t);

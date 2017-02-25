@@ -7,11 +7,16 @@ android {
 
     defaultConfig {
         applicationId "ch.zhaw.bait17.audio_signal_processing_toolbox"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testHandleProfiling true
+        testFunctionalTest true
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
     }
     buildTypes {
         release {
@@ -39,6 +44,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.github.wendykierp:JTransforms:3.1'
     compile 'org.achartengine:achartengine:1.2.0'
+    compile 'com.google.guava:guava:19.0'
 }
 
 // Static code analysis
@@ -50,11 +56,8 @@ task findbugs(type: FindBugs) {
     source = fileTree('src/main/java/')
     classpath = files()
     reports {
-        xml.enabled = true
+        xml.enabled = false
         html.enabled = true
-        xml {
-            destination "$project.buildDir/findbugs/findbugs-output.xml"
-        }
         html {
             destination "$project.buildDir/findbugs/findbugs-output.html"
         }

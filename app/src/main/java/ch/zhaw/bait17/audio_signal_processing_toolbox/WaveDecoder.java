@@ -1,11 +1,15 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
+import com.google.common.primitives.Floats;
 import java.io.DataInputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * * Created by georgrem, stockan1 on 16.02.2017.
@@ -38,6 +42,11 @@ import java.nio.ByteOrder;
  * Source: http://www.topherlee.com/software/pcm-tut-wavformat.html
  * @See https://github.com/BA17-loma-1/Audio_Signal_Processing_Toolbox/wiki/Technical-documentation#wave-file-header-format-specification
  *
+ * The raw PCM bytes are converted to floating point numbers in the range [-1,1].
+ * 16 bit audio is usually signed, therefore the range of 16 bit integers is -32768 to 32767.
+ *
+ * Source: http://stackoverflow.com/questions/15087668/how-to-convert-pcm-samples-in-byte-array-as-floating-point-numbers-in-the-range#15094612
+ *
  * Credits: http://mindtherobot.com/blog/580/android-audio-play-a-wav-file-on-an-audiotrack/
  */
 public class WaveDecoder {
@@ -45,14 +54,14 @@ public class WaveDecoder {
     private static final int RIFF_HEADER = 0x46464952;          // "RIFF"   (little endian)
     private static final int WAVE_HEADER = 0x45564157;          // "WAVE"
     private static final int DATA_HEADER = 0x61746164;          // "data"
-    private static final int MAX_HEADER_SIZE = 4096;
+    private static final int MAX_HEADER_SIZE = 4096;            // The wave file header should not exceed 4KB.
     private static final int LINEAR_PCM_ENCODING = AudioCodingFormat.LINEAR_PCM.getValue();
     private static final int MIN_SUPPORTED_SAMPLE_RATE = 8000;
-    private static final int MAX_SUPPORTED_SAMPLE_RATE = 96000;
+    private static final int MAX_SUPPORTED_SAMPLE_RATE = 48000;
     private static final int MAX_BITS_PER_SAMPLE = 16;
     private int dataOffset = 0;
     private WaveHeaderInfo header;
-    private float[] pcmData = new float[0];
+    private byte[] pcmData = new byte[0];
 
     /**
      * @param input The InputStream to read from.
@@ -73,7 +82,9 @@ public class WaveDecoder {
      * @throws DecoderException
      */
     private void readStream(InputStream input) throws DecoderException {
-        // The wave file header should not exceed 4KB.
+        if (input == null) {
+            throw new DecoderException("InputStream cannot be null.");
+        }
         ByteBuffer buffer = ByteBuffer.allocate(MAX_HEADER_SIZE);
         buffer.limit(buffer.capacity());
         buffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -104,6 +115,9 @@ public class WaveDecoder {
                     throw new DecoderException("Unsupported sample rate.");
                 }
 
+                // Read two at position 32 to get the block alignment (number of bytes per sample for all channels)
+                int bytesPerSample = buffer.getInt(32);
+
                 // Read two bytes and check if bits per sample is supported.
                 int bitsPerSample = buffer.getShort(34);
                 if (bitsPerSample <= 0 || bitsPerSample > MAX_BITS_PER_SAMPLE) {
@@ -127,26 +141,16 @@ public class WaveDecoder {
                     throw new DecoderException("Could not determine audio data size.");
                 }
 
-                header = new WaveHeaderInfo(encodingFormat, channels, sampleRate, bitsPerSample, dataSize);
-
-                // Don't close the stream just yet...
+                header = new WaveHeaderInfo(encodingFormat, channels, sampleRate, bitsPerSample,
+                        bytesPerSample, dataSize);
 
                 if (dataOffset > 0) {
-                    // float size = byte size / 4 + 1
-                    pcmData = new float[(header.getDataSize()/4) + 1];
-                    // Skip over the header
+                    pcmData = new byte[header.getDataSize()];
                     waveStream.reset();
-
-                    try {
-                        if (waveStream.skip(dataOffset) == dataOffset) {
-                            float data = 0;
-                            int i = 0;
-                            while (waveStream.available() > 0) {
-                                // Read the next four bytes of data and convert it to float
-                                pcmData[i++] = waveStream.readFloat();
-                            }
-                        }
-                    } catch (EOFException e) { }
+                    // Skip over the header
+                    if (waveStream.skip(dataOffset) == dataOffset) {
+                        waveStream.read(pcmData, 0, pcmData.length);
+                    }
                 }
                 waveStream.close();
             }
@@ -157,14 +161,58 @@ public class WaveDecoder {
 
     /**
      * Returns the raw audio data in PCM format.
-     * In case of a decoder problem, this method will return an empty float array.
-     * @return A float array containing the PCM audio data.
+     * Byte order is little endian.
+     * In case of a decoder problem, this method will return an empty byte array.
+     * @return A byte array containing the PCM audio data.
      * @throws IOException
      */
-    public float[] getRawPCM() throws IOException {
-        float[] pcm = new float[pcmData.length];
+    public byte[] getRawPCM() throws IOException {
+        byte[] pcm = new byte[pcmData.length];
         System.arraycopy(pcmData, 0, pcm, 0, pcmData.length);
         return pcm;
+    }
+
+    /**
+     * Returns the raw audio data as a float array.
+     * The float values lie in the range [-1,1].
+     * In case of a decoder problem, this method will return an empty float array.
+     * @return A float array containing the audio data.
+     */
+    public float[] getFloat() {
+        /*
+          8-bit samples are stored as unsigned bytes, ranging from 0 to 255.
+          16-bit samples are stored as 2's-complement signed integers, ranging from -32768 to 32767.
+          If for some reason we are using >16 bit integers, we need additional bounding to make sure
+          that the float values lie in the range [-1,1].
+
+          !! Caution !!
+          For some reason, WAV files don't support signed 8-bit format, so when reading and writing
+          WAV files, be aware that 8-bits means unsigned.
+          Source: http://blog.bjornroche.com/2013/05/the-abcs-of-pcm-uncompressed-digital.html
+
+          Java primitive data types and their min/max values
+          See: Oracle Java documentation: http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html
+         */
+        ByteBuffer buffer = ByteBuffer.allocate(pcmData.length).put(pcmData);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        buffer.rewind();
+        List<Float> samples = new ArrayList<>();
+        try {
+            if (header.getBitsPerSample() == 16) {
+                // Read two bytes (short) of PCM data at a time
+                while (true) {
+                    samples.add(PCMUtil.shortByte2Float(buffer.getShort()));
+                }
+            } else {
+                // Read one byte of PCM data at a time
+                while (true) {
+                    samples.add(PCMUtil.byte2Float(buffer.get()));
+                }
+            }
+        } catch (BufferUnderflowException e) {
+
+        }
+        return Floats.toArray(Arrays.asList(samples.toArray(new Float[samples.size()])));
     }
 
     /**
