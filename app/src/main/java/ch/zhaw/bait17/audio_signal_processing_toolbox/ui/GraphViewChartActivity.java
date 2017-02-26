@@ -33,8 +33,8 @@ public class GraphViewChartActivity extends AppCompatActivity {
     float[] audioSamples;
     private AudioStream audioStream;
     private int currentPosition;
-    private static final int ACTIVITY_SLEEP_TIME = 50;
-    private static final int THREAD_SLEEP_TIME = 50;
+    private static final int ACTIVITY_SLEEP_TIME = 10;
+    private static final int THREAD_SLEEP_TIME = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,16 +80,16 @@ public class GraphViewChartActivity extends AppCompatActivity {
         graph.addSeries(graphSeries);
 
         graphSeries.setDrawDataPoints(false);
-        graphSeries.setThickness(1);
+        graphSeries.setThickness(3);
         StaticLabelsFormatter formatter = new StaticLabelsFormatter(graph);
         formatter.setHorizontalLabels(new String[]{"",""});
         formatter.setVerticalLabels(new String[]{"",""});
         graph.getGridLabelRenderer().setLabelFormatter(formatter);
 
         graph.getViewport().setMinX(0);
-        graph.getViewport().setMaxX(10);
+        graph.getViewport().setMaxX(20);
 
-        graph.getGridLabelRenderer().setLabelVerticalWidth(100);
+        //graph.getGridLabelRenderer().setLabelVerticalWidth(100);
     }
 
     @Override
@@ -114,7 +114,7 @@ public class GraphViewChartActivity extends AppCompatActivity {
     @NonNull
     private DataPoint[] getCurrentYValues() {
         float[] samples = Arrays.copyOfRange(audioSamples, currentPosition,
-                currentPosition + (audioStream.getSampleRate()) / THREAD_SLEEP_TIME);
+                currentPosition + 20);
         DataPoint[] values = new DataPoint[samples.length];
         for (int i = 0; i < samples.length; i++) {
             values[i] = new DataPoint(i ,samples[i]);

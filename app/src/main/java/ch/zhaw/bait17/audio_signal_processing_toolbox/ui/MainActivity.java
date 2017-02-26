@@ -21,7 +21,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.SpectrumVisualiser;
 /**
  * Created by georgrem, stockan1 on 15.02.2017.
  */
-public class VisualizationsActivity extends Activity {
+public class MainActivity extends Activity {
 
     private static GraphicalView view;
     private SpectrumVisualiser spectrumVisualiser = new SpectrumVisualiser();

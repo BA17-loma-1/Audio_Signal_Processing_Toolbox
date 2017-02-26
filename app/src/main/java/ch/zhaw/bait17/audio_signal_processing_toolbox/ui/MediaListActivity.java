@@ -23,6 +23,8 @@ import android.widget.ListView;
 import android.widget.MediaController.MediaPlayerControl;
 import android.widget.Toast;
 
+import org.achartengine.GraphicalView;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -98,7 +100,7 @@ public class MediaListActivity extends AppCompatActivity implements MediaPlayerC
                 */
 
                 // create intent to an other activity
-                Intent intent = new Intent(MediaListActivity.this, GraphViewChartActivity.class);
+                Intent intent = new Intent(MediaListActivity.this, VisualisationActivity.class);
                 intent.putExtra(KEY_SONG, song);  // write the data
                 startActivity(intent); // and start the activity
             }

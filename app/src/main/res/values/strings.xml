@@ -1,7 +1,8 @@
 <resources>
-    <string name="app_name">Audio Filter</string>
+    <string name="app_name">Audio Signal Processing Toolbox</string>
     <string name="play_button">Play</string>
     <string name="stop_button">Stop</string>
     <string name="title_activity_media_browser">Media Browser</string>
     <string name="title_activity_media_list">Media List</string>
+    <string name="library_name">Waveform</string>
 </resources>

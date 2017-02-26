@@ -18,7 +18,6 @@ public class AudioStream {
     private Thread thread;
     private int channelOut;
     private int encoding;
-    private boolean continuePlayback = false;
     private AudioTrack audioTrack;
 
     public AudioStream(WaveHeaderInfo header, float[] samples, PlaybackListener listener)
@@ -73,16 +72,15 @@ public class AudioStream {
      */
     public void start() {
         // already playing...?
-        if (thread == null) {
-            continuePlayback = true;
-            thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    play();
-                }
-            });
-            thread.start();
-        }
+        if (thread != null) return;
+
+        thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                play();
+            }
+        });
+        thread.start();
     }
 
     /**
@@ -90,7 +88,6 @@ public class AudioStream {
      */
     public void stop() {
         if (thread != null) {
-            continuePlayback = false;
             thread = null;
         }
     }
@@ -131,6 +128,7 @@ public class AudioStream {
             }
             System.arraycopy(samples, totalSamplesWritten, buffer, 0, buffer.length);
             int samplesWritten = audioTrack.write(buffer, 0, buffer.length, AudioTrack.WRITE_NON_BLOCKING);
+
             if (samplesWritten <= 0) {
                 // Some error happened with AudioTrack.
                 stop();
@@ -138,10 +136,8 @@ public class AudioStream {
             totalSamplesWritten += samplesWritten;
         }
 
-        // Release the audio device
-        if (!continuePlayback) {
-            audioTrack.release();
-        }
+        audioTrack.stop();
+        audioTrack.release();
     }
 
     /**

@@ -46,6 +46,7 @@ dependencies {
     compile 'org.achartengine:achartengine:1.2.0'
     compile 'com.google.guava:guava:19.0'
     compile 'com.jjoe64:graphview:4.2.1'
+    compile 'com.android.support:design:23.1.1'
 }
 
 // Static code analysis
