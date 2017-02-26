@@ -19,6 +19,7 @@ public class AudioStream {
     private int channelOut;
     private int encoding;
     private boolean continuePlayback = false;
+    private AudioTrack audioTrack;
 
     public AudioStream(WaveHeaderInfo header, float[] samples, PlaybackListener listener)
             throws DecoderException {
@@ -96,7 +97,7 @@ public class AudioStream {
 
     private void play() {
         int bufferSize = getMinBufferSize();
-        AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, header.getSampleRate(),
+        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, header.getSampleRate(),
                 channelOut, encoding, bufferSize, AudioTrack.MODE_STREAM);
 
         audioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
@@ -156,6 +157,11 @@ public class AudioStream {
             bufferSize = samples.length;
         }
         return bufferSize;
+    }
+
+    public int getSampleRate() {
+        if (audioTrack == null) return header.getSampleRate();
+        else return audioTrack.getSampleRate();
     }
 
 }

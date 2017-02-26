@@ -1,33 +1,40 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Random;
+import java.util.Arrays;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.AudioStream;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.DecoderException;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.PlaybackListener;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.WaveDecoder;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Song;
 
 public class GraphViewChartActivity extends AppCompatActivity {
 
-    private final Handler mHandler = new Handler();
-    private Runnable mTimer;
+    private final Handler handler = new Handler();
+    private Runnable timer;
     private double graphLastXValue = 5d;
-    private LineGraphSeries<DataPoint> mSeries;
+    private LineGraphSeries<DataPoint> graphSeries;
     private Song song;
     private WaveDecoder decoder;
-    byte[] pcmData;
+    float[] audioSamples;
+    private AudioStream audioStream;
+    private int currentPosition;
+    private static final int ACTIVITY_SLEEP_TIME = 50;
+    private static final int THREAD_SLEEP_TIME = 50;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,53 +47,78 @@ public class GraphViewChartActivity extends AppCompatActivity {
         try {
             InputStream is = getContentResolver().openInputStream(song.getUri());
             decoder = new WaveDecoder(is);
-            pcmData = decoder.getRawPCM();
+            audioSamples = decoder.getFloat();
         } catch (DecoderException | IOException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
         GraphView graph = (GraphView) findViewById(R.id.graph);
         initGraph(graph);
+
+        try {
+            audioStream = new AudioStream(decoder.getHeader(), decoder.getFloat(), new PlaybackListener() {
+                @Override
+                public void onProgress(int progress) {
+                    currentPosition = progress;
+                }
+                @Override
+                public void onCompletion() {
+                    currentPosition = audioSamples.length;
+                }
+            });
+            audioStream.start();
+        } catch (DecoderException e) {
+            e.printStackTrace();
+        }
     }
 
     public void initGraph(GraphView graph) {
-        graph.getViewport().setXAxisBoundsManual(true);
+        // first graphSeries is a line
+        graphSeries = new LineGraphSeries<>();
+        graphSeries.setDrawDataPoints(true);
+        graphSeries.setDrawBackground(false);
+        graph.addSeries(graphSeries);
+
+        graphSeries.setDrawDataPoints(false);
+        graphSeries.setThickness(1);
+        StaticLabelsFormatter formatter = new StaticLabelsFormatter(graph);
+        formatter.setHorizontalLabels(new String[]{"",""});
+        formatter.setVerticalLabels(new String[]{"",""});
+        graph.getGridLabelRenderer().setLabelFormatter(formatter);
+
         graph.getViewport().setMinX(0);
-        graph.getViewport().setMaxX(4);
+        graph.getViewport().setMaxX(10);
 
         graph.getGridLabelRenderer().setLabelVerticalWidth(100);
-
-        // first mSeries is a line
-        mSeries = new LineGraphSeries<>();
-        mSeries.setDrawDataPoints(true);
-        mSeries.setDrawBackground(true);
-        graph.addSeries(mSeries);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mTimer = new Runnable() {
+        timer = new Runnable() {
             @Override
             public void run() {
-                graphLastXValue += 0.1d;
-                mSeries.appendData(new DataPoint(graphLastXValue, getCurrentYValue()), true, 50);
-                mHandler.postDelayed(this, 330);
+                graphSeries.resetData(getCurrentYValues());
+                handler.postDelayed(this, ACTIVITY_SLEEP_TIME);
             }
         };
-        mHandler.postDelayed(mTimer, 1500);
+        handler.postDelayed(timer, THREAD_SLEEP_TIME);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mHandler.removeCallbacks(mTimer);
+        handler.removeCallbacks(timer);
     }
 
-    double mLastYValue = 0;
-    int i = 0;
-
-    private double getCurrentYValue() {
-        return mLastYValue += pcmData[i++];
+    @NonNull
+    private DataPoint[] getCurrentYValues() {
+        float[] samples = Arrays.copyOfRange(audioSamples, currentPosition,
+                currentPosition + (audioStream.getSampleRate()) / THREAD_SLEEP_TIME);
+        DataPoint[] values = new DataPoint[samples.length];
+        for (int i = 0; i < samples.length; i++) {
+            values[i] = new DataPoint(i ,samples[i]);
+        }
+        return values;
     }
 }
