@@ -26,8 +26,10 @@
         <activity android:name=".ui.MediaListActivity" />
 
         <service android:name=".MusicService" />
-        <!--         <activity android:name=".VisualizationsActivity" /> -->
-        <activity android:name=".ui.ChartEvaluationActivity"></activity>
+        <!-- <activity android:name=".VisualizationsActivity" /> -->
+        <activity android:name=".ui.ChartEvaluationActivity" />
+        <activity android:name=".ui.AchartengineChartActivity" />
+        <activity android:name=".ui.GraphViewChartActivity"></activity>
     </application>
 
 </manifest>

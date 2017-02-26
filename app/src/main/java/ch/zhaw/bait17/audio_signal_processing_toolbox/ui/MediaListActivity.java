@@ -98,7 +98,7 @@ public class MediaListActivity extends AppCompatActivity implements MediaPlayerC
                 */
 
                 // create intent to an other activity
-                Intent intent = new Intent(MediaListActivity.this, ChartEvaluationActivity.class);
+                Intent intent = new Intent(MediaListActivity.this, GraphViewChartActivity.class);
                 intent.putExtra(KEY_SONG, song);  // write the data
                 startActivity(intent); // and start the activity
             }

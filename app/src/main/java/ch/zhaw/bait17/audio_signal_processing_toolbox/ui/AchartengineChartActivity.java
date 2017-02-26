@@ -2,13 +2,8 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
@@ -26,7 +21,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.WaveDecoder;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Song;
 
-public class ChartEvaluationActivity extends AppCompatActivity {
+public class AchartengineChartActivity extends AppCompatActivity {
 
     private GraphicalView mChart;
     private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
@@ -39,7 +34,7 @@ public class ChartEvaluationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chart_evaluation);
+        setContentView(R.layout.activity_achartengine_chart);
 
         Bundle bundle = getIntent().getExtras();
         song = bundle.getParcelable(MediaListActivity.KEY_SONG);
@@ -50,7 +45,6 @@ public class ChartEvaluationActivity extends AppCompatActivity {
         } catch (FileNotFoundException | DecoderException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
-
     }
 
     @Override
@@ -66,16 +60,6 @@ public class ChartEvaluationActivity extends AppCompatActivity {
         } else {
             mChart.repaint();
         }
-
-        GraphView graph = (GraphView) findViewById(R.id.graph);
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[] {
-                new DataPoint(0, 1),
-                new DataPoint(1, 5),
-                new DataPoint(2, 3),
-                new DataPoint(3, 2),
-                new DataPoint(4, 6)
-        });
-        graph.addSeries(series);
     }
 
     private void initChart() {
@@ -96,4 +80,5 @@ public class ChartEvaluationActivity extends AppCompatActivity {
             mCurrentSeries.add(i, data[i]);
         }
     }
+
 }
