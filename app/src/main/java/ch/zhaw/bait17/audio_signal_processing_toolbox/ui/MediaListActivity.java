@@ -107,7 +107,6 @@ public class MediaListActivity extends AppCompatActivity {
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
-        String hasAudio = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO);
         title = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
         artist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
         album = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
@@ -115,7 +114,7 @@ public class MediaListActivity extends AppCompatActivity {
         title = title == null ? "Unknown title" : title;
         artist = artist == null ? "Unknown artist" : artist;
         album = album == null ? "Unknown album" : album;
-        return hasAudio == null ? null : new Song(title, artist, album, duration, soundUri);
+        return new Song(title, artist, album, duration, soundUri);
     }
 
     private ArrayList<Song> getSongListFromDevice() {
