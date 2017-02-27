@@ -25,7 +25,6 @@
         </activity>
         <activity android:name=".ui.MediaListActivity" />
 
-        <service android:name=".MusicService" />
         <activity android:name=".ui.VisualisationActivity" />
         <activity android:name=".ui.GraphViewChartActivity"></activity>
     </application>

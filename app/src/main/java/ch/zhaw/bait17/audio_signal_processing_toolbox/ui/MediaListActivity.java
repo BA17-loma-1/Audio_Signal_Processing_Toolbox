@@ -1,31 +1,24 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
 import android.Manifest;
-import android.content.ComponentName;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.IBinder;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.MediaController.MediaPlayerControl;
 import android.widget.Toast;
-
-import org.achartengine.GraphicalView;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -33,23 +26,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.MusicController;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.MusicService;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.SongAdapter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Song;
 
-public class MediaListActivity extends AppCompatActivity implements MediaPlayerControl {
+public class MediaListActivity extends AppCompatActivity {
 
-    private static MediaPlayer mediaPlayer;
     private ArrayList<Song> songs;
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
     private boolean permissionIsGranted = false;
-    private MusicService musicService;
-    private Intent playIntent;
-    private MusicController musicController;
-    private boolean musicBound = false;
-    private boolean paused = false, playbackPaused = false;
     public final static String KEY_SONG = "ch.zhaw.bait17.audio_signal_processing_toolbox.SONG";
 
     @Override
@@ -57,11 +42,8 @@ public class MediaListActivity extends AppCompatActivity implements MediaPlayerC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_list);
 
-        mediaPlayer = new MediaPlayer();
         songs = new ArrayList<>();
-
-        Intent intent = getIntent();
-        String mediumType = intent.getStringExtra(MediaBrowserActivity.KEY_MEDIUMTYPE);
+        String mediumType = getIntent().getStringExtra(MediaBrowserActivity.KEY_MEDIUMTYPE);
         switch (mediumType) {
             case MediaBrowserActivity.SAMPLE:
                 songs = getSongListFromRawFolder();
@@ -85,22 +67,11 @@ public class MediaListActivity extends AppCompatActivity implements MediaPlayerC
         ListView listView = (ListView) findViewById(R.id.media_list);
         SongAdapter songAdapter = new SongAdapter(this, songs);
         listView.setAdapter(songAdapter);
-        setController();
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Song song = (Song) adapterView.getItemAtPosition(i);
-
-                /*
-                musicService.play(song);
-                if (playbackPaused) {
-                    setController();
-                    playbackPaused = false;
-                }
-                musicController.show();
-                */
-
                 // create intent to an other activity
                 Intent intent = new Intent(MediaListActivity.this, VisualisationActivity.class);
                 intent.putExtra(KEY_SONG, song);  // write the data
@@ -203,158 +174,4 @@ public class MediaListActivity extends AppCompatActivity implements MediaPlayerC
         }
     }
 
-
-    // connect to the service
-    private ServiceConnection musicConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            MusicService.MusicBinder binder = (MusicService.MusicBinder) service;
-            musicService = binder.getService();
-            musicService.setList(songs);
-            musicBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            musicBound = false;
-        }
-    };
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (playIntent == null) {
-            playIntent = new Intent(this, MusicService.class);
-            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-            startService(playIntent);
-        }
-    }
-
-    @Override
-    public boolean canPause() {
-        return true;
-    }
-
-    @Override
-    public boolean canSeekBackward() {
-        return true;
-    }
-
-    @Override
-    public boolean canSeekForward() {
-        return true;
-    }
-
-    @Override
-    public int getAudioSessionId() {
-        return 0;
-    }
-
-    @Override
-    public int getBufferPercentage() {
-        return 0;
-    }
-
-    @Override
-    public int getCurrentPosition() {
-        if (musicService != null && musicBound && musicService.isPlaying())
-            return musicService.getCurrentPosition();
-        else return 0;
-    }
-
-    @Override
-    public int getDuration() {
-        if (musicService != null && musicBound && musicService.isPlaying())
-            return musicService.getDuration();
-        else return 0;
-    }
-
-    @Override
-    public boolean isPlaying() {
-        if (musicService != null && musicBound)
-            return musicService.isPlaying();
-        return false;
-    }
-
-    @Override
-    public void pause() {
-        playbackPaused = true;
-        musicService.pause();
-    }
-
-    @Override
-    public void seekTo(int pos) {
-        musicService.seekTo(pos);
-    }
-
-    @Override
-    public void start() {
-        musicService.start();
-    }
-
-    private void setController() {
-        musicController = new MusicController(this);
-        musicController.setPrevNextListeners(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playNext();
-            }
-        }, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playPrev();
-            }
-        });
-        //set and show
-        musicController.setMediaPlayer(this);
-        musicController.setAnchorView(findViewById(R.id.media_list));
-        musicController.setEnabled(true);
-    }
-
-    private void playNext() {
-        musicService.playNext();
-        if (playbackPaused) {
-            setController();
-            playbackPaused = false;
-        }
-        musicController.show(0);
-    }
-
-    private void playPrev() {
-        musicService.playPrev();
-        if (playbackPaused) {
-            setController();
-            playbackPaused = false;
-        }
-        musicController.show();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        paused = true;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (paused) {
-            setController();
-            paused = false;
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        musicController.hide();
-        super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        stopService(playIntent);
-        musicService = null;
-        super.onDestroy();
-    }
 }
