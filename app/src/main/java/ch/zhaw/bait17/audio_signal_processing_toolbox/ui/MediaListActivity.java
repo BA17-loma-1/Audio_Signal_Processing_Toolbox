@@ -17,6 +17,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -48,7 +50,7 @@ public class MediaListActivity extends AppCompatActivity implements MediaPlayerC
     private MusicController musicController;
     private boolean musicBound = false;
     private boolean paused = false, playbackPaused = false;
-    public final static String KEY_SONG =  "ch.zhaw.bait17.audio_signal_processing_toolbox.SONG";
+    public final static String KEY_SONG = "ch.zhaw.bait17.audio_signal_processing_toolbox.SONG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,14 +110,19 @@ public class MediaListActivity extends AppCompatActivity implements MediaPlayerC
     }
 
     private ArrayList<Song> getSongListFromRawFolder() {
-        Song song = null;
         Field[] fields = R.raw.class.getFields();
         for (Field field : fields) {
-            int resId = getResources().getIdentifier(field.getName(), "raw", getPackageName());
-            if (resId != 0) {
-                song = getSong(resId);
+            int rawId = getResources().getIdentifier(field.getName(), "raw", getPackageName());
+            if (rawId != 0) {
+                TypedValue value = new TypedValue();
+                getResources().getValue(rawId, value, true);
+                String[] s = value.string.toString().split("/");
+                String filename = s[s.length - 1];
+                if (filename.endsWith(".wav") || filename.endsWith(".mp3")) {
+                    Log.i("filename", s[s.length - 1]);
+                    songs.add(getSong(rawId));
+                }
             }
-            if (song != null) songs.add(song);
         }
         return songs;
     }
