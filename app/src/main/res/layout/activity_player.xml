@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"><!--
     tools:context=".MusicPlayerActivity"
+    TODO
     -->
 
     <RelativeLayout
@@ -33,7 +34,7 @@
 
             <fragment
                 android:id="@+id/fragment_playback_controls"
-                android:name="com.example.android.uamp.ui.PlaybackControlsFragment"
+                android:name="ch.zhaw.bait17.audio_signal_processing_toolbox.ui.PlaybackControlsFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
