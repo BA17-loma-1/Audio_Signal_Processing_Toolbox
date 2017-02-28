@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class SongAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.media_list_item, parent, false);
+        RelativeLayout layout = (RelativeLayout) inflater.inflate(R.layout.media_list_item, parent, false);
         TextView songView = (TextView) layout.findViewById(R.id.song_title);
         TextView artistView = (TextView) layout.findViewById(R.id.song_artist);
         Song song = songs.get(position);
