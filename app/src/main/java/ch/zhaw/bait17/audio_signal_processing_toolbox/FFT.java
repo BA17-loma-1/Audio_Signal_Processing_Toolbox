@@ -1,5 +1,6 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
+import org.apache.commons.math3.stat.descriptive.WeightedEvaluation;
 import org.jtransforms.fft.FloatFFT_1D;
 import android.util.Log;
 
@@ -11,82 +12,105 @@ import android.util.Log;
  */
 public class FFT {
 
+    private static final int MIN_WINDOW_SIZE = 1024;
+    private static final WindowType DEFAULT_WINDOW_TYPE = WindowType.HAMMING;
     private static final String TAG = FFT.class.getSimpleName();
     private Window win;
+    private int windowSize;
 
+    /**
+     * Creates an instance of FFT with a Hamming window.
+     */
     public FFT() {
-        win = new Window(WindowType.HAMMING);
+        win = new Window(DEFAULT_WINDOW_TYPE);
     }
 
+    /**
+     * Creates an instance of FFT.
+     * @throws IllegalArgumentException
+     * @param type The window type used to weight the samples.
+     */
     public FFT(WindowType type) {
+        if (type == null)
+            throw new IllegalArgumentException("Invalid window type.");
+        this.windowSize = windowSize;
         win = new Window(type);
     }
 
     /**
      * <p>
-     *     Calculates the spectrum for a given array of input signal data.
-     *     This method assumes that the sample data is real.
+     *     Computes the FFT of real input data.
      *     Sample input data is filtered with the specified window.
      *     Returns only first half of DFT spectrum, second half is ignored because of symmetry.
+     *     Samples are automatically zero-padded if sample size doesn't meet minimum required
+     *     FFT window size of {@value #MIN_WINDOW_SIZE} samples.
      * </p>
      *
-     * @param samples the data to transform
-     * @return weightedSamples, the transformed sample data
+     * @param samples The data to transform.
+     * @return The transformed data as a float array.
      */
     public float[] getForwardTransform(float[] samples) {
-        // Apply window to sample input data
-        float[] windowCoefficients = win.getWindow(samples.length);
-        float[] weightedSamples = applyWindowToSamples(samples, windowCoefficients);
-        int N = weightedSamples.length;
-        FloatFFT_1D fft = new FloatFFT_1D(N);
+        float[] weightedSamples = applyWindowToSamples(samples);
+        // Zero-padding if necessary
+        if (weightedSamples.length < MIN_WINDOW_SIZE) {
+            weightedSamples = addZeroPadding(samples, MIN_WINDOW_SIZE - weightedSamples.length);
+        }
+        FloatFFT_1D fft = new FloatFFT_1D(weightedSamples.length);
         fft.realForward(weightedSamples);
         return weightedSamples;
     }
 
     /**
      * <p>
-     *     Calculates the spectrum for a given array of input signal data.
-     *     This method assumes that the sample data is real.
+     *     Computes the FFT of real input data.
      *     Sample input data is filtered with the specified window.
      *     Returns the full DFT spectrum.
+     *     Samples are automatically zero-padded if sample size doesn't meet minimum required
+     *     FFT window size of {@value #MIN_WINDOW_SIZE} samples.
      * </p>
      *
      * @param samples
-     * @return zeroPaddedSamples, the transformed data as a float array
+     * @return The transformed data as a float array.
      */
     public float[] getForwardTransformFull(float[] samples) {
-        // Apply window to sample input data
-        float[] windowCoefficients = win.getWindow(samples.length);
-        float[] weightedSamples = applyWindowToSamples(samples, windowCoefficients);
-        // Pad with zeros
-        float[] zeroPaddedSamples = addZeroPadding(weightedSamples, weightedSamples.length);
+        float[] weightedSamples = applyWindowToSamples(samples);
+        //(weightedSamples.length < MIN_WINDOW_SIZE)
+        int paddingLength = weightedSamples.length;
+        if (2 * paddingLength < MIN_WINDOW_SIZE) {
+            paddingLength += MIN_WINDOW_SIZE - paddingLength;
+        }
+        float[] zeroPaddedSamples = addZeroPadding(weightedSamples, paddingLength);
         int N = zeroPaddedSamples.length/2;
         FloatFFT_1D fft = new FloatFFT_1D(N);
         fft.realForwardFull(zeroPaddedSamples);
         return zeroPaddedSamples;
     }
 
-
     /**
-     *
-     * @param spectrum
-     * @param samplingFrequency
-     * @return
+     * <p>
+     *     Computes the inverse FFT of real input data and returns the result in a float array.
+     * </p>
+     * @param spectrum An array containing the data to transform.
+     * @param scale If true scaling is performed.
+     * @return The transformed data as a float array.
      */
-    public float[] backwardTransform(float[] spectrum, int samplingFrequency) {
-        float[] samples = new float[spectrum.length];
-
-
-        return samples;
+    public float[] getBackwardTransform(float[] spectrum, boolean scale) {
+        FloatFFT_1D ifft = new FloatFFT_1D(spectrum.length);
+        ifft.complexInverse(spectrum, scale);
+        return spectrum;
     }
 
     /**
      * Adds zero padding of specified length to samples.
+     * @throws IllegalArgumentException
      * @param samples The samples input.
      * @param paddingLength The padding length.
      * @return Zero padded samples as a float array.
      */
-    public float[] addZeroPadding(float[] samples, int paddingLength) {
+    private float[] addZeroPadding(float[] samples, int paddingLength) {
+        if (paddingLength < 0) {
+            throw new IllegalArgumentException(String.format("Invalid padding length (%d).", paddingLength));
+        }
         float[] zeroPaddedSamples = new float[samples.length + paddingLength];
         System.arraycopy(samples, 0, zeroPaddedSamples, 0, samples.length);
         return zeroPaddedSamples;
@@ -101,25 +125,14 @@ public class FFT {
     }
 
     /**
-     *
-     * @param type The type of window to be used in this instance of FFT.
-     */
-    public void setWindowType(WindowType type) {
-        win = new Window(type);
-    }
-
-    /**
-     * Applies a window function to the sample data.
+     * Applies the window function to the sample data.
      * @param samples Input sample data.
-     * @return Filtered sample data.
+     * @return The filtered sample data.
      */
-    private float[] applyWindowToSamples(float[] samples, float[] window) {
-        if (samples.length != window.length) {
-            Log.e(TAG, "Sample and window length do not match.");
-        } else {
-            for (int i = 0; i < samples.length; i++) {
-                samples[i] = samples[i] * window[i];
-            }
+    private float[] applyWindowToSamples(float[] samples) {
+        float[] window = win.getWindow(samples.length);
+        for (int i = 0; i < samples.length; i++) {
+            samples[i] = samples[i] * window[i];
         }
         return samples;
     }

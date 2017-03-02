@@ -1,6 +1,7 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
 /**
+ * Window types.
  * Created by georgrem, stockan1 on 18.02.2017.
  */
 

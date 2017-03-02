@@ -2,47 +2,31 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Picture;
 import android.graphics.Rect;
-import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
-import java.util.Arrays;
-import java.util.LinkedList;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 
 /**
  * TODO: document your custom view class.
  */
 public class WaveformView extends View {
-    public static final int MODE_RECORDING = 1;
-    public static final int MODE_PLAYBACK = 2;
-
-    private static final int HISTORY_SIZE = 6;
-
-    private TextPaint mTextPaint;
-    private Paint mStrokePaint, mFillPaint, mMarkerPaint;
+    private TextPaint textPaint;
+    private Paint strokePaint, fillPaint, markerPaint;
 
     // Used in draw
-    private int brightness;
     private Rect drawRect;
 
     private int width, height;
     private float xStep, centerY;
-    private int mMode, mAudioLength, mMarkerPosition, mSampleRate, mChannels;
+    private int mAudioLength, sampleRate, channels;
     private float[] samples;
-    private LinkedList<float[]> mHistoricalData;
-    private Picture mCachedWaveform;
-    private Bitmap mCachedWaveformBitmap;
-    private int colorDelta = 255 / (HISTORY_SIZE + 1);
-    private boolean showTextAxis = true;
+    private float[] waveformPoints;
 
     public WaveformView(Context context) {
         super(context);
@@ -64,10 +48,8 @@ public class WaveformView extends View {
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.WaveformView, defStyle, 0);
 
-        mMode = a.getInt(R.styleable.WaveformView_mode, MODE_PLAYBACK);
-
-        float strokeThickness = a.getFloat(R.styleable.WaveformView_waveformStrokeThickness, 1f);
-        int mStrokeColor = a.getColor(R.styleable.WaveformView_waveformColor,
+        float strokeThickness = a.getFloat(R.styleable.WaveformView_waveformStrokeThickness, 2f);
+        int strokeColor = a.getColor(R.styleable.WaveformView_waveformColor,
                 ContextCompat.getColor(context, R.color.default_waveform));
         int mFillColor = a.getColor(R.styleable.WaveformView_waveformFillColor,
                 ContextCompat.getColor(context, R.color.default_waveformFill));
@@ -78,29 +60,28 @@ public class WaveformView extends View {
 
         a.recycle();
 
-        mTextPaint = new TextPaint();
-        mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-        mTextPaint.setTextAlign(Paint.Align.CENTER);
-                mTextPaint.setColor(mTextColor);
-        mTextPaint.setTextSize(getFontSize(getContext(),
-                android.R.attr.textAppearanceSmall));
+        textPaint = new TextPaint();
+        textPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        textPaint.setColor(mTextColor);
+        textPaint.setTextSize(getFontSize(getContext(), android.R.attr.textAppearanceSmall));
 
-        mStrokePaint = new Paint();
-        mStrokePaint.setColor(mStrokeColor);
-        mStrokePaint.setStyle(Paint.Style.STROKE);
-        mStrokePaint.setStrokeWidth(strokeThickness);
-        mStrokePaint.setAntiAlias(true);
+        strokePaint = new Paint();
+        strokePaint.setColor(strokeColor);
+        strokePaint.setStyle(Paint.Style.STROKE);
+        strokePaint.setStrokeWidth(strokeThickness);
+        strokePaint.setAntiAlias(false);
 
-        mFillPaint = new Paint();
-        mFillPaint.setStyle(Paint.Style.FILL);
-        mFillPaint.setAntiAlias(true);
-        mFillPaint.setColor(mFillColor);
+        fillPaint = new Paint();
+        fillPaint.setStyle(Paint.Style.FILL);
+        fillPaint.setAntiAlias(true);
+        fillPaint.setColor(mFillColor);
 
-        mMarkerPaint = new Paint();
-        mMarkerPaint.setStyle(Paint.Style.STROKE);
-        mMarkerPaint.setStrokeWidth(0);
-        mMarkerPaint.setAntiAlias(true);
-        mMarkerPaint.setColor(mMarkerColor);
+        markerPaint = new Paint();
+        markerPaint.setStyle(Paint.Style.STROKE);
+        markerPaint.setStrokeWidth(0);
+        markerPaint.setAntiAlias(true);
+        markerPaint.setColor(mMarkerColor);
     }
 
     @Override
@@ -112,48 +93,14 @@ public class WaveformView extends View {
         xStep = width / (mAudioLength * 1.0f);
         centerY = height / 2f;
         drawRect = new Rect(0, 0, width, height);
-
-        if (mHistoricalData != null) {
-            mHistoricalData.clear();
-        }
-        if (mMode == MODE_PLAYBACK) {
-            createPlaybackWaveform();
-        }
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
-        LinkedList<float[]> temp = mHistoricalData;
-        if (mMode == MODE_RECORDING && temp != null) {
-            brightness = colorDelta;
-            for (float[] p : temp) {
-                mStrokePaint.setAlpha(brightness);
-                canvas.drawLines(p, mStrokePaint);
-                brightness += colorDelta;
-            }
-        } else if (mMode == MODE_PLAYBACK) {
-            if (mCachedWaveform != null) {
-                canvas.drawPicture(mCachedWaveform);
-            } else if (mCachedWaveformBitmap != null) {
-                canvas.drawBitmap(mCachedWaveformBitmap, null, drawRect, null);
-            }
-            if (mMarkerPosition > -1 && mMarkerPosition < mAudioLength)
-                canvas.drawLine(xStep * mMarkerPosition, 0, xStep * mMarkerPosition, height, mMarkerPaint);
+        if (waveformPoints != null) {
+            canvas.drawLines(waveformPoints, strokePaint);
         }
-    }
-
-    public int getMode() {
-        return mMode;
-    }
-
-    public void setMode(int mMode) {
-        mMode = mMode;
-    }
-
-    public float[] getSamples() {
-        return samples;
     }
 
     public void setSamples(float[] samples) {
@@ -162,88 +109,45 @@ public class WaveformView extends View {
         onSamplesChanged();
     }
 
-    public int getMarkerPosition() {
-        return mMarkerPosition;
-    }
-
-    public void setMarkerPosition(int markerPosition) {
-        mMarkerPosition = markerPosition;
-        postInvalidate();
-    }
-
     public int getAudioLength() {
         return mAudioLength;
     }
 
-    public int getSampleRate() {
-        return mSampleRate;
-    }
-
     public void setSampleRate(int sampleRate) {
-        mSampleRate = sampleRate;
+        this.sampleRate = sampleRate;
         calculateAudioLength();
-    }
-
-    public int getChannels() {
-        return mChannels;
     }
 
     public void setChannels(int channels) {
-        mChannels = channels;
+        this.channels = channels;
         calculateAudioLength();
     }
 
-    public boolean showTextAxis() {
-         return showTextAxis;
-    }
-
-    public void setShowTextAxis(boolean showTextAxis) {
-        this.showTextAxis = showTextAxis;
-    }
-
     private void calculateAudioLength() {
-        if (samples == null || mSampleRate == 0 || mChannels == 0)
+        if (samples == null || sampleRate == 0 || channels == 0)
             return;
 
-        mAudioLength = calculateAudioLength(samples.length, mSampleRate, mChannels);
+        mAudioLength = calculateAudioLength(samples.length, sampleRate, channels);
     }
 
     private void onSamplesChanged() {
-        if (mMode == MODE_RECORDING) {
-            if (mHistoricalData == null)
-                mHistoricalData = new LinkedList<>();
-            LinkedList<float[]> temp = new LinkedList<>(mHistoricalData);
-
-            // For efficiency, we are reusing the array of points.
-            float[] waveformPoints;
-            if (temp.size() == HISTORY_SIZE) {
-                waveformPoints = temp.removeFirst();
-            } else {
-                waveformPoints = new float[width * 4];
-            }
-
-            drawRecordingWaveform(samples, waveformPoints);
-            temp.addLast(waveformPoints);
-            mHistoricalData = temp;
-            postInvalidate();
-        } else if (mMode == MODE_PLAYBACK) {
-            mMarkerPosition = -1;
-            xStep = width / (mAudioLength * 1.0f);
-            createPlaybackWaveform();
-        }
+        waveformPoints = new float[width * 4];
+        drawRecordingWaveform(samples);
+        // Redraw view
+        postInvalidate();
     }
 
-    public void drawRecordingWaveform(float[] buffer, float[] waveformPoints) {
+    public void drawRecordingWaveform(float[] samples) {
         float lastX = -1;
         float lastY = -1;
         int pointIndex = 0;
-        float max = Float.MAX_VALUE;
+        float max = 1;
 
-        // For efficiency, we don't draw all of the samples in the buffer, but only the ones
-        // that align with pixel boundaries.
-        for (int x = 0; x < width; x++) {
-            int index = (int) (((x * 1.0f) / width) * buffer.length);
-            float sample = buffer[index];
+        /* For efficiency, we don't draw all of the samples in the buffer, but only the ones
+           that align with pixel boundaries. */
+        for (int x = 0; x < width; x += 2) {
+            int index = (int) (((x * 1.0f) / width) * samples.length);
+            float sample = samples[index];
             float y = centerY - ((sample / max) * centerY);
 
             if (lastX != -1) {
@@ -256,89 +160,6 @@ public class WaveformView extends View {
             lastX = x;
             lastY = y;
         }
-    }
-
-    Path drawPlaybackWaveform(int width, int height, float[] buffer) {
-        Path waveformPath = new Path();
-        float centerY = height / 2f;
-        float max = 1;
-
-        float[][] extremes = getExtremes(buffer, width);
-
-        waveformPath.moveTo(0, centerY);
-
-        // draw maximums
-        for (int x = 0; x < width; x++) {
-            float sample = extremes[x][0];
-            float y = centerY - ((sample / max) * centerY);
-            waveformPath.lineTo(x, y);
-        }
-
-        // draw minimums
-        for (int x = width - 1; x >= 0; x--) {
-            float sample = extremes[x][1];
-            float y = centerY - ((sample / max) * centerY);
-            waveformPath.lineTo(x, y);
-        }
-
-        waveformPath.close();
-
-        return waveformPath;
-    }
-
-    private void createPlaybackWaveform() {
-        if (width <= 0 || height <= 0 || samples == null)
-            return;
-
-        Canvas cacheCanvas;
-        if (Build.VERSION.SDK_INT >= 23 && isHardwareAccelerated()) {
-            mCachedWaveform = new Picture();
-            cacheCanvas = mCachedWaveform.beginRecording(width, height);
-        } else {
-            mCachedWaveformBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-            cacheCanvas = new Canvas(mCachedWaveformBitmap);
-        }
-
-        Path mWaveform = drawPlaybackWaveform(width, height, samples);
-        cacheCanvas.drawPath(mWaveform, mFillPaint);
-        cacheCanvas.drawPath(mWaveform, mStrokePaint);
-        drawAxis(cacheCanvas, width);
-
-        if (mCachedWaveform != null)
-            mCachedWaveform.endRecording();
-    }
-
-    private void drawAxis(Canvas canvas, int width) {
-        if (!showTextAxis) return;
-        int seconds = mAudioLength / 1000;
-        float xStep = width / (mAudioLength / 1000f);
-        float textHeight = mTextPaint.getTextSize();
-        float textWidth = mTextPaint.measureText("10.00");
-        int secondStep = (int)(textWidth * seconds * 2) / width;
-        secondStep = Math.max(secondStep, 1);
-        for (float i = 0; i <= seconds; i += secondStep) {
-            canvas.drawText(String.format("%.2f", i), i * xStep, textHeight, mTextPaint);
-        }
-    }
-
-    private float[][] getExtremes(float[] data, int sampleSize) {
-        float[][] newData = new float[sampleSize][];
-        int groupSize = data.length / sampleSize;
-
-        for (int i = 0; i < sampleSize; i++) {
-            float[] group = Arrays.copyOfRange(data, i * groupSize,
-                    Math.min((i + 1) * groupSize, data.length));
-
-            // Fin min & max values
-            float min = 1, max = -1;
-            for (float a : group) {
-                min = (float) Math.min(min, a);
-                max = (float) Math.max(max, a);
-            }
-            newData[i] = new float[] { max, min };
-        }
-
-        return newData;
     }
 
     private int calculateAudioLength(int samplesCount, int sampleRate, int channelCount) {

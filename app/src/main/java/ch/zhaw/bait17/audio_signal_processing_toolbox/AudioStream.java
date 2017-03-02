@@ -129,6 +129,8 @@ public class AudioStream {
             System.arraycopy(samples, totalSamplesWritten, buffer, 0, buffer.length);
             int samplesWritten = audioTrack.write(buffer, 0, buffer.length, AudioTrack.WRITE_NON_BLOCKING);
 
+            listener.onAudioDataReceived(buffer);
+
             if (samplesWritten <= 0) {
                 // Some error happened with AudioTrack.
                 stop();

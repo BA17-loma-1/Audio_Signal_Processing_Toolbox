@@ -34,6 +34,11 @@ public class InstrumentedAudioStreamTest {
             public void onCompletion() {
 
             }
+
+            @Override
+            public void onAudioDataReceived(float[] data) {
+
+            }
         });
     }
 
