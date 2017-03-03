@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "ch.zhaw.bait17.audio_signal_processing_toolbox"
-        minSdkVersion 21
+        minSdkVersion 19
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"

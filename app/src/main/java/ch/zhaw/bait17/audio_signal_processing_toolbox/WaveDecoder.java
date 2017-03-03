@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,7 +55,7 @@ public class WaveDecoder {
     private static final int RIFF_HEADER = 0x46464952;          // "RIFF"   (little endian)
     private static final int WAVE_HEADER = 0x45564157;          // "WAVE"
     private static final int DATA_HEADER = 0x61746164;          // "data"
-    private static final int MAX_HEADER_SIZE = 4096;            // The wave file header should not exceed 4KB.
+    private static final int MAX_HEADER_SIZE = 8192;            // The wave file header should not exceed 8KB.
     private static final int LINEAR_PCM_ENCODING = AudioCodingFormat.LINEAR_PCM.getValue();
     private static final int MIN_SUPPORTED_SAMPLE_RATE = 8000;
     private static final int MAX_SUPPORTED_SAMPLE_RATE = 48000;
@@ -132,7 +133,7 @@ public class WaveDecoder {
                     // subChunkID corresponds NOT to "data" marker -> skip over
                     // Read four bytes of data to determine the subchunk size
                     subChunkSize = buffer.getInt();
-                    buffer.position(buffer.position() + (subChunkSize / 8));
+                    buffer.position(buffer.position() + subChunkSize);
                 }
                 int dataSize = buffer.getInt();
                 // Important: set the dataOffset marker
@@ -173,10 +174,20 @@ public class WaveDecoder {
     }
 
     /**
-     * Returns the raw audio data as a float array.
+     * Returns the audio data as a short array..
+     * @return A short array containing the audio samples.
+     */
+    public short[] getShort() {
+        short[] buffer = new short[pcmData.length/2];
+        ByteBuffer.wrap(pcmData).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(buffer);
+        return buffer;
+    }
+
+    /**
+     * Returns the audio data as a float array.
      * The float values lie in the range [-1,1].
      * In case of a decoder problem, this method will return an empty float array.
-     * @return A float array containing the audio data.
+     * @return A float array containing the audio samples.
      */
     public float[] getFloat() {
         /*

@@ -25,7 +25,7 @@ public class WaveformView extends View {
     private int width, height;
     private float xStep, centerY;
     private int mAudioLength, sampleRate, channels;
-    private float[] samples;
+    private short[] samples;
     private float[] waveformPoints;
 
     public WaveformView(Context context) {
@@ -103,7 +103,7 @@ public class WaveformView extends View {
         }
     }
 
-    public void setSamples(float[] samples) {
+    public void setSamples(short[] samples) {
         this.samples = samples;
         calculateAudioLength();
         onSamplesChanged();
@@ -137,17 +137,17 @@ public class WaveformView extends View {
         postInvalidate();
     }
 
-    public void drawRecordingWaveform(float[] samples) {
+    public void drawRecordingWaveform(short[] samples) {
         float lastX = -1;
         float lastY = -1;
         int pointIndex = 0;
-        float max = 1;
+        float max = Short.MAX_VALUE;
 
         /* For efficiency, we don't draw all of the samples in the buffer, but only the ones
            that align with pixel boundaries. */
-        for (int x = 0; x < width; x += 2) {
+        for (int x = 0; x < width; x++) {
             int index = (int) (((x * 1.0f) / width) * samples.length);
-            float sample = samples[index];
+            short sample = samples[index];
             float y = centerY - ((sample / max) * centerY);
 
             if (lastX != -1) {

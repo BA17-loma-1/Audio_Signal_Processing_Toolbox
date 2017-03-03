@@ -10,6 +10,6 @@ public interface PlaybackListener {
 
     public void onCompletion();
 
-    public void onAudioDataReceived(float[] data);
+    public void onAudioDataReceived(short[] data);
 
 }

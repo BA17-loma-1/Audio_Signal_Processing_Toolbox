@@ -24,18 +24,16 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        app:mode="RECORDING"
-        android:background="#000000"
+        android:background="#ffffff"
         android:id="@+id/waveformView" />
 
     <ch.zhaw.bait17.audio_signal_processing_toolbox.ui.WaveformView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        app:mode="PLAYBACK"
         app:waveformStrokeThickness="3"
         app:waveformColor="#e5dc33"
         app:waveformFillColor="#e93519"
-        android:background="#000000"
-        android:id="@+id/playbackWaveformView" />
+        android:background="#ffffff"
+        android:id="@+id/spectrumView" />
 </LinearLayout>

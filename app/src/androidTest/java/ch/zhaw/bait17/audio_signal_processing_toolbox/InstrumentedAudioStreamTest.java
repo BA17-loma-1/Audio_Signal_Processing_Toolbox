@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
  * Created by georgrem, stockan1 on 25.02.2017.
  *
  * Instrumented tests of the AudioStream class.
- * @see ch.zhaw.bait17.audio_signal_processing_toolbox.AudioStream
+ * @see AudioPlayer
  */
 @RunWith(AndroidJUnit4.class)
 public class InstrumentedAudioStreamTest {
@@ -21,11 +21,13 @@ public class InstrumentedAudioStreamTest {
     private static Context context = InstrumentationRegistry.getTargetContext();
     private static final int AUDIO_RESOURCE_ID = R.raw.sawtooth;
     private WaveDecoder decoder;
-    private AudioStream as;
+    private AudioPlayer audioPlayer;
 
     public InstrumentedAudioStreamTest() throws DecoderException {
         decoder = new WaveDecoder(context.getResources().openRawResource(AUDIO_RESOURCE_ID));
-        as = new AudioStream(decoder.getHeader(), decoder.getFloat(), new PlaybackListener() {
+        audioPlayer = new AudioPlayer(decoder.getShort(),
+                decoder.getHeader().getSampleRate(),
+                decoder.getHeader().getChannels(), new PlaybackListener() {
             @Override
             public void onProgress(int progress) {
 
@@ -36,7 +38,7 @@ public class InstrumentedAudioStreamTest {
             }
 
             @Override
-            public void onAudioDataReceived(float[] data) {
+            public void onAudioDataReceived(short[] data) {
 
             }
         });
@@ -53,13 +55,13 @@ public class InstrumentedAudioStreamTest {
 
     @Test
     public void testNotPlaying() {
-        assertFalse(as.isPlaying());
+        assertFalse(audioPlayer.isPlaying());
     }
 
     @Test
     public void testPlayFull() throws InterruptedException {
-        as.start();
-        while (as.isPlaying()) {
+        audioPlayer.play();
+        while (audioPlayer.isPlaying()) {
             Thread.sleep(100);
         }
     }
