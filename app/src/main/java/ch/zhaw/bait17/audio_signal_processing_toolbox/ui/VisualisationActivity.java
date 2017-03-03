@@ -5,6 +5,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -28,7 +29,7 @@ public class VisualisationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_full_player);
 
         final WaveformView realtimeWaveformView = (WaveformView) findViewById(R.id.waveformView);
 
@@ -44,7 +45,7 @@ public class VisualisationActivity extends AppCompatActivity {
         }
 
         if (audioSamples != null && decoder != null) {
-            final FloatingActionButton playFab = (FloatingActionButton) findViewById(R.id.playFab);
+            final ImageButton playFab = (ImageButton) findViewById(R.id.play_pause);
 
             try {
                 audioStream = new AudioStream(decoder.getHeader(), decoder.getFloat(), new PlaybackListener() {
@@ -55,7 +56,7 @@ public class VisualisationActivity extends AppCompatActivity {
 
                     @Override
                     public void onCompletion() {
-                        playFab.setImageResource(android.R.drawable.ic_media_play);
+                        playFab.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
                     }
 
                     @Override
@@ -75,10 +76,10 @@ public class VisualisationActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     if (!audioStream.isPlaying()) {
                         audioStream.start();
-                        playFab.setImageResource(android.R.drawable.ic_media_pause);
+                        playFab.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
                     } else {
                         audioStream.stop();
-                        playFab.setImageResource(android.R.drawable.ic_media_play);
+                        playFab.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
                     }
                 }
             });
