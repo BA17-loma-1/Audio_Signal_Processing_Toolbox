@@ -40,7 +40,7 @@ public class VisualisationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_full_player);
+        setContentView(R.layout.activity_visualizations);
 
         final WaveformView realtimeWaveformView = (WaveformView) findViewById(R.id.waveformView);
 
