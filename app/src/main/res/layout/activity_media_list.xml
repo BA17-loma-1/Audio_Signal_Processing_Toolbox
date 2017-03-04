@@ -16,17 +16,19 @@
             android:id="@+id/media_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/controls_container"/>
+            android:layout_above="@+id/controls_container" />
 
         <android.support.v7.widget.CardView
             android:id="@+id/controls_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            app:cardElevation="8dp"
-            android:visibility="gone">
+            android:visibility="gone"
+            app:cardElevation="8dp">
 
-            <include layout="@layout/include_playback_controls" />
+            <include
+                android:id="@+id/playback_controls"
+                layout="@layout/include_playback_controls" />
 
         </android.support.v7.widget.CardView>
 

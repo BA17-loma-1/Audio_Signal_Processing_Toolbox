@@ -6,19 +6,24 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import static android.view.View.VISIBLE;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -33,6 +38,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Song;
 public class MediaListActivity extends AppCompatActivity {
 
     private ArrayList<Song> songs;
+    private Song song;
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
     private boolean permissionIsGranted = false;
     public final static String KEY_SONG = "ch.zhaw.bait17.audio_signal_processing_toolbox.SONG";
@@ -71,11 +77,27 @@ public class MediaListActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Song song = (Song) adapterView.getItemAtPosition(i);
-                // create intent to an other activity
-                Intent intent = new Intent(MediaListActivity.this, VisualisationActivity.class);
-                intent.putExtra(KEY_SONG, song);  // write the data
-                startActivity(intent); // and start the activity
+                song = (Song) adapterView.getItemAtPosition(i);
+
+                CardView controls = (CardView) findViewById(R.id.controls_container);
+                RelativeLayout inner = (RelativeLayout) findViewById(R.id.playback_controls);
+                TextView title = (TextView) inner.findViewById(R.id.song_title);
+                TextView artist = (TextView) inner.findViewById(R.id.song_artist);
+                ImageView imageView = (ImageView) findViewById(R.id.album_art);
+
+                controls.setVisibility(VISIBLE);
+                title.setText(song.getTitle());
+                artist.setText(song.getArtist());
+
+                inner.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(MediaListActivity.this, VisualisationActivity.class);
+                        intent.putExtra(KEY_SONG, song);  // write the data
+                        startActivity(intent); // and start the activity
+                    }
+                });
             }
         });
     }
@@ -90,15 +112,16 @@ public class MediaListActivity extends AppCompatActivity {
                 String[] s = value.string.toString().split("/");
                 String filename = s[s.length - 1];
                 if (filename.endsWith(".wav") || filename.endsWith(".mp3")) {
-                    Log.i("filename", s[s.length - 1]);
-                    songs.add(getSong(rawId));
+                    Log.i("filename", filename);
+                    filename = filename.split("\\.")[0];
+                    songs.add(getSong(rawId, filename));
                 }
             }
         }
         return songs;
     }
 
-    private Song getSong(int resId) {
+    private Song getSong(int resId, String filename) {
         String title, artist, album, duration;
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         Uri soundUri = Uri.parse("android.resource://" + getPackageName() + File.separator + resId);
@@ -111,9 +134,9 @@ public class MediaListActivity extends AppCompatActivity {
         artist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
         album = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
         duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        title = title == null ? "Unknown title" : title;
-        artist = artist == null ? "Unknown artist" : artist;
-        album = album == null ? "Unknown album" : album;
+        title = title == null ? filename : title;
+        artist = artist == null ? "<unknown>" : artist;
+        album = album == null ? "<unknown>" : album;
         return new Song(title, artist, album, duration, soundUri);
     }
 
