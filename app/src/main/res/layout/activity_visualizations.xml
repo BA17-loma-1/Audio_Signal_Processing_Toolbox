@@ -19,21 +19,21 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@android:color/black" />
+            android:background="@android:color/white" />
 
-        <ch.zhaw.bait17.audio_signal_processing_toolbox.ui.WaveformView
+        <ch.zhaw.bait17.audio_signal_processing_toolbox.ui.SpectrumView
             android:id="@+id/spectrumView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_weight="1"
-            android:background="@android:color/black" />
+            android:background="@android:color/white" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_weight="1" />
+            android:layout_weight="0.71" />
 
     </LinearLayout>
 
@@ -47,10 +47,10 @@
         android:background="@drawable/fullscreen_bg_gradient">
 
         <TextView
-            android:id="@+id/line1"
+            android:id="@+id/lineTitle"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/line2"
+            android:layout_above="@+id/lineArtist"
             android:ellipsize="end"
             android:gravity="center_horizontal"
             android:maxLines="1"
@@ -61,10 +61,9 @@
             android:textColor="@color/fullscreen_line_color" />
 
         <TextView
-            android:id="@+id/line2"
+            android:id="@+id/lineArtist"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/controllers"
             android:ellipsize="end"
             android:fontFamily="sans-serif-light"
             android:gravity="center_horizontal"
@@ -73,7 +72,10 @@
             android:shadowRadius="20"
             android:text="Artist"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/fullscreen_secondary_line_color" />
+            android:textColor="@color/fullscreen_secondary_line_color"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="85dp" />
 
         <LinearLayout
             android:id="@+id/controllers"
@@ -99,7 +101,7 @@
                     android:textColor="@android:color/white" />
 
                 <SeekBar
-                    android:id="@+id/seekBar1"
+                    android:id="@+id/seekBar"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
