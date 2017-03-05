@@ -10,8 +10,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * Created by georgrem, stockan1 on 03.03.2017.
  */
 
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
@@ -20,8 +18,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.Toast;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.AudioPlayer;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.DecoderException;
@@ -30,28 +29,51 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.WaveDecoder;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Song;
 
+/**
+ *
+ * Created by georgrem, stockan1 on 25.02.2017.
+ */
+
 public class VisualisationActivity extends AppCompatActivity {
 
     private AudioPlayer audioPlayer;
     private Song song;
-    private float[] audioSamples;
+    private short[] audioSamples;
     private WaveDecoder decoder;
+    private SeekBar seekBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_visualizations);
 
-        final WaveformView realtimeWaveformView = (WaveformView) findViewById(R.id.waveformView);
+        final WaveformView waveformView = (WaveformView) findViewById(R.id.waveformView);
+        final SpectrumView spectrumView = (SpectrumView) findViewById(R.id.spectrumView);
 
-        Bundle bundle = getIntent().getExtras();
-        song = bundle.getParcelable(MediaListActivity.KEY_SONG);
+        song = getIntent().getExtras().getParcelable(MediaListActivity.KEY_SONG);
+        seekBar = (SeekBar) findViewById(R.id.seekBar);
 
-        try {
-            InputStream is = getContentResolver().openInputStream(song.getUri());
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        try (InputStream is = getContentResolver().openInputStream(song.getUri());) {
             decoder = new WaveDecoder(is);
-            audioSamples = decoder.getFloat();
-        } catch (FileNotFoundException | DecoderException e) {
+            audioSamples = decoder.getShort();
+        } catch (IOException | DecoderException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
@@ -73,12 +95,14 @@ public class VisualisationActivity extends AppCompatActivity {
 
                 @Override
                 public void onAudioDataReceived(short[] samples) {
-                    realtimeWaveformView.setSamples(samples);
+                    waveformView.setSamples(samples);
+                    spectrumView.setSamples(samples);
                 }
             });
 
-            realtimeWaveformView.setChannels(decoder.getHeader().getChannels());
-            realtimeWaveformView.setSampleRate(audioPlayer.getSampleRate());
+            waveformView.setChannels(decoder.getHeader().getChannels());
+            waveformView.setSampleRate(audioPlayer.getSampleRate());
+            spectrumView.setSampleRate(audioPlayer.getSampleRate());
 
             playButton.setOnClickListener(new View.OnClickListener() {
                 @Override

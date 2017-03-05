@@ -64,13 +64,13 @@ public class AudioPlayer {
             @Override
             public void onPeriodicNotification(AudioTrack track) {
                 if (listener != null && track.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
-                    listener.onProgress(track.getPlaybackHeadPosition() * 1000 / sampleRate);
+                    listener.onProgress((int) (track.getPlaybackHeadPosition() * 1000.0 / sampleRate));
                 }
             }
         });
 
         audioTrack.setPositionNotificationPeriod(sampleRate / 1000);                    // E.g. at 48000 Hz --> 48 times per second
-        audioTrack.setNotificationMarkerPosition(samples.array().length -1);            // when playback reaches end of samples --> notify
+        audioTrack.setNotificationMarkerPosition(numberOfSamplesPerChannel - 1);            // when playback reaches end of samples --> notify
     }
 
     /**

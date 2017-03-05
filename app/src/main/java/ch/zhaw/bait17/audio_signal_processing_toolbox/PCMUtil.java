@@ -28,8 +28,21 @@ public class PCMUtil {
         return f;
     }
 
+    /**
+     *
+     * @param samples
+     * @return
+     */
+    public static float[] short2FloatArray(short[] samples) {
+        float[] output = new float[samples.length];
+        for (int i = 0; i < output.length; i++) {
+            output[i] = shortByte2Float(samples[i]);
+        }
+        return output;
+    }
+
      /**
-     * <p>Converts a short (2 bytes) of sample data to a 16-bit float value.
+     * <p>Converts a byte of sample data to a 16-bit float value.
      * The float value is guaranteed to lie in the range [-1,1].</p>
      *
      * <p>!!! Caution !!! <br>
@@ -43,6 +56,19 @@ public class PCMUtil {
         if (f > 1) f = 1;
         if (f < -1) f = -1;
         return f;
+    }
+
+    /**
+     *
+     * @param samples
+     * @return
+     */
+    public static float[] byte2FloatArray(byte[] samples) {
+        float[] output = new float[samples.length];
+        for (int i = 0; i < output.length; i++) {
+            output[i] = byte2Float(samples[i]);
+        }
+        return output;
     }
 
     /**

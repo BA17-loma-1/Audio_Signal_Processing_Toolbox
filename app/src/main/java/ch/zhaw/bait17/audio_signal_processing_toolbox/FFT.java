@@ -12,7 +12,7 @@ import android.util.Log;
  */
 public class FFT {
 
-    private static final int MIN_WINDOW_SIZE = 1024;
+    private static final int MIN_WINDOW_SIZE = 4096;
     private static final WindowType DEFAULT_WINDOW_TYPE = WindowType.HAMMING;
     private static final String TAG = FFT.class.getSimpleName();
     private Window win;
@@ -69,7 +69,7 @@ public class FFT {
      *     FFT window size of {@value #MIN_WINDOW_SIZE} samples.
      * </p>
      *
-     * @param samples
+     * @param samples A float array.
      * @return The transformed data as a float array.
      */
     public float[] getForwardTransformFull(float[] samples) {

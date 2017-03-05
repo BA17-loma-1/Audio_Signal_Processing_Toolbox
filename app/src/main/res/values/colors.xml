@@ -3,7 +3,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="default_waveform">#0000ff</color>
+    <color name="default_waveform">#000000</color>
     <color name="default_waveformFill">#80FFC0</color>
     <color name="default_playback_indicator">#ffff66</color>
     <color name="default_timecode">#ddffffdd</color>
@@ -16,7 +16,7 @@
     <color name="drawer_item_tint_color">#ff333333</color>
     <color name="fullscreen_secondary_line_color">#E5CCCCCC</color>
     <color name="fullscreen_line_color">#E5FFFFFF</color>
-    <color name="background_gradient_start">#000000</color>
+    <color name="background_gradient_start">#666666</color>
     <color name="background_gradient_end">#DDDDDD</color>
     <color name="default_background">#0096a6</color>
 </resources>

@@ -5,10 +5,10 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Created by georgrem, stockan1 on 18.02.2017.
- *
  * Local unit tests of the FFT class.
  * @see ch.zhaw.bait17.audio_signal_processing_toolbox.FFT
+ *
+ * Created by georgrem, stockan1 on 18.02.2017.
  */
 public class FFTTest {
 

@@ -17,7 +17,9 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.support.v4.content.ContextCompat;
 import android.text.TextPaint;
 import android.util.AttributeSet;
@@ -27,29 +29,29 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 
 /**
  *
- * Created by georgrem, stockan1 on 23.02.2017.
+ * Created by georgrem, stockan1 on 04.03.2017.
  */
-public class WaveformView extends View {
+public class SpectrumView extends View {
 
+    private Thread renderThread;
+    private SpectrumRenderer renderer;
     private TextPaint textPaint;
-    private Paint strokePaint, fillPaint, markerPaint;
+    private Paint strokePaint;
     private int width, height;
-    private float centerY;
-    private int audioLength, sampleRate, channels;
+    private int sampleRate;
     private short[] samples;
-    private float[] waveformPoints;
 
-    public WaveformView(Context context) {
+    public SpectrumView(Context context) {
         super(context);
         init(context, null, 0);
     }
 
-    public WaveformView(Context context, AttributeSet attrs) {
+    public SpectrumView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs, 0);
     }
 
-    public WaveformView(Context context, AttributeSet attrs, int defStyle) {
+    public SpectrumView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context, attrs, defStyle);
     }
@@ -59,13 +61,9 @@ public class WaveformView extends View {
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.WaveformView, defStyle, 0);
 
-        float strokeThickness = a.getFloat(R.styleable.WaveformView_waveformStrokeThickness, 2f);
+        float strokeThickness = a.getFloat(R.styleable.WaveformView_waveformStrokeThickness, 1f);
         int strokeColor = a.getColor(R.styleable.WaveformView_waveformColor,
                 ContextCompat.getColor(context, R.color.default_waveform));
-        int mFillColor = a.getColor(R.styleable.WaveformView_waveformFillColor,
-                ContextCompat.getColor(context, R.color.default_waveformFill));
-        int mMarkerColor = a.getColor(R.styleable.WaveformView_playbackIndicatorColor,
-                ContextCompat.getColor(context, R.color.default_playback_indicator));
         int mTextColor = a.getColor(R.styleable.WaveformView_timecodeColor,
                 ContextCompat.getColor(context, R.color.default_timecode));
 
@@ -79,20 +77,17 @@ public class WaveformView extends View {
 
         strokePaint = new Paint();
         strokePaint.setColor(strokeColor);
-        strokePaint.setStyle(Paint.Style.STROKE);
+        strokePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         strokePaint.setStrokeWidth(strokeThickness);
         strokePaint.setAntiAlias(false);
 
-        fillPaint = new Paint();
-        fillPaint.setStyle(Paint.Style.FILL);
-        fillPaint.setAntiAlias(true);
-        fillPaint.setColor(mFillColor);
-
-        markerPaint = new Paint();
-        markerPaint.setStyle(Paint.Style.STROKE);
-        markerPaint.setStrokeWidth(0);
-        markerPaint.setAntiAlias(true);
-        markerPaint.setColor(mMarkerColor);
+        renderThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                renderer = new SpectrumRenderer(strokePaint);
+            }
+        });
+        renderThread.start();
     }
 
     @Override
@@ -100,79 +95,22 @@ public class WaveformView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         width = getMeasuredWidth();
         height = getMeasuredHeight();
-        centerY = height / 2f;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (waveformPoints != null) {
-            canvas.drawLines(waveformPoints, strokePaint);
-        }
-    }
-
-    public void setSamples(short[] samples) {
-        this.samples = samples;
-        if (this.samples != null) {
-            calculateAudioLength();
-            onSamplesChanged();
-        }
-    }
-
-    public void setSampleRate(int sampleRate) {
-        this.sampleRate = sampleRate;
-        calculateAudioLength();
-    }
-
-    public void setChannels(int channels) {
-        this.channels = channels;
-        calculateAudioLength();
-    }
-
-    private void calculateAudioLength() {
-        if (samples == null || sampleRate == 0 || channels == 0)
-            return;
-        audioLength = calculateAudioLength(samples.length, sampleRate, channels);
-    }
-
-    public int getAudioLength() {
-        return audioLength;
-    }
-
-    private void onSamplesChanged() {
-        waveformPoints = new float[width * 4];
-        drawWaveform(samples);
+        renderer.render(canvas, samples, sampleRate);
         // Redraw view
         postInvalidate();
     }
 
-    public void drawWaveform(short[] samples) {
-        float lastX = -1;
-        float lastY = -1;
-        int pointIndex = 0;
-        float max = Short.MAX_VALUE;
-
-        /* For efficiency, we don't draw all of the samples in the buffer, but only the ones
-           that align with pixel boundaries. */
-        for (int x = 0; x < width; x++) {
-            int index = (int) (((x * 1.0f) / width) * samples.length);
-            short sample = samples[index];
-            float y = centerY - ((sample / max) * centerY);
-
-            if (lastX != -1) {
-                waveformPoints[pointIndex++] = lastX;
-                waveformPoints[pointIndex++] = lastY;
-                waveformPoints[pointIndex++] = x;
-                waveformPoints[pointIndex++] = y;
-            }
-
-            lastX = x;
-            lastY = y;
-        }
+    public void setSamples(short[] samples) {
+        this.samples = samples;
     }
 
-    private int calculateAudioLength(int samplesCount, int sampleRate, int channelCount) {
-        return ((samplesCount / channelCount) * 1000) / sampleRate;
+    public void setSampleRate(int sampleRate) {
+        this.sampleRate = sampleRate;
     }
 
     private float getFontSize(Context ctx, int textAppearance) {

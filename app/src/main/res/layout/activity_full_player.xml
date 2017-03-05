@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pageView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
+
+        <ch.zhaw.bait17.audio_signal_processing_toolbox.ui.WaveformView
+            android:id="@+id/waveformView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@android:color/white" />
+
+        <ch.zhaw.bait17.audio_signal_processing_toolbox.ui.SpectrumView
+            android:id="@+id/spectrumView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_weight="1"
+            android:background="@android:color/white" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_weight="0.60" />
+
+    </LinearLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/mediaControl"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@drawable/fullscreen_bg_gradient"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+        <TextView
+            android:id="@+id/lineTitle"
+            android:layout_width="fill_parent"
+            android:layout_height="24dp"
+            android:ellipsize="end"
+            android:gravity="center_horizontal"
+            android:maxLines="1"
+            android:shadowColor="@android:color/black"
+            android:shadowRadius="20"
+            android:text="Title"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/fullscreen_line_color"
+            android:layout_above="@+id/lineArtist"
+            android:layout_alignParentStart="true" />
+
+        <TextView
+            android:id="@+id/lineArtist"
+            android:layout_width="fill_parent"
+            android:layout_height="24dp"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-light"
+            android:gravity="center_horizontal"
+            android:maxLines="1"
+            android:shadowColor="@android:color/black"
+            android:shadowRadius="20"
+            android:text="Artist"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/fullscreen_secondary_line_color"
+            android:layout_alignTop="@+id/controllers"
+            android:layout_alignParentStart="true" />
+
+        <LinearLayout
+            android:id="@+id/controllers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp">
+
+                <TextView
+                    android:id="@+id/startText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="@dimen/text_view_margin"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:text="start"
+                    android:textColor="@android:color/white" />
+
+                <SeekBar
+                    android:id="@+id/seekBar"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_toEndOf="@+id/startText"
+                    android:layout_toStartOf="@+id/endText" />
+
+                <TextView
+                    android:id="@+id/endText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignWithParentIfMissing="true"
+                    android:layout_marginEnd="@dimen/end_text_margin"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:text="end"
+                    android:textColor="@android:color/white" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp">
+
+                <ImageView
+                    android:id="@+id/prev"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/skip_prev"
+                    android:src="@drawable/ic_skip_previous_white_48dp" />
+
+                <ImageButton
+                    android:id="@+id/play_pause"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/play_pause"
+                    android:src="@drawable/uamp_ic_play_arrow_white_48dp" />
+
+                <ImageView
+                    android:id="@+id/next"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/skip_next"
+                    android:src="@drawable/ic_skip_next_white_48dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>
