@@ -2,26 +2,34 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
+ * <p>
  * Created by georgrem, stockan1 on 23.02.2017.
  */
 
-package ch.zhaw.bait17.audio_signal_processing_toolbox;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
+import android.app.Service;
+import android.content.Intent;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.os.Binder;
+import android.os.IBinder;
+import android.util.Log;
+
 import java.nio.ShortBuffer;
 
-public class AudioPlayer {
+import ch.zhaw.bait17.audio_signal_processing_toolbox.PlaybackListener;
+
+public class AudioPlayerService extends Service {
 
     private ShortBuffer samples;
     private int sampleRate;
@@ -34,16 +42,65 @@ public class AudioPlayer {
     private int numberOfSamplesPerChannel;
     private boolean keepPlaying = false;
 
-    public AudioPlayer(short[] samples, int sampleRate, int channels, PlaybackListener listener) {
-        numberOfSamplesPerChannel = samples.length / channels;
-        this.samples = ShortBuffer.wrap(samples);
-        this.sampleRate = sampleRate;
-        this.channelOut = channels;
-        this.listener = listener;
-        initialize();
+
+
+    private final IBinder myBinder = new LocalBinder();
+    private String TAG = "bound";
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.i(TAG, "onBind called...");
+        return myBinder;
     }
 
-    private void initialize() {
+    @Override
+    public void onCreate() {
+        Log.i(TAG, "onCreate()");
+        super.onCreate();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(TAG, "Service started by startService()");
+        return START_STICKY;
+    }
+
+    public class LocalBinder extends Binder {
+        AudioPlayerService getService() {
+            return AudioPlayerService.this;
+        }
+    }
+
+
+
+
+
+    public void setSamples(short[] samples) {
+        this.samples = ShortBuffer.wrap(samples);
+    }
+
+    public void setSampleRate(int sampleRate) {
+        this.sampleRate = sampleRate;
+    }
+
+    public void setChannelOut(int channelOut) {
+        this.channelOut = channelOut;
+    }
+
+    public void setListener(PlaybackListener listener) {
+        this.listener = listener;
+    }
+
+    public PlaybackListener getListener() {
+        return listener;
+    }
+
+    public int getChannelOut() {
+        return channelOut;
+    }
+
+    public void initialize() {
+        numberOfSamplesPerChannel = samples.array().length / channelOut;
         playbackStart = 0;
         int bufferSize = getMinBufferSize();
         buffer = new short[bufferSize];
@@ -61,6 +118,7 @@ public class AudioPlayer {
                     listener.onCompletion();
                 }
             }
+
             @Override
             public void onPeriodicNotification(AudioTrack track) {
                 if (listener != null && track.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
@@ -75,6 +133,7 @@ public class AudioPlayer {
 
     /**
      * Returns true if the AudioTrack play state is PlAYSTATE_PLAYING.
+     *
      * @return
      */
     public boolean isPlaying() {
@@ -83,6 +142,7 @@ public class AudioPlayer {
 
     /**
      * Returns true if the AudioTrack play state is PLAYSTATE_PAUSED.
+     *
      * @return
      */
     public boolean isPaused() {
@@ -163,6 +223,7 @@ public class AudioPlayer {
 
     /**
      * Returns the minimum buffer size expressed in bytes.
+     *
      * @return
      */
     private int getMinBufferSize() {
@@ -200,6 +261,7 @@ public class AudioPlayer {
 
     /**
      * Returns the current position as millisecond.
+     *
      * @return
      */
     public int getCurrentPosition() {

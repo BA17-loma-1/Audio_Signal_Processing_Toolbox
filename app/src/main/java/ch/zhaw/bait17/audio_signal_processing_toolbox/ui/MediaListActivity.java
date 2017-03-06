@@ -1,29 +1,25 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import static android.view.View.VISIBLE;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -33,6 +29,7 @@ import java.util.Comparator;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.SongAdapter;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.WaveDecoder;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Song;
 
 public class MediaListActivity extends AppCompatActivity {
@@ -42,6 +39,14 @@ public class MediaListActivity extends AppCompatActivity {
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
     private boolean permissionIsGranted = false;
     public final static String KEY_SONG = "ch.zhaw.bait17.audio_signal_processing_toolbox.SONG";
+
+    private AudioPlayerService serviceReference;
+    private boolean isBound;
+    private String TAG = "bound";
+
+    private short[] audioSamples;
+    private WaveDecoder decoder;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,10 +75,16 @@ public class MediaListActivity extends AppCompatActivity {
             }
         });
 
+
+        Log.i(TAG, "Service starting...");
+        Intent intent = new Intent(this, AudioPlayerService.class);
+        startService(intent);
+
         ListView listView = (ListView) findViewById(R.id.media_list);
         SongAdapter songAdapter = new SongAdapter(this, songs);
         listView.setAdapter(songAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        /*
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -89,6 +100,21 @@ public class MediaListActivity extends AppCompatActivity {
                 title.setText(song.getTitle());
                 artist.setText(song.getArtist());
 
+                try (InputStream is = getContentResolver().openInputStream(song.getUri());) {
+                    decoder = new WaveDecoder(is);
+                    audioSamples = decoder.getShort();
+                } catch (IOException | DecoderException e) {
+                    Toast.makeText(MediaListActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+                if (audioSamples != null && decoder != null && serviceReference != null) {
+                    serviceReference.setSamples(decoder.getShort());
+                    serviceReference.setSampleRate(decoder.getHeader().getSampleRate());
+                    serviceReference.setChannelOut(decoder.getHeader().getChannels());
+
+                    serviceReference.initialize();
+                    serviceReference.play();
+                }
+
                 inner.setOnClickListener(new View.OnClickListener() {
 
                     @Override
@@ -100,6 +126,8 @@ public class MediaListActivity extends AppCompatActivity {
                 });
             }
         });
+         */
+
     }
 
     private ArrayList<Song> getSongListFromRawFolder() {
@@ -193,6 +221,64 @@ public class MediaListActivity extends AppCompatActivity {
                 }
                 return;
             }
+        }
+    }
+
+
+
+    private ServiceConnection myConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.i(TAG, "Bound service connected");
+            serviceReference = ((AudioPlayerService.LocalBinder) service).getService();
+            isBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG, "Problem: bound service disconnected");
+            serviceReference = null;
+            isBound = false;
+        }
+    };
+
+    private void doUnbindService() {
+        Toast.makeText(this, "Unbinding...", Toast.LENGTH_SHORT).show();
+        unbindService(myConnection);
+        isBound = false;
+    }
+
+    private void doBindToService() {
+        Toast.makeText(this, "Binding...", Toast.LENGTH_SHORT).show();
+        if (!isBound) {
+            Intent bindIntent = new Intent(this, AudioPlayerService.class);
+            isBound = bindService(bindIntent, myConnection,
+                    Context.BIND_AUTO_CREATE);
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i(TAG, "ch.zhaw.moba2.sandbox.MainActivity - onStart - binding...");
+        doBindToService();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG, "ch.zhaw.moba2.sandbox.MainActivity - onStop - unbinding...");
+        doUnbindService();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "Destroying activity...");
+        if (isFinishing()) {
+            Log.i(TAG, "activity is finishing");
+            Intent intentStopService = new Intent(this, AudioPlayerService.class);
+            stopService(intentStopService);
         }
     }
 
