@@ -16,26 +16,40 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import static android.view.View.VISIBLE;
+
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.AudioPlayerService;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.DecoderException;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.PlaybackListener;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.SongAdapter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.WaveDecoder;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Song;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.AudioPlayerService.AudioPlayerBinder;
 
 public class MediaListActivity extends AppCompatActivity {
 
     private ArrayList<Song> songs;
-    private Song song;
+    private Song currentSong;
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
     private boolean permissionIsGranted = false;
     public final static String KEY_SONG = "ch.zhaw.bait17.audio_signal_processing_toolbox.SONG";
@@ -43,15 +57,17 @@ public class MediaListActivity extends AppCompatActivity {
     private AudioPlayerService serviceReference;
     private boolean isBound;
     private String TAG = "bound";
-
     private short[] audioSamples;
-    private WaveDecoder decoder;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_list);
+
+        Log.i(TAG, "Activity starting service..");
+        Intent serviceIntent = new Intent(this, AudioPlayerService.class);
+        startService(serviceIntent);
 
         songs = new ArrayList<>();
         String mediumType = getIntent().getStringExtra(MediaBrowserActivity.KEY_MEDIUMTYPE);
@@ -75,60 +91,95 @@ public class MediaListActivity extends AppCompatActivity {
             }
         });
 
-
-        Log.i(TAG, "Service starting...");
-        Intent intent = new Intent(this, AudioPlayerService.class);
-        startService(intent);
-
         ListView listView = (ListView) findViewById(R.id.media_list);
         SongAdapter songAdapter = new SongAdapter(this, songs);
         listView.setAdapter(songAdapter);
-        /*
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                song = (Song) adapterView.getItemAtPosition(i);
 
-                CardView controls = (CardView) findViewById(R.id.controls_container);
-                RelativeLayout inner = (RelativeLayout) findViewById(R.id.playback_controls);
-                TextView title = (TextView) inner.findViewById(R.id.song_title);
-                TextView artist = (TextView) inner.findViewById(R.id.song_artist);
-                ImageView imageView = (ImageView) findViewById(R.id.album_art);
+                Song song = (Song) adapterView.getItemAtPosition(i);
+                RelativeLayout inner = null;
+                if (currentSong != song) {
+                    currentSong = song;
 
-                controls.setVisibility(VISIBLE);
-                title.setText(song.getTitle());
-                artist.setText(song.getArtist());
+                    CardView controls = (CardView) findViewById(R.id.controls_container);
+                    inner = (RelativeLayout) findViewById(R.id.playback_controls);
+                    TextView title = (TextView) inner.findViewById(R.id.song_title);
+                    TextView artist = (TextView) inner.findViewById(R.id.song_artist);
 
-                try (InputStream is = getContentResolver().openInputStream(song.getUri());) {
-                    decoder = new WaveDecoder(is);
-                    audioSamples = decoder.getShort();
-                } catch (IOException | DecoderException e) {
-                    Toast.makeText(MediaListActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    controls.setVisibility(VISIBLE);
+                    title.setText(song.getTitle());
+                    artist.setText(song.getArtist());
+
+                    WaveDecoder decoder = null;
+                    try (InputStream is = getContentResolver().openInputStream(song.getUri());) {
+                        decoder = new WaveDecoder(is);
+                    } catch (IOException | DecoderException e) {
+                        Toast.makeText(MediaListActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                    if (decoder != null) {
+                        serviceReference.setSamples(decoder.getShort());
+                        serviceReference.setSampleRate(decoder.getHeader().getSampleRate());
+                        serviceReference.setChannelOut(decoder.getHeader().getChannels());
+                        serviceReference.setListener(new PlaybackListener() {
+                            @Override
+                            public void onProgress(int progress) {
+                            }
+
+                            @Override
+                            public void onCompletion() {
+                            }
+
+                            @Override
+                            public void onAudioDataReceived(short[] samples) {
+                                audioSamples = samples;
+                            }
+                        });
+                        serviceReference.initialize();
+
+                        serviceReference.stop();
+                        serviceReference.play();
+                    }
+                } else {
+                    if (serviceReference.isPlaying()) {
+                        serviceReference.pause();
+                    } else {
+                        serviceReference.play();
+                    }
                 }
-                if (audioSamples != null && decoder != null && serviceReference != null) {
-                    serviceReference.setSamples(decoder.getShort());
-                    serviceReference.setSampleRate(decoder.getHeader().getSampleRate());
-                    serviceReference.setChannelOut(decoder.getHeader().getChannels());
-
-                    serviceReference.initialize();
-                    serviceReference.play();
-                }
-
                 inner.setOnClickListener(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(MediaListActivity.this, VisualisationActivity.class);
-                        intent.putExtra(KEY_SONG, song);  // write the data
+                        intent.putExtra(KEY_SONG, audioSamples);  // write the data
                         startActivity(intent); // and start the activity
                     }
                 });
+
+
             }
         });
-         */
 
     }
+
+    private ServiceConnection audioPlayerConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.i(TAG, "Bound service connected");
+            serviceReference = ((AudioPlayerBinder) service).getService();
+            isBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG, "Problem: bound service disconnected");
+            serviceReference = null;
+            isBound = false;
+        }
+    };
 
     private ArrayList<Song> getSongListFromRawFolder() {
         Field[] fields = R.raw.class.getFields();
@@ -225,26 +276,9 @@ public class MediaListActivity extends AppCompatActivity {
     }
 
 
-
-    private ServiceConnection myConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.i(TAG, "Bound service connected");
-            serviceReference = ((AudioPlayerService.LocalBinder) service).getService();
-            isBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.i(TAG, "Problem: bound service disconnected");
-            serviceReference = null;
-            isBound = false;
-        }
-    };
-
     private void doUnbindService() {
         Toast.makeText(this, "Unbinding...", Toast.LENGTH_SHORT).show();
-        unbindService(myConnection);
+        unbindService(audioPlayerConnection);
         isBound = false;
     }
 
@@ -252,8 +286,9 @@ public class MediaListActivity extends AppCompatActivity {
         Toast.makeText(this, "Binding...", Toast.LENGTH_SHORT).show();
         if (!isBound) {
             Intent bindIntent = new Intent(this, AudioPlayerService.class);
-            isBound = bindService(bindIntent, myConnection,
+            isBound = bindService(bindIntent, audioPlayerConnection,
                     Context.BIND_AUTO_CREATE);
+            startService(bindIntent);
         }
     }
 

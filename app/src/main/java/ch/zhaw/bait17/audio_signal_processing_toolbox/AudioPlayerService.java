@@ -14,7 +14,7 @@
  * Created by georgrem, stockan1 on 23.02.2017.
  */
 
-package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
+package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
 import android.app.Service;
 import android.content.Intent;
@@ -26,8 +26,6 @@ import android.os.IBinder;
 import android.util.Log;
 
 import java.nio.ShortBuffer;
-
-import ch.zhaw.bait17.audio_signal_processing_toolbox.PlaybackListener;
 
 public class AudioPlayerService extends Service {
 
@@ -43,30 +41,55 @@ public class AudioPlayerService extends Service {
     private boolean keepPlaying = false;
 
 
-
-    private final IBinder myBinder = new LocalBinder();
+    private final IBinder audioPlayerBinder = new AudioPlayerBinder();
     private String TAG = "bound";
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        Log.i(TAG, "onBind called...");
-        return myBinder;
-    }
+
 
     @Override
     public void onCreate() {
-        Log.i(TAG, "onCreate()");
-        super.onCreate();
+        Log.i(TAG, "Service created");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "Service started by startService()");
+        Log.i(TAG, "Service started");
         return START_STICKY;
     }
 
-    public class LocalBinder extends Binder {
-        AudioPlayerService getService() {
+    @Override
+    public IBinder onBind(Intent intent) {
+        // A client is binding to the service with bindService()
+        Log.i(TAG, "Service binded");
+        return audioPlayerBinder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        // All clients have unbound with unbindService()
+        Log.i(TAG, "Service un-binded");
+        return false;
+    }
+
+    @Override
+    public void onRebind(Intent intent) {
+        // A client is binding to the service with Re-bindService(),
+        // after onUnbind() has already been called
+        Log.i(TAG, "Service re-binded");
+    }
+
+    @Override
+    public void onDestroy() {
+        // The service is no longer used and is being destroyed
+        Log.i(TAG, "Service destroyed");
+        audioTrack.release();
+        Thread dummy = thread;
+        thread = null;
+        dummy.interrupt();
+    }
+
+    public class AudioPlayerBinder extends Binder {
+        public AudioPlayerService getService() {
             return AudioPlayerService.this;
         }
     }
@@ -97,6 +120,11 @@ public class AudioPlayerService extends Service {
 
     public int getChannelOut() {
         return channelOut;
+    }
+
+
+    public short[] getBuffer() {
+        return buffer;
     }
 
     public void initialize() {
@@ -184,7 +212,7 @@ public class AudioPlayerService extends Service {
                     }
 
                     audioTrack.write(buffer, 0, buffer.length);
-                    listener.onAudioDataReceived(buffer);
+                    if (listener != null) listener.onAudioDataReceived(buffer);
                 }
             }
         });

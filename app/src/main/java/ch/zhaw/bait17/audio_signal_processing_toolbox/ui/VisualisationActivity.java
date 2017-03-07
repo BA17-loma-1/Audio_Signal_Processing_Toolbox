@@ -28,6 +28,7 @@ import android.widget.Toast;
 import android.content.Context;
 import android.os.IBinder;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.AudioPlayerService;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.PlaybackListener;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.WaveDecoder;
@@ -54,73 +55,9 @@ public class VisualisationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_visualizations);
 
-        final WaveformView waveformView = (WaveformView) findViewById(R.id.waveformView);
-        final SpectrumView spectrumView = (SpectrumView) findViewById(R.id.spectrumView);
-
-        song = getIntent().getExtras().getParcelable(MediaListActivity.KEY_SONG);
-        seekBar = (SeekBar) findViewById(R.id.seekBar);
-
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        Log.i(TAG, "Service starting...");
-        Intent intent = new Intent(this, AudioPlayerService.class);
-        startService(intent);
+        short[] samples = getIntent().getExtras().getShortArray(MediaListActivity.KEY_SONG);
 
 
-
-        final ImageButton playButton = (ImageButton) findViewById(R.id.play_pause);
-
-        if (serviceReference != null) {
-            serviceReference.setListener(new PlaybackListener() {
-                @Override
-                public void onProgress(int progress) {
-
-                }
-
-                @Override
-                public void onCompletion() {
-                    playButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
-                }
-
-                @Override
-                public void onAudioDataReceived(short[] samples) {
-                    waveformView.setSamples(samples);
-                    spectrumView.setSamples(samples);
-                }
-            });
-
-            waveformView.setChannels(audioPlayerService.getChannelOut());
-            waveformView.setSampleRate(audioPlayerService.getSampleRate());
-            spectrumView.setSampleRate(audioPlayerService.getSampleRate());
-
-            playButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!audioPlayerService.isPlaying()) {
-                        audioPlayerService.play();
-                        playButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
-                    } else {
-                        audioPlayerService.pause();
-                        playButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
-                    }
-                }
-            });
-        }
 
 
     }
@@ -130,7 +67,7 @@ public class VisualisationActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.i(TAG, "Bound service connected");
-            serviceReference = ((AudioPlayerService.LocalBinder) service).getService();
+            serviceReference = ((AudioPlayerService.AudioPlayerBinder) service).getService();
             isBound = true;
         }
 

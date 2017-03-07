@@ -27,6 +27,8 @@
 
         <activity android:name=".ui.VisualisationActivity" />
 
+        <service android:name=".AudioPlayerService" />
+
     </application>
 
 </manifest>
