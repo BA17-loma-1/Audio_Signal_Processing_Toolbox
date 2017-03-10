@@ -1,23 +1,21 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.model;
 
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Plain object to hold song attributes
- * This is a parcelable object since we need to pass song
+ * Plain object to hold a audiotrack attributes
+ * This is a parcelable object since we need to pass a audiotrack
  * objects between activities
  *
  * @author georgrem, stockan1
  */
-public class Song implements Parcelable {
+public class Track implements Parcelable {
 
-    private String title, artist, album, duration;
-    private Uri uri;
+    private String title, artist, album, duration, uri;
 
 
-    public Song(String title, String artist, String album, String duration, Uri uri) {
+    public Track(String title, String artist, String album, String duration, String uri) {
         this.title = title;
         this.artist = artist;
         this.album = album;
@@ -26,17 +24,17 @@ public class Song implements Parcelable {
     }
 
     /**
-     * Use when reconstructing Song object from parcel
+     * Use when reconstructing Track object from parcel
      * This will be used only by the 'CREATOR'
      *
      * @param in a parcel to read this object
      */
-    public Song(Parcel in) {
+    public Track(Parcel in) {
         this.title = in.readString();
         this.artist = in.readString();
         this.album = in.readString();
         this.duration = in.readString();
-        this.uri = in.readParcelable(null);
+        this.uri = in.readString();
     }
 
     /**
@@ -61,7 +59,7 @@ public class Song implements Parcelable {
         dest.writeString(artist);
         dest.writeString(album);
         dest.writeString(duration);
-        dest.writeParcelable(uri, flags);
+        dest.writeString(uri);
     }
 
     /**
@@ -71,14 +69,14 @@ public class Song implements Parcelable {
      * If you don’t do that, Android framework will through exception
      * Parcelable protocol requires a Parcelable.Creator object called CREATOR
      */
-    public static final Parcelable.Creator<Song> CREATOR
-            = new Parcelable.Creator<Song>() {
-        public Song createFromParcel(Parcel in) {
-            return new Song(in);
+    public static final Parcelable.Creator<Track> CREATOR
+            = new Parcelable.Creator<Track>() {
+        public Track createFromParcel(Parcel in) {
+            return new Track(in);
         }
 
-        public Song[] newArray(int size) {
-            return new Song[size];
+        public Track[] newArray(int size) {
+            return new Track[size];
         }
     };
 
@@ -98,13 +96,13 @@ public class Song implements Parcelable {
         return duration;
     }
 
-    public Uri getUri() {
+    public String getUri() {
         return uri;
     }
 
     @Override
     public String toString() {
-        return "Song{" +
+        return "Track{" +
                 "title='" + title + '\'' +
                 ", artist='" + artist + '\'' +
                 ", album='" + album + '\'' +

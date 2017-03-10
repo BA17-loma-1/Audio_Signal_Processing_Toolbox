@@ -32,13 +32,13 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.SongAdapter;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Song;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.TrackAdapter;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 
 public class MediaListActivity extends AppCompatActivity {
 
-    private ArrayList<Song> songs;
-    private Song song;
+    private ArrayList<Track> tracks;
+    private Track track;
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
     private boolean permissionIsGranted = false;
     public final static String KEY_SONG = "ch.zhaw.bait17.audio_signal_processing_toolbox.SONG";
@@ -48,36 +48,36 @@ public class MediaListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_list);
 
-        songs = new ArrayList<>();
+        tracks = new ArrayList<>();
         String mediumType = getIntent().getStringExtra(MediaBrowserActivity.KEY_MEDIUMTYPE);
         switch (mediumType) {
             case MediaBrowserActivity.SAMPLE:
-                songs = getSongListFromRawFolder();
+                tracks = getSongListFromRawFolder();
                 break;
             case MediaBrowserActivity.DEVICE:
                 do {
                     requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, REQUEST_READ_EXTERNAL_STORAGE);
                 } while (!permissionIsGranted);
-                songs = getSongListFromDevice();
+                tracks = getSongListFromDevice();
                 break;
             default:
                 break;
         }
 
-        Collections.sort(songs, new Comparator<Song>() {
-            public int compare(Song a, Song b) {
+        Collections.sort(tracks, new Comparator<Track>() {
+            public int compare(Track a, Track b) {
                 return a.getTitle().compareTo(b.getTitle());
             }
         });
 
         ListView listView = (ListView) findViewById(R.id.media_list);
-        SongAdapter songAdapter = new SongAdapter(this, songs);
-        listView.setAdapter(songAdapter);
+        TrackAdapter trackAdapter = new TrackAdapter(this, tracks);
+        listView.setAdapter(trackAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                song = (Song) adapterView.getItemAtPosition(i);
+                track = (Track) adapterView.getItemAtPosition(i);
 
                 CardView controls = (CardView) findViewById(R.id.controls_container);
                 RelativeLayout inner = (RelativeLayout) findViewById(R.id.playback_controls);
@@ -86,15 +86,15 @@ public class MediaListActivity extends AppCompatActivity {
                 ImageView imageView = (ImageView) findViewById(R.id.album_art);
 
                 controls.setVisibility(VISIBLE);
-                title.setText(song.getTitle());
-                artist.setText(song.getArtist());
+                title.setText(track.getTitle());
+                artist.setText(track.getArtist());
 
                 inner.setOnClickListener(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(MediaListActivity.this, VisualisationActivity.class);
-                        intent.putExtra(KEY_SONG, song);  // write the data
+                        intent.putExtra(KEY_SONG, track);  // write the data
                         startActivity(intent); // and start the activity
                     }
                 });
@@ -102,7 +102,7 @@ public class MediaListActivity extends AppCompatActivity {
         });
     }
 
-    private ArrayList<Song> getSongListFromRawFolder() {
+    private ArrayList<Track> getSongListFromRawFolder() {
         Field[] fields = R.raw.class.getFields();
         for (Field field : fields) {
             int rawId = getResources().getIdentifier(field.getName(), "raw", getPackageName());
@@ -114,19 +114,19 @@ public class MediaListActivity extends AppCompatActivity {
                 if (filename.endsWith(".wav") || filename.endsWith(".mp3")) {
                     Log.i("filename", filename);
                     filename = filename.split("\\.")[0];
-                    songs.add(getSong(rawId, filename));
+                    tracks.add(getSong(rawId, filename));
                 }
             }
         }
-        return songs;
+        return tracks;
     }
 
-    private Song getSong(int resId, String filename) {
+    private Track getSong(int resId, String filename) {
         String title, artist, album, duration;
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        Uri soundUri = Uri.parse("android.resource://" + getPackageName() + File.separator + resId);
+        String uri = "android.resource://" + getPackageName() + File.separator + resId;
         try {
-            mmr.setDataSource(getApplicationContext(), soundUri);
+            mmr.setDataSource(getApplicationContext(), Uri.parse(uri));
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
@@ -137,10 +137,10 @@ public class MediaListActivity extends AppCompatActivity {
         title = title == null ? filename : title;
         artist = artist == null ? "<unknown>" : artist;
         album = album == null ? "<unknown>" : album;
-        return new Song(title, artist, album, duration, soundUri);
+        return new Track(title, artist, album, duration, uri.toString());
     }
 
-    private ArrayList<Song> getSongListFromDevice() {
+    private ArrayList<Track> getSongListFromDevice() {
         ContentResolver contentResolver = getContentResolver();
         Cursor musicCursor = contentResolver.query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
@@ -156,14 +156,14 @@ public class MediaListActivity extends AppCompatActivity {
                 String artist = musicCursor.getString(artistColumn);
                 String album = musicCursor.getString(albumColumn);
                 String duration = musicCursor.getString(durationColumn);
-                Uri soundUri = Uri.parse("file:///" + musicCursor.getString(nameColumn));
+                String uri = "file:///" + musicCursor.getString(nameColumn);
                 if (name.endsWith(".wav") || name.endsWith(".mp3")) {
-                    songs.add(new Song(title, artist, album, duration, soundUri));
+                    tracks.add(new Track(title, artist, album, duration, uri));
                 }
             }
             while (musicCursor.moveToNext());
         }
-        return songs;
+        return tracks;
     }
 
     private void requestPermission(String permission, Integer requestCode) {

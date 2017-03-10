@@ -10,26 +10,26 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Song;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 
-public class SongAdapter extends BaseAdapter {
+public class TrackAdapter extends BaseAdapter {
 
-    private ArrayList<Song> songs;
+    private ArrayList<Track> tracks;
     private LayoutInflater inflater;
 
-    public SongAdapter(Context context, ArrayList<Song> songs) {
-        this.songs = songs;
+    public TrackAdapter(Context context, ArrayList<Track> tracks) {
+        this.tracks = tracks;
         inflater = LayoutInflater.from(context);
     }
 
     @Override
     public int getCount() {
-        return songs.size();
+        return tracks.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return songs.get(position);
+        return tracks.get(position);
     }
 
     @Override
@@ -40,11 +40,11 @@ public class SongAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         RelativeLayout layout = (RelativeLayout) inflater.inflate(R.layout.media_list_item, parent, false);
-        TextView songView = (TextView) layout.findViewById(R.id.song_title);
-        TextView artistView = (TextView) layout.findViewById(R.id.song_artist);
-        Song song = songs.get(position);
-        songView.setText(song.getTitle());
-        artistView.setText(song.getArtist());
+        TextView title = (TextView) layout.findViewById(R.id.song_title);
+        TextView artist = (TextView) layout.findViewById(R.id.song_artist);
+        Track track = tracks.get(position);
+        title.setText(track.getTitle());
+        artist.setText(track.getArtist());
         return layout;
     }
 
