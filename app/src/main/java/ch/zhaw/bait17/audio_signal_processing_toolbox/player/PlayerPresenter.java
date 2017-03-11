@@ -68,7 +68,16 @@ public class PlayerPresenter {
         } else if (player.isPlaying()) {
             player.pause();
         } else {
-            player.resume();
+            player.play(uri);
         }
+
+    }
+
+    public int getSampleRate() {
+        return player.getSampleRate();
+    }
+
+    public int getChannelOut() {
+        return player.getChannelOut();
     }
 }

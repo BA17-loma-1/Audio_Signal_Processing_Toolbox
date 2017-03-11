@@ -14,24 +14,18 @@
 
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
-import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
-import android.widget.Toast;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import ch.zhaw.bait17.audio_signal_processing_toolbox.AudioPlayer;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.DecoderException;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.PlaybackListener;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.WaveDecoder;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.player.PlayerPresenter;
+
+import static android.view.View.VISIBLE;
 
 /**
  * Created by georgrem, stockan1 on 25.02.2017.
@@ -39,12 +33,10 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.player.PlayerPresenter;
 
 public class VisualisationActivity extends AppCompatActivity {
 
-    private AudioPlayer audioPlayer;
-    private Track track;
-    private short[] audioSamples;
-    private WaveDecoder decoder;
-    private SeekBar seekBar;
+    private static final String TAG = VisualisationActivity.class.getSimpleName();
 
+    private Track track;
+    private SeekBar seekBar;
     private PlayerPresenter playerPresenter;
 
     @Override
@@ -54,6 +46,7 @@ public class VisualisationActivity extends AppCompatActivity {
 
         final WaveformView waveformView = (WaveformView) findViewById(R.id.waveformView);
         final SpectrumView spectrumView = (SpectrumView) findViewById(R.id.spectrumView);
+        final ImageButton playButton = (ImageButton) findViewById(R.id.play_pause);
 
         track = getIntent().getExtras().getParcelable(MediaListActivity.KEY_SONG);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
@@ -61,85 +54,51 @@ public class VisualisationActivity extends AppCompatActivity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
             }
         });
 
-        try (InputStream is = getContentResolver().openInputStream(Uri.parse(track.getUri()));) {
-            decoder = new WaveDecoder(is);
-            audioSamples = decoder.getShort();
-        } catch (IOException | DecoderException e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-        }
+        playerPresenter = new PlayerPresenter(this, new PlaybackListener() {
+            @Override
+            public void onProgress(int progress) {
+            }
 
-        if (audioSamples != null && decoder != null) {
-            final ImageButton playButton = (ImageButton) findViewById(R.id.play_pause);
+            @Override
+            public void onCompletion() {
+                playButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
+            }
 
-            audioPlayer = new AudioPlayer(decoder.getShort(),
-                    decoder.getHeader().getSampleRate(),
-                    decoder.getHeader().getChannels(), new PlaybackListener() {
-                @Override
-                public void onProgress(int progress) {
+            @Override
+            public void onAudioDataReceived(short[] samples) {
+                waveformView.setChannels(playerPresenter.getChannelOut());
+                waveformView.setSampleRate(playerPresenter.getSampleRate());
+                waveformView.setSamples(samples);
 
-                }
+                spectrumView.setSampleRate(playerPresenter.getSampleRate());
+                spectrumView.setSamples(samples);
 
-                @Override
-                public void onCompletion() {
-                    playButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
-                }
-
-                @Override
-                public void onAudioDataReceived(short[] samples) {
-                    waveformView.setSamples(samples);
-                    spectrumView.setSamples(samples);
-                }
-            });
-
-            waveformView.setChannels(decoder.getHeader().getChannels());
-            waveformView.setSampleRate(audioPlayer.getSampleRate());
-            spectrumView.setSampleRate(audioPlayer.getSampleRate());
-
-            playButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!audioPlayer.isPlaying()) {
-                        audioPlayer.play();
-                        playButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
-                        playerPresenter.selectTrack(track);
-                    } else {
-                        audioPlayer.pause();
-                        playButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        spectrumView.setVisibility(VISIBLE);
                     }
-                }
-            });
+                });
+            }
+        });
 
-            playerPresenter = new PlayerPresenter(this, new PlaybackListener() {
-                @Override
-                public void onProgress(int progress) {
-
-                }
-
-                @Override
-                public void onCompletion() {
-
-                }
-
-                @Override
-                public void onAudioDataReceived(short[] data) {
-
-                }
-            });
-        }
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playerPresenter.selectTrack(track);
+            }
+        });
     }
 
     @Override

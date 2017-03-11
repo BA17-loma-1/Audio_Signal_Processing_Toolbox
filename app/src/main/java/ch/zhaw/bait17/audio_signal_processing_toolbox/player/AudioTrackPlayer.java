@@ -8,7 +8,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.ShortBuffer;
 
@@ -42,26 +42,85 @@ public class AudioTrackPlayer implements Player {
         this.listener = listener;
     }
 
+    /**
+     * Starts the audio playback.
+     */
     @Override
     public void play(String uri) {
         Log.d(TAG, "Play");
-        if (audioTrack != null) {
-            audioTrack.release();
-        }
-
-        try {
+        if (audioTrack == null || !currentTrack.equals(uri)) {
             createAudioTrack(uri);
-            currentTrack = uri;
-        } catch (IOException e) {
-            Log.e(TAG, "Could not play: " + uri, e);
+        } else {
+            if (audioTrack.getState() == AudioTrack.STATE_UNINITIALIZED) {
+                createAudioTrack(uri);
+            }
+        }
+        if (currentTrack != null) {
+            if (!currentTrack.equals(uri)) {
+                stop();
+                createAudioTrack(uri);
+            }
+        }
+        currentTrack = uri;
+
+        keepPlaying = true;
+        audioTrack.flush();
+        audioTrack.play();
+
+        thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int position = playbackStart * channelOut;
+                samples.position(position);
+                final int limit = numberOfSamplesPerChannel * channelOut;
+                while (samples.position() < limit && keepPlaying) {
+                    int samplesLeft = limit - samples.position();
+                    if (samplesLeft >= buffer.length) {
+                        samples.get(buffer);
+                    } else {
+                        for (int i = samplesLeft; i < buffer.length; i++) {
+                            buffer[i] = 0;
+                        }
+                        samples.get(buffer, 0, samplesLeft);
+                    }
+
+                    audioTrack.write(buffer, 0, buffer.length);
+                    listener.onAudioDataReceived(buffer);
+                }
+            }
+        });
+        thread.start();
+    }
+
+    /**
+     * Stops the audio playback.
+     */
+    public void stop() {
+        if (isPlaying() || isPaused()) {
+            keepPlaying = false;
+            audioTrack.pause();     // Immediate stop
+            audioTrack.stop();      // Unblock write to avoid deadlocks
+            if (thread != null) {
+                try {
+                    thread.join();
+                } catch (InterruptedException ex) {
+
+                }
+                thread = null;
+            }
+            audioTrack.flush();
         }
     }
 
+    /**
+     * Pauses the audio playback.
+     */
     @Override
     public void pause() {
         Log.d(TAG, "Pause");
         if (audioTrack != null) {
             audioTrack.pause();
+            seekToPosition(getCurrentPosition());
         }
     }
 
@@ -75,17 +134,23 @@ public class AudioTrackPlayer implements Player {
         currentTrack = null;
     }
 
-    @Override
-    public void resume() {
-        Log.d(TAG, "Resume");
-        if (audioTrack != null) {
-            // audioTrack.start();
-        }
-    }
-
+    /**
+     * Returns true if the AudioTrack is playing
+     *
+     * @return
+     */
     @Override
     public boolean isPlaying() {
         return audioTrack != null && audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING;
+    }
+
+    /**
+     * Returns true if the AudioTrack play state is PLAYSTATE_PAUSED.
+     *
+     * @return
+     */
+    public boolean isPaused() {
+        return audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED;
     }
 
     @Override
@@ -94,13 +159,15 @@ public class AudioTrackPlayer implements Player {
         return currentTrack;
     }
 
-    private void createAudioTrack(String uri) throws IOException {
+    private void createAudioTrack(String uri) {
         Log.d(TAG, "Create new AudioTrack");
 
-        InputStream is = context.getContentResolver().openInputStream(Uri.parse(uri));
         try {
+            InputStream is = context.getContentResolver().openInputStream(Uri.parse(uri));
             // TODO: check if wav or mp3
             decoder = new WaveDecoder(is);
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "File not found: " + uri, e);
         } catch (DecoderException e) {
             Log.e(TAG, "Could not decode: " + uri, e);
         }
@@ -128,6 +195,7 @@ public class AudioTrackPlayer implements Player {
                     listener.onCompletion();
                 }
             }
+
             @Override
             public void onPeriodicNotification(AudioTrack track) {
                 if (listener != null && track.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
@@ -142,6 +210,7 @@ public class AudioTrackPlayer implements Player {
 
     /**
      * Returns the minimum buffer size expressed in bytes.
+     *
      * @return
      */
     private int getMinBufferSize() {
@@ -153,5 +222,42 @@ public class AudioTrackPlayer implements Player {
             bufferSize = sampleRate / 4;
         }
         return bufferSize;
+    }
+
+    @Override
+    public int getSampleRate() {
+        if (audioTrack != null) {
+            return audioTrack.getSampleRate();
+        } else {
+            return sampleRate;
+        }
+    }
+
+    @Override
+    public int getChannelOut() {
+        return channelOut;
+    }
+
+    public void seekToPosition(int msec) {
+        boolean wasPlaying = isPlaying();
+        stop();
+        playbackStart = (int) (msec * sampleRate / 1000);
+        if (playbackStart > numberOfSamplesPerChannel) {
+            // No more samples to play
+            playbackStart = numberOfSamplesPerChannel;
+        }
+        audioTrack.setNotificationMarkerPosition(numberOfSamplesPerChannel - 1 - playbackStart);
+        if (wasPlaying) {
+            play(currentTrack);
+        }
+    }
+
+    /**
+     * Returns the current position as millisecond.
+     *
+     * @return
+     */
+    public int getCurrentPosition() {
+        return (int) ((playbackStart + audioTrack.getPlaybackHeadPosition()) * (1000.0 / sampleRate));
     }
 }

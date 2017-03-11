@@ -13,12 +13,14 @@ public interface Player {
 
     void pause();
 
-    void resume();
-
     boolean isPlaying();
 
     @Nullable
     String getCurrentTrack();
 
     void release();
+
+    int getSampleRate();
+
+    int getChannelOut();
 }
