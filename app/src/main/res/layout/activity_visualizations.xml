@@ -15,14 +15,14 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin">
 
-        <ch.zhaw.bait17.audio_signal_processing_toolbox.ui.WaveformView
+        <ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView
             android:id="@+id/waveformView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:background="@android:color/white" />
 
-        <ch.zhaw.bait17.audio_signal_processing_toolbox.ui.SpectrumView
+        <ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrumView
             android:id="@+id/spectrumView"
             android:layout_width="match_parent"
             android:layout_height="0dp"

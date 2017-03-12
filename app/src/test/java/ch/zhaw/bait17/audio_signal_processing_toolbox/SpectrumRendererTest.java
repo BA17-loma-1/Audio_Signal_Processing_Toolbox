@@ -1,16 +1,15 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
 import android.graphics.Paint;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.ui.SpectrumRenderer;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrumRenderer;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import java.util.Arrays;
 import static org.junit.Assert.*;
 
 /**
  * Local unit tests of the FFT class.
- * @see ch.zhaw.bait17.audio_signal_processing_toolbox.ui.SpectrumRenderer
+ * @see SpectrumRenderer
  *
  * Created by georgrem, stockan1 on 04.03.2017.
  */

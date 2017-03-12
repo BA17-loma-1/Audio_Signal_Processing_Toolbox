@@ -32,7 +32,7 @@ public class InstrumentedFFTTest {
     private static final double TOLERANCE = 1e-6;
     private static final int SAMPLING_FREQUENCY = 48000;
     private static final int LOOKUP_TABLE_SIZE = 256;
-    private static final double DELTA_FREQUENCY = 1.0 * SAMPLING_FREQUENCY / LOOKUP_TABLE_SIZE;
+    private static final double DELTA_FREQUENCY = SAMPLING_FREQUENCY / (double) LOOKUP_TABLE_SIZE;
 
     static {
         WAVEFORM_RESOURCES.put(1, R.raw.waveform_m1);
@@ -63,6 +63,7 @@ public class InstrumentedFFTTest {
             float[] fullDFT = fft.getForwardTransform(signal);
             // Only lower half of DFT is of interest
             float[] dft = new float[fullDFT.length / 2];
+            final double deltaFrequency = SAMPLING_FREQUENCY / dft.length;
             System.arraycopy(fullDFT, 0, dft, 0, fullDFT.length / 2);
             // Can't use Arrays.stream(dft).max().getAsDouble() in API 19  :(
             float max = Float.MIN_VALUE;
@@ -73,8 +74,8 @@ public class InstrumentedFFTTest {
                     bin = i / 2;
                 }
             }
-            double frequency = bin * DELTA_FREQUENCY;
-            assertEquals(entry.getKey() * DELTA_FREQUENCY, frequency, TOLERANCE);
+            double frequency = bin * deltaFrequency;
+            assertEquals(entry.getKey() * deltaFrequency, frequency, TOLERANCE);
         }
     }
 

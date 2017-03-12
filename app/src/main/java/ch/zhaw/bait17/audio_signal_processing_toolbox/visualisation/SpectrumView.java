@@ -12,14 +12,12 @@
  * limitations under the License.
  */
 
-package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.support.v4.content.ContextCompat;
 import android.text.TextPaint;
 import android.util.AttributeSet;
@@ -29,17 +27,19 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 
 /**
  *
- * Created by georgrem, stockan1 on 04.03.2017.
+ * @author georgrem, stockan1
  */
 public class SpectrumView extends View {
+
+    private final double RENDER_INTERVALL = 1e8;
 
     private Thread renderThread;
     private SpectrumRenderer renderer;
     private TextPaint textPaint;
     private Paint strokePaint;
-    private int width, height;
     private int sampleRate;
     private short[] samples;
+    private long lastRender = 0;
 
     public SpectrumView(Context context) {
         super(context);
@@ -93,8 +93,8 @@ public class SpectrumView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        width = getMeasuredWidth();
-        height = getMeasuredHeight();
+        renderer.setWidth(getMeasuredWidth());
+        renderer.setHeigth(getMeasuredHeight());
     }
 
     @Override

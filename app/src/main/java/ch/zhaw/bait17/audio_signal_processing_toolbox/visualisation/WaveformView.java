@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -27,7 +27,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 
 /**
  *
- * Created by georgrem, stockan1 on 23.02.2017.
+ * @author georgrem, stockan1
  */
 public class WaveformView extends View {
 

@@ -12,9 +12,9 @@ import android.util.Log;
  */
 public class FFT {
 
+    private static final String TAG = FFT.class.getSimpleName();
     private static final int MIN_WINDOW_SIZE = 4096;
     private static final WindowType DEFAULT_WINDOW_TYPE = WindowType.HAMMING;
-    private static final String TAG = FFT.class.getSimpleName();
     private Window win;
     private int windowSize;
 
@@ -33,7 +33,6 @@ public class FFT {
     public FFT(WindowType type) {
         if (type == null)
             throw new IllegalArgumentException("Invalid window type.");
-        this.windowSize = windowSize;
         win = new Window(type);
     }
 
@@ -57,6 +56,9 @@ public class FFT {
         }
         FloatFFT_1D fft = new FloatFFT_1D(weightedSamples.length);
         fft.realForward(weightedSamples);
+
+        Log.i(TAG, String.format("FFT window size: %d", weightedSamples.length));
+
         return weightedSamples;
     }
 
@@ -74,15 +76,17 @@ public class FFT {
      */
     public float[] getForwardTransformFull(float[] samples) {
         float[] weightedSamples = applyWindowToSamples(samples);
-        //(weightedSamples.length < MIN_WINDOW_SIZE)
         int paddingLength = weightedSamples.length;
         if (2 * paddingLength < MIN_WINDOW_SIZE) {
             paddingLength += MIN_WINDOW_SIZE - paddingLength;
         }
         float[] zeroPaddedSamples = addZeroPadding(weightedSamples, paddingLength);
-        int N = zeroPaddedSamples.length/2;
+        int N = zeroPaddedSamples.length / 2;
         FloatFFT_1D fft = new FloatFFT_1D(N);
         fft.realForwardFull(zeroPaddedSamples);
+
+        Log.i(TAG, String.format("FFT window size: %d", zeroPaddedSamples.length));
+
         return zeroPaddedSamples;
     }
 
@@ -122,6 +126,10 @@ public class FFT {
      */
     public String getWindowType() {
         return win.toString();
+    }
+
+    public int getMinWindowSize() {
+        return MIN_WINDOW_SIZE;
     }
 
     /**

@@ -12,14 +12,18 @@
  * limitations under the License.
  */
 
-package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.text.TextPaint;
+import android.util.Log;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.FFT;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.PCMUtil;
@@ -27,21 +31,37 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.WindowType;
 
 /**
  *
- * Created by georgrem, stockan1 on 04.03.2017.
+ * @author georgrem, stockan1
  */
 public class SpectrumRenderer {
 
-    private FFT fft = new FFT(WindowType.HAMMING);
+    private final int HISTORY_LENGTH = 3;
+    private final int FREQUENCY_LABEL_SIZE = 42;
+    private static final String TAG = SpectrumRenderer.class.getSimpleName();
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("##.0K");
     private static final int OCTAVE_BANDS = 31;
     private static final int REFERENCE_CENTER_FREQUENCY = 1000;
     private static final int OCTAVE_BAND_REFERENCE_FREQUENCY = 18;
-    private static double[] centreFrequencies;
-    private static double[] thirdOctaveFrequencyBoundaries;
+    private static final int dB_RANGE = 96;
+
+    private FFT fft;
+    private double[] centreFrequencies;
+    private double[] thirdOctaveFrequencyBoundaries;
+    private int width, heigth;
     private TextPaint textPaint;
     private Paint paint;
+    List<float[]> spectrumHistory;
 
+    /**
+     * Creates an instances of SpectrumRenderer.
+     * The FFT uses a Hamming window.
+     * @param paint
+     */
     public SpectrumRenderer(Paint paint) {
         this.paint = paint;
+        fft = new FFT(WindowType.HAMMING);
+        spectrumHistory = new ArrayList<>(HISTORY_LENGTH);
+
         calculateCentreFrequencies();
         calculateThirdOctaveBands();
 
@@ -49,7 +69,7 @@ public class SpectrumRenderer {
         textPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setColor(Color.RED);
-        textPaint.setTextSize(24);
+        textPaint.setTextSize(FREQUENCY_LABEL_SIZE);
     }
 
     /**
@@ -92,17 +112,21 @@ public class SpectrumRenderer {
             float[] spectrum = getRealSpectrum(samples);
 
             int nFFT = spectrum.length;
-            double deltaFrequency = sampleRate / nFFT;
+            double deltaFrequency = sampleRate / (double) nFFT;
 
-            float barWidth = (canvas.getWidth() / OCTAVE_BANDS) + 10;
+            float barWidth = width / (float) OCTAVE_BANDS + 10;
             float dcMagnitude = (float) (20 * Math.log10(Math.abs(spectrum[0])));
+
+            Log.i(TAG, String.format("bar width: %f", barWidth));
+            Log.i(TAG, String.format("canvas width: %d  canvas height: %d", canvas.getWidth(), canvas.getHeight()));
+            Log.i(TAG, String.format("measured width: %d  measured height: %d", width, heigth));
 
             Map<Double, RectF> magnitudeBars = new LinkedHashMap<>();
             // DC -> bin m[0]
-            magnitudeBars.put(0d, new RectF(0, canvas.getHeight() - dcMagnitude, barWidth, canvas.getHeight()-30));
+            magnitudeBars.put(0d, new RectF(0, heigth - (heigth / dB_RANGE * dcMagnitude), barWidth, heigth - 40));
 
             double frequency = 0;
-            int k = 1;
+            int k = 0;
             int countRect = 1;
             for (int i = 1; i < thirdOctaveFrequencyBoundaries.length - 1; i += 3) {
                 double upperBound = thirdOctaveFrequencyBoundaries[i + 1];
@@ -115,19 +139,35 @@ public class SpectrumRenderer {
                     k++;
                 }
                 magnitudeBars.put(frequency, new RectF((countRect * barWidth) + 5,
-                        canvas.getHeight() - 5 * (float) (20 * Math.log10(maxMagnitude)),
+                        heigth - (heigth / dB_RANGE * (float) (20 * Math.log10(maxMagnitude))),
                         (countRect * barWidth) + barWidth,
-                        canvas.getHeight()-30));
+                        heigth - 40));
                 countRect++;
             }
 
+            Log.i(TAG, String.format("magnitude bars: %d", magnitudeBars.size()));
+
             int count = 0;
             for (Map.Entry<Double, RectF> entry : magnitudeBars.entrySet()) {
-                if (count++ % 2 == 0) {
-                    canvas.drawText(Double.toString(entry.getKey()), entry.getValue().centerX(),
+                // Render frequency band
+                canvas.drawRect(entry.getValue(), paint);
+
+                // Render frequency label text
+                double freq = entry.getKey().doubleValue();
+                String frequencyLabel = null;
+                if (freq < REFERENCE_CENTER_FREQUENCY && count % 2 == 0) {
+                    frequencyLabel = Long.toString((long) freq);
+                } else {
+                    if (count % 2 == 0) {
+                        frequencyLabel = getFormattedValue(freq / 1000);
+                    }
+                }
+                count++;
+
+                if (frequencyLabel != null) {
+                    canvas.drawText(frequencyLabel, entry.getValue().centerX(),
                             canvas.getHeight(), textPaint);
                 }
-                canvas.drawRect(entry.getValue(), paint);
             }
         }
     }
@@ -158,6 +198,18 @@ public class SpectrumRenderer {
             }
         }
         return spectrum;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public void setHeigth(int heigth) {
+        this.heigth = heigth;
+    }
+
+    private static String getFormattedValue(double value) {
+        return DECIMAL_FORMAT.format(value);
     }
 
 }

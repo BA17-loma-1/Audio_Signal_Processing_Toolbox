@@ -64,9 +64,8 @@ public class InstrumentedAudioStreamTest {
     @Test
     public void testPlayFull() throws InterruptedException {
         audioPlayer.play();
-        while (audioPlayer.isPlaying()) {
-            Thread.sleep(100);
-        }
+        Thread.sleep(3000);
+        audioPlayer.stop();
     }
 
 }
