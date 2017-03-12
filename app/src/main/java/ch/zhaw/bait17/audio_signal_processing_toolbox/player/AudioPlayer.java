@@ -3,15 +3,26 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.player;
 import android.content.Context;
 import android.support.annotation.Nullable;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.PlaybackListener;
+/**
+ * Created by georgrem, stockan1 on 11.03.2017.
+ */
 
-public interface Player {
+public interface AudioPlayer {
+
 
     void init(Context context, PlaybackListener listener);
 
     void play(String uri);
 
+    /**
+     * Pauses the audio playback.
+     */
     void pause();
+
+    /**
+     * Stops the audio playback.
+     */
+    void stop();
 
     boolean isPlaying();
 
@@ -22,5 +33,12 @@ public interface Player {
 
     int getSampleRate();
 
-    int getChannelOut();
+    int getChannels();
+
+    void seekToPosition(int msec);
+
+    /**
+     * Returns the current position as millisecond.
+     */
+    int getCurrentPosition();
 }

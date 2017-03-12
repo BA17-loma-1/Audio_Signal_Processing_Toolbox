@@ -7,23 +7,22 @@ import android.media.AudioTrack;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.ShortBuffer;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.DecoderException;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.PlaybackListener;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.WaveDecoder;
 
 
-public class AudioTrackPlayer implements Player {
+public class WavePlayer implements AudioPlayer {
 
-    private static final String TAG = AudioTrackPlayer.class.getSimpleName();
+    private static final String TAG = WavePlayer.class.getSimpleName();
 
     private Context context;
     private AudioTrack audioTrack;
-    private WaveDecoder decoder;
     private String currentTrack;
     private ShortBuffer samples;
     private int sampleRate;
@@ -48,18 +47,25 @@ public class AudioTrackPlayer implements Player {
     @Override
     public void play(String uri) {
         Log.d(TAG, "Play");
-        if (audioTrack == null || !currentTrack.equals(uri)) {
-            createAudioTrack(uri);
-        } else {
-            if (audioTrack.getState() == AudioTrack.STATE_UNINITIALIZED) {
+
+        try {
+            if (audioTrack == null || !currentTrack.equals(uri)) {
                 createAudioTrack(uri);
+            } else {
+                if (audioTrack.getState() == AudioTrack.STATE_UNINITIALIZED) {
+                    createAudioTrack(uri);
+                }
             }
-        }
-        if (currentTrack != null) {
-            if (!currentTrack.equals(uri)) {
-                stop();
-                createAudioTrack(uri);
+            if (currentTrack != null) {
+                if (!currentTrack.equals(uri)) {
+                    stop();
+                    createAudioTrack(uri);
+                }
             }
+        } catch(Exception ex) {
+            Toast.makeText(context, ex.getMessage(), Toast.LENGTH_LONG).show();
+            Log.e(TAG, "Could not play audio track.", ex);
+            return;
         }
         currentTrack = uri;
 
@@ -92,9 +98,6 @@ public class AudioTrackPlayer implements Player {
         thread.start();
     }
 
-    /**
-     * Stops the audio playback.
-     */
     public void stop() {
         if (isPlaying() || isPaused()) {
             keepPlaying = false;
@@ -118,11 +121,13 @@ public class AudioTrackPlayer implements Player {
     @Override
     public void pause() {
         Log.d(TAG, "Pause");
-        if (audioTrack != null) {
+        if (isPlaying()) {
             audioTrack.pause();
             seekToPosition(getCurrentPosition());
         }
     }
+
+
 
     @Override
     public void release() {
@@ -135,22 +140,19 @@ public class AudioTrackPlayer implements Player {
     }
 
     /**
-     * Returns true if the AudioTrack is playing
-     *
+     * Returns true if the AudioTrack play state is PlAYSTATE_PLAYING.
      * @return
      */
-    @Override
     public boolean isPlaying() {
-        return audioTrack != null && audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING;
+        return audioTrack == null ? false: audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING;
     }
 
     /**
      * Returns true if the AudioTrack play state is PLAYSTATE_PAUSED.
-     *
      * @return
      */
     public boolean isPaused() {
-        return audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED;
+        return audioTrack == null ? false: audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED;
     }
 
     @Override
@@ -159,53 +161,55 @@ public class AudioTrackPlayer implements Player {
         return currentTrack;
     }
 
-    private void createAudioTrack(String uri) {
+    private void createAudioTrack(String uri) throws FileNotFoundException, DecoderException {
         Log.d(TAG, "Create new AudioTrack");
 
+        WaveDecoder decoder = null;
         try {
             InputStream is = context.getContentResolver().openInputStream(Uri.parse(uri));
-            // TODO: check if wav or mp3
             decoder = new WaveDecoder(is);
         } catch (FileNotFoundException e) {
-            Log.e(TAG, "File not found: " + uri, e);
+            throw new FileNotFoundException("File not found: " + uri);
         } catch (DecoderException e) {
-            Log.e(TAG, "Could not decode: " + uri, e);
+            throw new DecoderException("Could not decode track: " + uri);
         }
 
         short[] samples = decoder.getShort();
-        int channels = decoder.getHeader().getChannels();
-        numberOfSamplesPerChannel = samples.length / channels;
-        this.samples = ShortBuffer.wrap(samples);
-        this.sampleRate = decoder.getHeader().getSampleRate();
-        this.channelOut = channels;
-        playbackStart = 0;
-        int bufferSize = getMinBufferSize();
-        buffer = new short[bufferSize];
-        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate,
-                channelOut == 1 ? AudioFormat.CHANNEL_OUT_MONO : AudioFormat.CHANNEL_OUT_STEREO,
-                AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
+        if (samples != null) {
+            int channels = decoder.getHeader().getChannels();
+            numberOfSamplesPerChannel = samples.length / channels;
+            this.samples = ShortBuffer.wrap(samples);
+            this.sampleRate = decoder.getHeader().getSampleRate();
+            this.channelOut = channels;
+            playbackStart = 0;
+            int bufferSize = getMinBufferSize();
+            buffer = new short[bufferSize];
+            audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate,
+                    channelOut == 1 ? AudioFormat.CHANNEL_OUT_MONO : AudioFormat.CHANNEL_OUT_STEREO,
+                    AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
 
-        audioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
-            @Override
-            public void onMarkerReached(AudioTrack track) {
-                track.stop();
-                track.flush();
-                track.release();
-                if (listener != null) {
-                    listener.onCompletion();
+            audioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
+                @Override
+                public void onMarkerReached(AudioTrack track) {
+                    track.stop();
+                    track.flush();
+                    track.release();
+                    if (listener != null) {
+                        listener.onCompletion();
+                    }
                 }
-            }
 
-            @Override
-            public void onPeriodicNotification(AudioTrack track) {
-                if (listener != null && track.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
-                    listener.onProgress((int) (track.getPlaybackHeadPosition() * 1000.0 / sampleRate));
+                @Override
+                public void onPeriodicNotification(AudioTrack track) {
+                    if (listener != null && track.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
+                        listener.onProgress((int) (track.getPlaybackHeadPosition() * 1000.0 / sampleRate));
+                    }
                 }
-            }
-        });
+            });
 
-        audioTrack.setPositionNotificationPeriod(sampleRate / 1000);                    // E.g. at 48000 Hz --> 48 times per second
-        audioTrack.setNotificationMarkerPosition(numberOfSamplesPerChannel - 1);
+            audioTrack.setPositionNotificationPeriod(sampleRate / 1000);                    // E.g. at 48000 Hz --> 48 times per second
+            audioTrack.setNotificationMarkerPosition(numberOfSamplesPerChannel - 1);
+        }
     }
 
     /**
@@ -234,7 +238,7 @@ public class AudioTrackPlayer implements Player {
     }
 
     @Override
-    public int getChannelOut() {
+    public int getChannels() {
         return channelOut;
     }
 
@@ -252,11 +256,7 @@ public class AudioTrackPlayer implements Player {
         }
     }
 
-    /**
-     * Returns the current position as millisecond.
-     *
-     * @return
-     */
+    @Override
     public int getCurrentPosition() {
         return (int) ((playbackStart + audioTrack.getPlaybackHeadPosition()) * (1000.0 / sampleRate));
     }

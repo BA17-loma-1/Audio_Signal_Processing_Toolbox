@@ -7,7 +7,6 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.PlaybackListener;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 
 public class PlayerPresenter {
@@ -17,7 +16,7 @@ public class PlayerPresenter {
     private final Context context;
     private final PlaybackListener listener;
 
-    private Player player;
+    private AudioPlayer player;
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -64,10 +63,17 @@ public class PlayerPresenter {
         String currentTrackUri = player.getCurrentTrack();
 
         if (currentTrackUri == null || !currentTrackUri.equals(uri)) {
-            if (player.isPlaying()) player.pause();
+            if (player.isPlaying()) {
+                player.pause();
+                player.stop();
+            }
             player.play(uri);
-        } else if (player.isPlaying()) player.pause();
-        else player.play(uri);
+        } else if (player.isPlaying()) {
+            player.pause();
+            player.stop();
+        } else {
+            player.play(uri);
+        }
     }
 
     public int getSampleRate() {
@@ -75,6 +81,6 @@ public class PlayerPresenter {
     }
 
     public int getChannelOut() {
-        return player.getChannelOut();
+        return player.getChannels();
     }
 }

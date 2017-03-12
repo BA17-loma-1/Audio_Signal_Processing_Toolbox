@@ -21,6 +21,8 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import java.nio.ShortBuffer;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.player.PlaybackListener;
+
 public class AudioPlayer {
 
     private ShortBuffer samples;

@@ -13,14 +13,14 @@ public class PlayerService extends Service {
     private static final String TAG = PlayerService.class.getSimpleName();
 
     private final IBinder binder = new PlayerBinder();
-    private AudioTrackPlayer player = new AudioTrackPlayer();
+    private AudioPlayer player = new WavePlayer();
 
     public static Intent getIntent(Context context) {
         return new Intent(context, PlayerService.class);
     }
 
     public class PlayerBinder extends Binder {
-        public Player getService() {
+        public AudioPlayer getService() {
             return player;
         }
     }

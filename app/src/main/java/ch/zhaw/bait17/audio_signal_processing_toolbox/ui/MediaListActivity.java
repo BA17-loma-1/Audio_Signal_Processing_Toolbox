@@ -34,6 +34,7 @@ import java.util.List;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.TrackAdapter;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.SupportedAudioFormat;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 
 public class MediaListActivity extends AppCompatActivity {
@@ -170,7 +171,9 @@ public class MediaListActivity extends AppCompatActivity {
                 String album = musicCursor.getString(albumColumn);
                 String duration = musicCursor.getString(durationColumn);
                 String uri = "file:///" + musicCursor.getString(nameColumn);
-                if (name.endsWith(".wav") || name.endsWith(".mp3")) {
+                if (name.endsWith(".wav")) {
+                    tracks.add(new Track(title, artist, album, duration, uri));
+                } else if (name.endsWith(".mp3")) {
                     tracks.add(new Track(title, artist, album, duration, uri));
                 }
             }

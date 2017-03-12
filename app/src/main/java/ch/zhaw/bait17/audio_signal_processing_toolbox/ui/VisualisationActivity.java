@@ -16,20 +16,19 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.CardView;
 import android.text.format.DateUtils;
 import android.view.View;
-import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.util.List;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.PlaybackListener;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.player.PlaybackListener;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.player.PlayerPresenter;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrumView;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView;
 
 import static android.view.View.VISIBLE;
 

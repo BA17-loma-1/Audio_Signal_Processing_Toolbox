@@ -13,9 +13,11 @@ import android.os.Parcelable;
 public class Track implements Parcelable {
 
     private String title, artist, album, duration, uri;
+    private SupportedAudioFormat audioFormat;
 
-
-    public Track(String title, String artist, String album, String duration, String uri) {
+    public Track(String title, String artist, String album,
+                 String duration, String uri) {
+        //this.audioFormat = SupportedAudioFormat.valueOf(audioFormat);
         this.title = title;
         this.artist = artist;
         this.album = album;
@@ -30,6 +32,7 @@ public class Track implements Parcelable {
      * @param in a parcel to read this object
      */
     public Track(Parcel in) {
+        //this.audioFormat = SupportedAudioFormat.valueOf(in.readString());
         this.title = in.readString();
         this.artist = in.readString();
         this.album = in.readString();
@@ -55,6 +58,7 @@ public class Track implements Parcelable {
      */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        //dest.writeString(audioFormat.toString());
         dest.writeString(title);
         dest.writeString(artist);
         dest.writeString(album);
@@ -79,6 +83,10 @@ public class Track implements Parcelable {
             return new Track[size];
         }
     };
+
+    public String getAudioFormat() {
+        return audioFormat.toString();
+    }
 
     public String getTitle() {
         return title;
