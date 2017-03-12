@@ -7,14 +7,11 @@ import java.io.InputStream;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * * Created by georgrem, stockan1 on 16.02.2017.
- *
  * Decodes a WAV file.
  * This class is designed to handle uncompressed PCM audio files, the most common type of RIFF files.
  * The header is the beginning of a WAV (RIFF - Resource Interchange File Format) file.
@@ -49,6 +46,8 @@ import java.util.List;
  * Source: http://stackoverflow.com/questions/15087668/how-to-convert-pcm-samples-in-byte-array-as-floating-point-numbers-in-the-range#15094612
  *
  * Credits: http://mindtherobot.com/blog/580/android-audio-play-a-wav-file-on-an-audiotrack/
+ *
+ * @author georgrem, stockan1
  */
 public class WaveDecoder {
 

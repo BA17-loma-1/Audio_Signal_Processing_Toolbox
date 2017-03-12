@@ -178,6 +178,7 @@ public class MediaListActivity extends AppCompatActivity {
                 }
             }
             while (musicCursor.moveToNext());
+            musicCursor.close();
         }
         return tracks;
     }

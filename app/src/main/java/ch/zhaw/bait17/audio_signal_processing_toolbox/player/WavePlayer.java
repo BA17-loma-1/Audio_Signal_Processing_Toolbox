@@ -1,3 +1,17 @@
+/**
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package ch.zhaw.bait17.audio_signal_processing_toolbox.player;
 
 import android.content.Context;
@@ -8,17 +22,20 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
-
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.ShortBuffer;
-
 import ch.zhaw.bait17.audio_signal_processing_toolbox.DecoderException;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.WaveDecoder;
 
+/**
+ * Singleton with static factory.
+ * @author georgrem, stockan1
+ */
 
 public class WavePlayer implements AudioPlayer {
 
+    private static final WavePlayer INSTANCE = new WavePlayer();
     private static final String TAG = WavePlayer.class.getSimpleName();
 
     private Context context;
@@ -26,7 +43,7 @@ public class WavePlayer implements AudioPlayer {
     private String currentTrack;
     private ShortBuffer samples;
     private int sampleRate;
-    private int channelOut;
+    private int channels;
     private PlaybackListener listener;
     private Thread thread;
     private short[] buffer;
@@ -34,6 +51,17 @@ public class WavePlayer implements AudioPlayer {
     private int numberOfSamplesPerChannel;
     private boolean keepPlaying = false;
 
+    private WavePlayer() {
+
+    }
+
+    /**
+     * Returns the singleton instance of the wave audio player.
+     * @return WavePlayer instance
+     */
+    public static WavePlayer getInstance() {
+        return INSTANCE;
+    }
 
     @Override
     public void init(Context context, PlaybackListener listener) {
@@ -41,13 +69,14 @@ public class WavePlayer implements AudioPlayer {
         this.listener = listener;
     }
 
-    /**
-     * Starts the audio playback.
-     */
     @Override
     public void play(String uri) {
-        Log.d(TAG, "Play");
+        // Already playing? Return!
+        if (isPlaying()) {
+            return;
+        }
 
+        Log.d(TAG, "Play");
         try {
             if (audioTrack == null || !currentTrack.equals(uri)) {
                 createAudioTrack(uri);
@@ -76,9 +105,9 @@ public class WavePlayer implements AudioPlayer {
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                int position = playbackStart * channelOut;
+                int position = playbackStart * channels;
                 samples.position(position);
-                final int limit = numberOfSamplesPerChannel * channelOut;
+                final int limit = numberOfSamplesPerChannel * channels;
                 while (samples.position() < limit && keepPlaying) {
                     int samplesLeft = limit - samples.position();
                     if (samplesLeft >= buffer.length) {
@@ -98,6 +127,16 @@ public class WavePlayer implements AudioPlayer {
         thread.start();
     }
 
+    @Override
+    public void pause() {
+        Log.d(TAG, "Pause");
+        if (isPlaying()) {
+            audioTrack.pause();
+            seekToPosition(getCurrentPosition());
+        }
+    }
+
+    @Override
     public void stop() {
         if (isPlaying() || isPaused()) {
             keepPlaying = false;
@@ -115,23 +154,26 @@ public class WavePlayer implements AudioPlayer {
         }
     }
 
-    /**
-     * Pauses the audio playback.
-     */
     @Override
-    public void pause() {
-        Log.d(TAG, "Pause");
-        if (isPlaying()) {
-            audioTrack.pause();
-            seekToPosition(getCurrentPosition());
-        }
+    public boolean isPlaying() {
+        return audioTrack != null && audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING;
     }
 
+    @Override
+    public boolean isPaused() {
+        return audioTrack != null && audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED;
+    }
 
+    @Override
+    @Nullable
+    public String getCurrentTrack() {
+        return currentTrack;
+    }
 
     @Override
     public void release() {
         Log.d(TAG, "Release");
+        stop();
         if (audioTrack != null) {
             audioTrack.release();
             audioTrack = null;
@@ -139,26 +181,38 @@ public class WavePlayer implements AudioPlayer {
         currentTrack = null;
     }
 
-    /**
-     * Returns true if the AudioTrack play state is PlAYSTATE_PLAYING.
-     * @return
-     */
-    public boolean isPlaying() {
-        return audioTrack == null ? false: audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING;
-    }
-
-    /**
-     * Returns true if the AudioTrack play state is PLAYSTATE_PAUSED.
-     * @return
-     */
-    public boolean isPaused() {
-        return audioTrack == null ? false: audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED;
+    @Override
+    public int getSampleRate() {
+        if (audioTrack != null) {
+            return audioTrack.getSampleRate();
+        } else {
+            return sampleRate;
+        }
     }
 
     @Override
-    @Nullable
-    public String getCurrentTrack() {
-        return currentTrack;
+    public int getChannels() {
+        return channels;
+    }
+
+    @Override
+    public void seekToPosition(int msec) {
+        boolean wasPlaying = isPlaying();
+        stop();
+        playbackStart = (int) (msec * sampleRate / 1000);
+        if (playbackStart > numberOfSamplesPerChannel) {
+            // No more samples to play
+            playbackStart = numberOfSamplesPerChannel;
+        }
+        audioTrack.setNotificationMarkerPosition(numberOfSamplesPerChannel - 1 - playbackStart);
+        if (wasPlaying) {
+            play(currentTrack);
+        }
+    }
+
+    @Override
+    public int getCurrentPosition() {
+        return (int) ((playbackStart + audioTrack.getPlaybackHeadPosition()) * (1000.0 / sampleRate));
     }
 
     private void createAudioTrack(String uri) throws FileNotFoundException, DecoderException {
@@ -180,12 +234,12 @@ public class WavePlayer implements AudioPlayer {
             numberOfSamplesPerChannel = samples.length / channels;
             this.samples = ShortBuffer.wrap(samples);
             this.sampleRate = decoder.getHeader().getSampleRate();
-            this.channelOut = channels;
+            this.channels = channels;
             playbackStart = 0;
             int bufferSize = getMinBufferSize();
             buffer = new short[bufferSize];
             audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate,
-                    channelOut == 1 ? AudioFormat.CHANNEL_OUT_MONO : AudioFormat.CHANNEL_OUT_STEREO,
+                    channels == 1 ? AudioFormat.CHANNEL_OUT_MONO : AudioFormat.CHANNEL_OUT_STEREO,
                     AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
 
             audioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
@@ -214,12 +268,11 @@ public class WavePlayer implements AudioPlayer {
 
     /**
      * Returns the minimum buffer size expressed in bytes.
-     *
      * @return
      */
     private int getMinBufferSize() {
         int bufferSize = AudioTrack.getMinBufferSize(sampleRate,
-                channelOut == 1 ? AudioFormat.CHANNEL_OUT_MONO : AudioFormat.CHANNEL_OUT_STEREO,
+                channels == 1 ? AudioFormat.CHANNEL_OUT_MONO : AudioFormat.CHANNEL_OUT_STEREO,
                 AudioFormat.ENCODING_PCM_16BIT);
         // Ensure maximum buffer length 500 milliseconds.
         if (bufferSize <= 0 || bufferSize > sampleRate / 2) {
@@ -228,36 +281,4 @@ public class WavePlayer implements AudioPlayer {
         return bufferSize;
     }
 
-    @Override
-    public int getSampleRate() {
-        if (audioTrack != null) {
-            return audioTrack.getSampleRate();
-        } else {
-            return sampleRate;
-        }
-    }
-
-    @Override
-    public int getChannels() {
-        return channelOut;
-    }
-
-    public void seekToPosition(int msec) {
-        boolean wasPlaying = isPlaying();
-        stop();
-        playbackStart = (int) (msec * sampleRate / 1000);
-        if (playbackStart > numberOfSamplesPerChannel) {
-            // No more samples to play
-            playbackStart = numberOfSamplesPerChannel;
-        }
-        audioTrack.setNotificationMarkerPosition(numberOfSamplesPerChannel - 1 - playbackStart);
-        if (wasPlaying) {
-            play(currentTrack);
-        }
-    }
-
-    @Override
-    public int getCurrentPosition() {
-        return (int) ((playbackStart + audioTrack.getPlaybackHeadPosition()) * (1000.0 / sampleRate));
-    }
 }

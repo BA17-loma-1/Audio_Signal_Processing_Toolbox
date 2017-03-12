@@ -6,6 +6,9 @@ import android.support.test.runner.AndroidJUnit4;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import ch.zhaw.bait17.audio_signal_processing_toolbox.player.PlaybackListener;
+
 import static org.junit.Assert.*;
 
 /**

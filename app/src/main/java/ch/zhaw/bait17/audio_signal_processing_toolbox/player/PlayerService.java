@@ -8,12 +8,16 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+/**
+ * Created by georgrem, stockan1 on 11.03.2017.
+ */
+
 public class PlayerService extends Service {
 
     private static final String TAG = PlayerService.class.getSimpleName();
 
     private final IBinder binder = new PlayerBinder();
-    private AudioPlayer player = new WavePlayer();
+    private AudioPlayer player = WavePlayer.getInstance();
 
     public static Intent getIntent(Context context) {
         return new Intent(context, PlayerService.class);

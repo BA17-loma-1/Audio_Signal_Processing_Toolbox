@@ -94,7 +94,7 @@ public class VisualisationActivity extends AppCompatActivity {
 
             @Override
             public void onAudioDataReceived(short[] samples) {
-                waveformView.setChannels(playerPresenter.getChannelOut());
+                waveformView.setChannels(playerPresenter.getChannels());
                 waveformView.setSampleRate(playerPresenter.getSampleRate());
                 waveformView.setSamples(samples);
 

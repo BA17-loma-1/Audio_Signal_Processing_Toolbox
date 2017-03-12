@@ -7,12 +7,15 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
 
+/**
+ * Created by georgrem, stockan1 on 11.03.2017.
+ */
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 
 public class PlayerPresenter {
 
     private static final String TAG = PlayerPresenter.class.getSimpleName();
-
     private final Context context;
     private final PlaybackListener listener;
 
@@ -80,7 +83,8 @@ public class PlayerPresenter {
         return player.getSampleRate();
     }
 
-    public int getChannelOut() {
+    public int getChannels() {
         return player.getChannels();
     }
+
 }
