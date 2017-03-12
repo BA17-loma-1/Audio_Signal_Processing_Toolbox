@@ -7,45 +7,36 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import static android.view.View.VISIBLE;
-
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.TrackAdapter;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.SupportedAudioFormat;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 
 public class MediaListActivity extends AppCompatActivity {
 
-    private List<Track> tracks;
-    private Track track;
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
-    private boolean permissionIsGranted = false;
     public final static String KEY_TRACK = "ch.zhaw.bait17.audio_signal_processing_toolbox.TRACK";
     public final static String KEY_TRACKS = "ch.zhaw.bait17.audio_signal_processing_toolbox.TRACKS";
-
+    private List<Track> tracks;
+    private boolean permissionIsGranted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,9 +50,7 @@ public class MediaListActivity extends AppCompatActivity {
                 tracks = getSongListFromRawFolder();
                 break;
             case MediaBrowserActivity.DEVICE:
-                do {
-                    requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, REQUEST_READ_EXTERNAL_STORAGE);
-                } while (!permissionIsGranted);
+                requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, REQUEST_READ_EXTERNAL_STORAGE);
                 tracks = getSongListFromDevice();
                 break;
             default:
@@ -81,7 +70,7 @@ public class MediaListActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                track = (Track) adapterView.getItemAtPosition(i);
+                Track track = (Track) adapterView.getItemAtPosition(i);
 
                 Intent intent = new Intent(MediaListActivity.this, VisualisationActivity.class);
                 int trackPosNr = tracks.indexOf(track);
@@ -178,13 +167,15 @@ public class MediaListActivity extends AppCompatActivity {
                 }
             }
             while (musicCursor.moveToNext());
-            musicCursor.close();
         }
+        musicCursor.close();
         return tracks;
     }
 
     private void requestPermission(String permission, Integer requestCode) {
-        if (ContextCompat.checkSelfPermission(MediaListActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                ContextCompat.checkSelfPermission(MediaListActivity.this, permission)
+                        != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(MediaListActivity.this, permission)) {
                 //This is called if user has denied the permission before
@@ -200,15 +191,13 @@ public class MediaListActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_READ_EXTERNAL_STORAGE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    permissionIsGranted = true;
-                } else {
-                    Toast.makeText(this, "You don't have permission to read from external storage.", Toast.LENGTH_SHORT).show();
-                }
-                return;
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_READ_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                permissionIsGranted = true;
+            } else {
+                Toast.makeText(this, "You don't have permission to read from external storage.", Toast.LENGTH_SHORT).show();
             }
         }
     }
