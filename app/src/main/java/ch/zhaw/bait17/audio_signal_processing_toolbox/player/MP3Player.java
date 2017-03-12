@@ -27,21 +27,22 @@ import javazoom.jl.decoder.*;
 import javazoom.jl.decoder.DecoderException;
 
 /**
- *
- * Created by georgrem, stockan1 on 11.03.2017.
+ * Singleton with static factory.
+ * @author georgrem, stockan1
  */
 
 public class MP3Player implements AudioPlayer {
 
-    private final String TAG = "MP3 player";
-    private final int NUMBER_OF_SAMPLES_TO_LOG = 20;
+    private static final MP3Player INSTANCE = new MP3Player();
+    private static final String TAG = MP3Player.class.getSimpleName();
+    private final int NUMBER_OF_SAMPLES_TO_LOG = 10;
     private final int DEFAULT_SAMPLE_RATE = 44100;
     private final int DEFAULT_CHANNEL_COUNT = 2;
 
     private Context context;
     private byte[] input;
     private int sampleRate = DEFAULT_SAMPLE_RATE;
-    private int channelCount = DEFAULT_CHANNEL_COUNT;
+    private int channels = DEFAULT_CHANNEL_COUNT;
     private PlaybackListener listener;
     private Bitstream bitstream;
     private Decoder decoder;
@@ -54,71 +55,23 @@ public class MP3Player implements AudioPlayer {
     private int numberOfSamplesPerChannel;
     private boolean keepPlaying = false;
 
+    private MP3Player() {
+
+    }
+
+    /**
+     * Returns the singleton instance of the mp3 audio player.
+     * @return MP3Player instance
+     */
+    public static MP3Player getInstance() {
+        return INSTANCE;
+    }
+
     @Override
     public void init(Context context, PlaybackListener listener) {
+        this.context = context;
         this.listener = listener;
-        bitstream = new Bitstream(getInputStreamFromByteArray(input));
-        decoder = new Decoder();
-        extractFrameHeaderInfo(bitstream);
         initialisePlayer();
-    }
-
-    @Nullable
-    @Override
-    public String getCurrentTrack() {
-        return null;
-    }
-
-    @Override
-    public void release() {
-
-    }
-
-    private void initialisePlayer() {
-        playbackStart = 0;
-        shortSamplesRead = 0;
-        shortSamplesWritten = 0;
-        int bufferSize = getMinBufferSize();
-        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate,
-                channelCount == 1 ? AudioFormat.CHANNEL_OUT_MONO : AudioFormat.CHANNEL_OUT_STEREO,
-                AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
-
-        audioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
-            @Override
-            public void onMarkerReached(AudioTrack track) {
-                track.stop();
-                track.flush();
-                track.release();
-                if (listener != null) {
-                    listener.onCompletion();
-                }
-            }
-            @Override
-            public void onPeriodicNotification(AudioTrack track) {
-                if (listener != null && track.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
-                    listener.onProgress((int) (track.getPlaybackHeadPosition() * 1000.0 / sampleRate));
-                }
-            }
-        });
-
-        audioTrack.setPositionNotificationPeriod(sampleRate / 1000);                    // E.g. at 48000 Hz --> 48 times per second
-        //audioTrack.setNotificationMarkerPosition(numberOfSamplesPerChannel - 1);            // when playback reaches end of samples --> notify
-    }
-
-    /**
-     * Returns true if the AudioTrack play state is PlAYSTATE_PLAYING.
-     * @return
-     */
-    public boolean isPlaying() {
-        return audioTrack == null ? false: audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING;
-    }
-
-    /**
-     * Returns true if the AudioTrack play state is PLAYSTATE_PAUSED.
-     * @return
-     */
-    public boolean isPaused() {
-        return audioTrack == null ? false: audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED;
     }
 
     @Override
@@ -167,6 +120,7 @@ public class MP3Player implements AudioPlayer {
         audioTrack.play();
     }
 
+    @Override
     public void pause() {
         if (isPlaying()) {
             audioTrack.pause();
@@ -174,6 +128,7 @@ public class MP3Player implements AudioPlayer {
         }
     }
 
+    @Override
     public void stop() {
         if (isPlaying() || isPaused()) {
             audioTrack.pause();     // Immediate stop
@@ -190,19 +145,43 @@ public class MP3Player implements AudioPlayer {
         }
     }
 
-    /**
-     * Returns the minimum buffer size expressed in bytes.
-     * @return
-     */
-    private int getMinBufferSize() {
-        int bufferSize = AudioTrack.getMinBufferSize(sampleRate,
-                channelCount == 1 ? AudioFormat.CHANNEL_OUT_MONO : AudioFormat.CHANNEL_OUT_STEREO,
-                AudioFormat.ENCODING_PCM_16BIT);
-        // Ensure maximum buffer length 500 milliseconds.
-        if (bufferSize <= 0 || bufferSize > sampleRate / 2) {
-            bufferSize = sampleRate / 4;
+    @Override
+    public boolean isPlaying() {
+        return audioTrack != null && audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING;
+    }
+
+    public boolean isPaused() {
+        return audioTrack != null && audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED;
+    }
+
+    @Nullable
+    @Override
+    public String getCurrentTrack() {
+        return currentTrack;
+    }
+
+    @Override
+    public void release() {
+        stop();
+        if (audioTrack != null) {
+            audioTrack.release();;
+            audioTrack = null;
         }
-        return bufferSize;
+        currentTrack = null;
+    }
+
+    @Override
+    public int getSampleRate() {
+        if (audioTrack != null) {
+            return audioTrack.getSampleRate();
+        } else {
+            return sampleRate;
+        }
+    }
+
+    @Override
+    public int getChannels() {
+        return channels;
     }
 
     @Override
@@ -221,22 +200,57 @@ public class MP3Player implements AudioPlayer {
     }
 
     @Override
-    public int getSampleRate() {
-        if (audioTrack != null) {
-            return audioTrack.getSampleRate();
-        } else {
-            return sampleRate;
-        }
-    }
-
-    @Override
-    public int getChannels() {
-        return channelCount;
-    }
-
-    @Override
     public int getCurrentPosition() {
         return playbackStart;
+    }
+
+    private void initialisePlayer() {
+        bitstream = new Bitstream(getInputStreamFromByteArray(input));
+        decoder = new Decoder();
+        extractFrameHeaderInfo(bitstream);
+        playbackStart = 0;
+        shortSamplesRead = 0;
+        shortSamplesWritten = 0;
+        int bufferSize = getMinBufferSize();
+        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate,
+                channels == 1 ? AudioFormat.CHANNEL_OUT_MONO : AudioFormat.CHANNEL_OUT_STEREO,
+                AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
+
+        audioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
+            @Override
+            public void onMarkerReached(AudioTrack track) {
+                track.stop();
+                track.flush();
+                track.release();
+                if (listener != null) {
+                    listener.onCompletion();
+                }
+            }
+            @Override
+            public void onPeriodicNotification(AudioTrack track) {
+                if (listener != null && track.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
+                    listener.onProgress((int) (track.getPlaybackHeadPosition() * 1000.0 / sampleRate));
+                }
+            }
+        });
+
+        audioTrack.setPositionNotificationPeriod(sampleRate / 1000);                    // E.g. at 48000 Hz --> 48 times per second
+        //audioTrack.setNotificationMarkerPosition(numberOfSamplesPerChannel - 1);            // when playback reaches end of samples --> notify
+    }
+
+    /**
+     * Returns the minimum buffer size expressed in bytes.
+     * @return
+     */
+    private int getMinBufferSize() {
+        int bufferSize = AudioTrack.getMinBufferSize(sampleRate,
+                channels == 1 ? AudioFormat.CHANNEL_OUT_MONO : AudioFormat.CHANNEL_OUT_STEREO,
+                AudioFormat.ENCODING_PCM_16BIT);
+        // Ensure maximum buffer length 500 milliseconds.
+        if (bufferSize <= 0 || bufferSize > sampleRate / 2) {
+            bufferSize = sampleRate / 4;
+        }
+        return bufferSize;
     }
 
     private void extractFrameHeaderInfo(Bitstream bitstream) {
@@ -245,7 +259,7 @@ public class MP3Player implements AudioPlayer {
             SampleBuffer samples = (SampleBuffer) decoder.decodeFrame(frameHeader, bitstream);
             bitstream.unreadFrame();
             sampleRate = samples.getSampleFrequency();
-            channelCount = samples.getChannelCount();
+            channels = samples.getChannelCount();
         } catch(BitstreamException | DecoderException ex) {
             Log.e(TAG, "Failed to extract frame header data.", ex);
         }
