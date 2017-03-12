@@ -26,7 +26,9 @@
 
         <activity android:name=".ui.MediaListActivity" />
 
-        <activity android:name=".ui.VisualisationActivity" />
+        <activity
+            android:name=".ui.VisualisationActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
 
         <service android:name=".player.PlayerService" />
 

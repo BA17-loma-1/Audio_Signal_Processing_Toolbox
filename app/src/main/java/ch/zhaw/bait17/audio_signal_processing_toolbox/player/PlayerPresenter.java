@@ -64,13 +64,10 @@ public class PlayerPresenter {
         String currentTrackUri = player.getCurrentTrack();
 
         if (currentTrackUri == null || !currentTrackUri.equals(uri)) {
+            if (player.isPlaying()) player.pause();
             player.play(uri);
-        } else if (player.isPlaying()) {
-            player.pause();
-        } else {
-            player.play(uri);
-        }
-
+        } else if (player.isPlaying()) player.pause();
+        else player.play(uri);
     }
 
     public int getSampleRate() {

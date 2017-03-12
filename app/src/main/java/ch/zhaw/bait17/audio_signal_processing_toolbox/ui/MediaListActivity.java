@@ -30,6 +30,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.TrackAdapter;
@@ -37,11 +38,13 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 
 public class MediaListActivity extends AppCompatActivity {
 
-    private ArrayList<Track> tracks;
+    private List<Track> tracks;
     private Track track;
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
     private boolean permissionIsGranted = false;
-    public final static String KEY_SONG = "ch.zhaw.bait17.audio_signal_processing_toolbox.SONG";
+    public final static String KEY_TRACK = "ch.zhaw.bait17.audio_signal_processing_toolbox.TRACK";
+    public final static String KEY_TRACKS = "ch.zhaw.bait17.audio_signal_processing_toolbox.TRACKS";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +74,7 @@ public class MediaListActivity extends AppCompatActivity {
         });
 
         ListView listView = (ListView) findViewById(R.id.media_list);
-        TrackAdapter trackAdapter = new TrackAdapter(this, tracks);
+        TrackAdapter trackAdapter = new TrackAdapter(this, (ArrayList)tracks);
         listView.setAdapter(trackAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -79,6 +82,13 @@ public class MediaListActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 track = (Track) adapterView.getItemAtPosition(i);
 
+                Intent intent = new Intent(MediaListActivity.this, VisualisationActivity.class);
+                int trackPosNr = tracks.indexOf(track);
+                intent.putExtra(KEY_TRACK, trackPosNr);  // write the data
+                intent.putParcelableArrayListExtra(KEY_TRACKS, (ArrayList)tracks);
+                startActivity(intent); // and start the activity
+
+                /*
                 CardView controls = (CardView) findViewById(R.id.controls_container);
                 RelativeLayout inner = (RelativeLayout) findViewById(R.id.playback_controls);
                 TextView title = (TextView) inner.findViewById(R.id.song_title);
@@ -94,15 +104,18 @@ public class MediaListActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(MediaListActivity.this, VisualisationActivity.class);
-                        intent.putExtra(KEY_SONG, track);  // write the data
+                        int trackPosNr = tracks.indexOf(track);
+                        intent.putExtra(KEY_TRACK, trackPosNr);  // write the data
+                        intent.putParcelableArrayListExtra(KEY_TRACKS, (ArrayList)tracks);
                         startActivity(intent); // and start the activity
                     }
                 });
+                */
             }
         });
     }
 
-    private ArrayList<Track> getSongListFromRawFolder() {
+    private List<Track> getSongListFromRawFolder() {
         Field[] fields = R.raw.class.getFields();
         for (Field field : fields) {
             int rawId = getResources().getIdentifier(field.getName(), "raw", getPackageName());
@@ -140,7 +153,7 @@ public class MediaListActivity extends AppCompatActivity {
         return new Track(title, artist, album, duration, uri.toString());
     }
 
-    private ArrayList<Track> getSongListFromDevice() {
+    private List<Track> getSongListFromDevice() {
         ContentResolver contentResolver = getContentResolver();
         Cursor musicCursor = contentResolver.query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, null);

@@ -16,9 +16,15 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
+import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
+
+import java.util.List;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.PlaybackListener;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
@@ -35,25 +41,38 @@ public class VisualisationActivity extends AppCompatActivity {
 
     private static final String TAG = VisualisationActivity.class.getSimpleName();
 
+    private List<Track> tracks;
     private Track track;
+    private int trackPosNr;
     private SeekBar seekBar;
     private PlayerPresenter playerPresenter;
+
+    private TextView title;
+    private TextView artist;
+    private TextView currentTime;
+    private TextView endTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_visualizations);
 
+        title = (TextView) findViewById(R.id.track_title);
+        artist = (TextView) findViewById(R.id.track_artist);
+        currentTime = (TextView) findViewById(R.id.currentTime);
+        endTime = (TextView) findViewById(R.id.endTime);
+
         final WaveformView waveformView = (WaveformView) findViewById(R.id.waveformView);
         final SpectrumView spectrumView = (SpectrumView) findViewById(R.id.spectrumView);
-        final ImageButton playButton = (ImageButton) findViewById(R.id.play_pause);
 
-        track = getIntent().getExtras().getParcelable(MediaListActivity.KEY_SONG);
+        trackPosNr = getIntent().getExtras().getInt(MediaListActivity.KEY_TRACK);
+        tracks = getIntent().getExtras().getParcelableArrayList(MediaListActivity.KEY_TRACKS);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                currentTime.setText(DateUtils.formatElapsedTime(progress / 1000));
             }
 
             @Override
@@ -72,7 +91,6 @@ public class VisualisationActivity extends AppCompatActivity {
 
             @Override
             public void onCompletion() {
-                playButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
             }
 
             @Override
@@ -92,13 +110,35 @@ public class VisualisationActivity extends AppCompatActivity {
                 });
             }
         });
+    }
 
-        playButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playerPresenter.selectTrack(track);
-            }
-        });
+    public void onClick_prev(View view) {
+        trackPosNr--;
+        if (trackPosNr < 0) trackPosNr = tracks.size() - 1;
+        playTrack();
+    }
+
+    public void onClick_play_pause(View view) {
+        playTrack();
+    }
+
+    public void onClick_next(View view) {
+        trackPosNr++;
+        if (trackPosNr >= tracks.size()) trackPosNr = 0;
+        playTrack();
+    }
+
+    private void playTrack() {
+        track = tracks.get(trackPosNr);
+        playerPresenter.selectTrack(track);
+        updateTrackPropertiesOnUI();
+    }
+
+    private void updateTrackPropertiesOnUI() {
+        title.setText(track.getTitle());
+        artist.setText(track.getArtist());
+        currentTime.setText("0");
+        endTime.setText(DateUtils.formatElapsedTime(Integer.parseInt(track.getDuration()) / 1000));
     }
 
     @Override

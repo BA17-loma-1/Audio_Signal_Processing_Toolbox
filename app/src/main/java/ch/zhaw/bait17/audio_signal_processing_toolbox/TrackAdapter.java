@@ -40,8 +40,8 @@ public class TrackAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         RelativeLayout layout = (RelativeLayout) inflater.inflate(R.layout.media_list_item, parent, false);
-        TextView title = (TextView) layout.findViewById(R.id.song_title);
-        TextView artist = (TextView) layout.findViewById(R.id.song_artist);
+        TextView title = (TextView) layout.findViewById(R.id.track_title);
+        TextView artist = (TextView) layout.findViewById(R.id.track_artist);
         Track track = tracks.get(position);
         title.setText(track.getTitle());
         artist.setText(track.getArtist());
