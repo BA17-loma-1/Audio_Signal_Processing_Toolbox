@@ -109,13 +109,13 @@ public class SpectrumRenderer {
 
     public void render(Canvas canvas, short[] samples, int sampleRate) {
         if (samples != null || sampleRate == 0) {
-            float[] spectrum = getRealSpectrum(samples);
+            float[] spectrum = getPowerSpectrum(samples);
 
             int nFFT = spectrum.length;
             double deltaFrequency = sampleRate / (double) nFFT;
 
             float barWidth = width / (float) OCTAVE_BANDS + 10;
-            float dcMagnitude = (float) (20 * Math.log10(Math.abs(spectrum[0])));
+            float dcMagnitude = (float) (10 * Math.log10(Math.abs(spectrum[0])));
 
             Log.i(TAG, String.format("bar width: %f", barWidth));
             Log.i(TAG, String.format("canvas width: %d  canvas height: %d", canvas.getWidth(), canvas.getHeight()));
@@ -139,7 +139,7 @@ public class SpectrumRenderer {
                     k++;
                 }
                 magnitudeBars.put(frequency, new RectF((countRect * barWidth) + 5,
-                        heigth - (heigth / dB_RANGE * (float) (20 * Math.log10(maxMagnitude))),
+                        heigth - (heigth / dB_RANGE * (float) (10 * Math.log10(maxMagnitude))),
                         (countRect * barWidth) + barWidth,
                         heigth - 40));
                 countRect++;
@@ -188,13 +188,13 @@ public class SpectrumRenderer {
         return thirdOctaveFrequencyBoundaries;
     }
 
-    private float[] getRealSpectrum(short[] samples) {
+    private float[] getPowerSpectrum(short[] samples) {
         float[] spectrum = new float[samples.length / 2];
         if (samples != null && samples.length > 0) {
             float[] floatSamples = PCMUtil.short2FloatArray(samples);
             float[] complexFFT = fft.getForwardTransform(floatSamples);
-            for (int i = 0; i < spectrum.length; i++) {
-                spectrum[i] = complexFFT[2 * i];
+            for (int i = 0; i < spectrum.length; i += 2) {
+                spectrum[i] = (complexFFT[i] * complexFFT[i]) + (complexFFT[i+1] * complexFFT[i+1]);
             }
         }
         return spectrum;
