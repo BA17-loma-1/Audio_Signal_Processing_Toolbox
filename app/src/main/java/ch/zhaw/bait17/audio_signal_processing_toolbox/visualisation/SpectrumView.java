@@ -37,7 +37,7 @@ public class SpectrumView extends View {
     private final double RENDER_INTERVALL = 1e8;
 
     private Thread renderThread;
-    private SpectrumRenderer renderer;
+    private SpectrumRenderer2 renderer;
     private TextPaint textPaint;
     private Paint strokePaint;
     private int sampleRate;
@@ -59,7 +59,7 @@ public class SpectrumView extends View {
         init(context, attrs, defStyle);
     }
 
-    private void init(Context context, AttributeSet attrs, int defStyle) {
+    private void init(final Context context, AttributeSet attrs, int defStyle) {
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.WaveformView, defStyle, 0);
@@ -86,7 +86,7 @@ public class SpectrumView extends View {
         renderThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                renderer = new SpectrumRenderer(strokePaint, textPaint);
+                renderer = new SpectrumRenderer2(strokePaint, textPaint, context);
             }
         });
         renderThread.start();

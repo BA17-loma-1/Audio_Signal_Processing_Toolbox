@@ -114,9 +114,9 @@ public class SpectrumRenderer {
             float barWidth = width / (float) OCTAVE_BANDS;
             float dcMagnitude = (float) (10 * Math.log10(Math.abs(spectrum[0])));
 
-            Log.i(TAG, String.format("bar width: %f", barWidth));
-            Log.i(TAG, String.format("canvas width: %d  canvas height: %d", canvas.getWidth(), canvas.getHeight()));
-            Log.i(TAG, String.format("measured width: %d  measured height: %d", width, heigth));
+            //Log.i(TAG, String.format("bar width: %f", barWidth));
+            //Log.i(TAG, String.format("canvas width: %d  canvas height: %d", canvas.getWidth(), canvas.getHeight()));
+            //Log.i(TAG, String.format("measured width: %d  measured height: %d", width, heigth));
 
             Map<Double, RectF> magnitudeBars = new LinkedHashMap<>();
             // DC -> bin m[0]
@@ -142,7 +142,7 @@ public class SpectrumRenderer {
                 countRect++;
             }
 
-            Log.i(TAG, String.format("magnitude bars: %d", magnitudeBars.size()));
+            //Log.i(TAG, String.format("magnitude bars: %d", magnitudeBars.size()));
 
             int count = 0;
             for (Map.Entry<Double, RectF> entry : magnitudeBars.entrySet()) {

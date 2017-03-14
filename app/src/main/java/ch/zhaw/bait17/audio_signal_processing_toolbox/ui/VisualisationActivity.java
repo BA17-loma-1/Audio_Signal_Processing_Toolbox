@@ -14,14 +14,22 @@
 
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
+import android.os.Handler;
+import android.os.SystemClock;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.player.PlaybackListener;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
@@ -39,17 +47,30 @@ import static android.view.View.VISIBLE;
 public class VisualisationActivity extends AppCompatActivity {
 
     private static final String TAG = VisualisationActivity.class.getSimpleName();
+    private static final long PROGRESS_UPDATE_INTERNAL = 1000;
+    private static final long PROGRESS_UPDATE_INITIAL_INTERVAL = 100;
 
     private List<Track> tracks;
     private Track track;
     private int trackPosNr;
     private SeekBar seekBar;
     private PlayerPresenter playerPresenter;
-
     private TextView title;
     private TextView artist;
     private TextView currentTime;
     private TextView endTime;
+
+    private final Handler handler = new Handler();
+    private final Runnable updateProgressTask = new Runnable() {
+        @Override
+        public void run() {
+            updateProgress();
+        }
+    };
+    private final ScheduledExecutorService scheduledExecutorService =
+            Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> scheduledFuture;
+    private PlaybackStateCompat lastPlaybackState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,14 +93,18 @@ public class VisualisationActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 currentTime.setText(DateUtils.formatElapsedTime(progress / 1000));
+                playerPresenter.seekToPosition(progress);
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
+                stopSeekbarUpdate();
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+                playerPresenter.seekToPosition(seekBar.getProgress());
+                //scheduleSeekbarUpdate();
             }
         });
 
@@ -90,6 +115,9 @@ public class VisualisationActivity extends AppCompatActivity {
 
             @Override
             public void onCompletion() {
+                //scheduleSeekbarUpdate();
+                playNextTrack();
+                Log.i(TAG, "onCompletion");
             }
 
             @Override
@@ -111,20 +139,16 @@ public class VisualisationActivity extends AppCompatActivity {
         });
     }
 
-    public void onClick_prev(View view) {
-        trackPosNr--;
-        if (trackPosNr < 0) trackPosNr = tracks.size() - 1;
-        playTrack();
-    }
-
     public void onClick_play_pause(View view) {
         playTrack();
     }
 
+    public void onClick_prev(View view) {
+        playPreviousTrack();
+    }
+
     public void onClick_next(View view) {
-        trackPosNr++;
-        if (trackPosNr >= tracks.size()) trackPosNr = 0;
-        playTrack();
+        playNextTrack();
     }
 
     private void playTrack() {
@@ -133,11 +157,25 @@ public class VisualisationActivity extends AppCompatActivity {
         updateTrackPropertiesOnUI();
     }
 
+    private void playPreviousTrack() {
+        trackPosNr--;
+        if (trackPosNr < 0) trackPosNr = tracks.size() - 1;
+        playTrack();
+    }
+
+    private void playNextTrack() {
+        trackPosNr++;
+        if (trackPosNr >= tracks.size()) trackPosNr = 0;
+        playTrack();
+    }
+
     private void updateTrackPropertiesOnUI() {
         title.setText(track.getTitle());
         artist.setText(track.getArtist());
-        currentTime.setText("0");
-        endTime.setText(DateUtils.formatElapsedTime(Integer.parseInt(track.getDuration()) / 1000));
+        int duration = Integer.parseInt(track.getDuration());
+        seekBar.setMax(duration);
+        endTime.setText(DateUtils.formatElapsedTime(duration / 1000));
+        //scheduleSeekbarUpdate();
     }
 
     @Override
@@ -156,5 +194,29 @@ public class VisualisationActivity extends AppCompatActivity {
     protected void onDestroy() {
         playerPresenter.destroy();
         super.onDestroy();
+    }
+
+    private void scheduleSeekbarUpdate() {
+        stopSeekbarUpdate();
+        if (!scheduledExecutorService.isShutdown()) {
+            scheduledFuture = scheduledExecutorService.scheduleAtFixedRate(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            handler.post(updateProgressTask);
+                        }
+                    }, PROGRESS_UPDATE_INITIAL_INTERVAL,
+                    PROGRESS_UPDATE_INTERNAL, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    private void stopSeekbarUpdate() {
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(false);
+        }
+    }
+
+    private void updateProgress() {
+        seekBar.setProgress(playerPresenter.getCurrentPosition());
     }
 }

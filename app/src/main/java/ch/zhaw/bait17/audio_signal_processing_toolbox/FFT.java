@@ -57,7 +57,7 @@ public class FFT {
         FloatFFT_1D fft = new FloatFFT_1D(weightedSamples.length);
         fft.realForward(weightedSamples);
 
-        Log.i(TAG, String.format("FFT window size: %d", weightedSamples.length));
+        // Log.i(TAG, String.format("FFT window size: %d", weightedSamples.length));
 
         return weightedSamples;
     }
@@ -85,7 +85,7 @@ public class FFT {
         FloatFFT_1D fft = new FloatFFT_1D(N);
         fft.realForwardFull(zeroPaddedSamples);
 
-        Log.i(TAG, String.format("FFT window size: %d", zeroPaddedSamples.length));
+        //Log.i(TAG, String.format("FFT window size: %d", zeroPaddedSamples.length));
 
         return zeroPaddedSamples;
     }

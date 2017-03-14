@@ -87,4 +87,12 @@ public class PlayerPresenter {
         return player.getChannels();
     }
 
+    public void seekToPosition(int msec) {
+        player.seekToPosition(msec);
+    }
+
+    public int getCurrentPosition() {
+        return player.getCurrentPosition();
+    }
+
 }

@@ -218,7 +218,7 @@ public class WavePlayer implements AudioPlayer {
     private void createAudioTrack(String uri) throws FileNotFoundException, DecoderException {
         Log.d(TAG, "Create new AudioTrack");
 
-        WaveDecoder decoder = null;
+        WaveDecoder decoder;
         try {
             InputStream is = context.getContentResolver().openInputStream(Uri.parse(uri));
             decoder = new WaveDecoder(is);
