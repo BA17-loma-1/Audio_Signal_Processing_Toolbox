@@ -1,6 +1,7 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
 import android.graphics.Paint;
+import android.text.TextPaint;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrumRenderer;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +16,7 @@ import static org.junit.Assert.*;
  */
 public class SpectrumRendererTest {
 
-    private SpectrumRenderer spectrumRenderer = new SpectrumRenderer(new Paint());
+    private SpectrumRenderer spectrumRenderer = new SpectrumRenderer(new Paint(), new TextPaint());
 
     /**
      * Sets up test fixture.

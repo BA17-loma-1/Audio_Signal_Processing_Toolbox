@@ -17,10 +17,12 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.v4.content.ContextCompat;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
@@ -31,6 +33,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
  */
 public class SpectrumView extends View {
 
+    private static final String TAG = SpectrumView.class.getSimpleName();
     private final double RENDER_INTERVALL = 1e8;
 
     private Thread renderThread;
@@ -64,15 +67,14 @@ public class SpectrumView extends View {
         float strokeThickness = a.getFloat(R.styleable.WaveformView_waveformStrokeThickness, 1f);
         int strokeColor = a.getColor(R.styleable.WaveformView_waveformColor,
                 ContextCompat.getColor(context, R.color.default_waveform));
-        int mTextColor = a.getColor(R.styleable.WaveformView_timecodeColor,
-                ContextCompat.getColor(context, R.color.default_timecode));
-
+        int textColor = a.getColor(R.styleable.SpectrumView_spectrumFrequencyLabel,
+                ContextCompat.getColor(context, R.color.default_spectrum_freq_label));
         a.recycle();
 
         textPaint = new TextPaint();
         textPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
         textPaint.setTextAlign(Paint.Align.CENTER);
-        textPaint.setColor(mTextColor);
+        textPaint.setColor(textColor);
         textPaint.setTextSize(getFontSize(getContext(), android.R.attr.textAppearanceSmall));
 
         strokePaint = new Paint();
@@ -84,7 +86,7 @@ public class SpectrumView extends View {
         renderThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                renderer = new SpectrumRenderer(strokePaint);
+                renderer = new SpectrumRenderer(strokePaint, textPaint);
             }
         });
         renderThread.start();
@@ -101,12 +103,18 @@ public class SpectrumView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         renderer.render(canvas, samples, sampleRate);
-        // Redraw view
-        postInvalidate();
     }
 
     public void setSamples(short[] samples) {
         this.samples = samples;
+        if (this.samples != null) {
+            onSamplesChanged();
+        }
+    }
+
+    private void onSamplesChanged() {
+        // Redraw view
+        postInvalidate();
     }
 
     public void setSampleRate(int sampleRate) {
@@ -120,6 +128,7 @@ public class SpectrumView extends View {
         TypedArray arr = ctx.obtainStyledAttributes(typedValue.data, textSizeAttr);
         float fontSize = arr.getDimensionPixelSize(0, -1);
         arr.recycle();
+        Log.d(TAG, String.format("FONT SIZE: %f", fontSize));
         return fontSize;
     }
 

@@ -14,12 +14,16 @@
 
 package ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation;
 
+import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.text.TextPaint;
 import android.util.Log;
+import android.util.TypedValue;
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -36,7 +40,6 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.WindowType;
 public class SpectrumRenderer {
 
     private final int HISTORY_LENGTH = 3;
-    private final int FREQUENCY_LABEL_SIZE = 42;
     private static final String TAG = SpectrumRenderer.class.getSimpleName();
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("##.0K");
     private static final int OCTAVE_BANDS = 31;
@@ -54,22 +57,16 @@ public class SpectrumRenderer {
 
     /**
      * Creates an instances of SpectrumRenderer.
-     * The FFT uses a Hamming window.
      * @param paint
      */
-    public SpectrumRenderer(Paint paint) {
+    public SpectrumRenderer(Paint paint, TextPaint textPaint) {
         this.paint = paint;
+        this.textPaint = textPaint;
         fft = new FFT(WindowType.HAMMING);
         spectrumHistory = new ArrayList<>(HISTORY_LENGTH);
 
         calculateCentreFrequencies();
         calculateThirdOctaveBands();
-
-        textPaint = new TextPaint();
-        textPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-        textPaint.setTextAlign(Paint.Align.CENTER);
-        textPaint.setColor(Color.RED);
-        textPaint.setTextSize(FREQUENCY_LABEL_SIZE);
     }
 
     /**
@@ -114,7 +111,7 @@ public class SpectrumRenderer {
             int nFFT = spectrum.length;
             double deltaFrequency = sampleRate / (double) nFFT;
 
-            float barWidth = width / (float) OCTAVE_BANDS + 10;
+            float barWidth = width / (float) OCTAVE_BANDS;
             float dcMagnitude = (float) (10 * Math.log10(Math.abs(spectrum[0])));
 
             Log.i(TAG, String.format("bar width: %f", barWidth));
@@ -126,20 +123,20 @@ public class SpectrumRenderer {
             magnitudeBars.put(0d, new RectF(0, heigth - (heigth / dB_RANGE * dcMagnitude), barWidth, heigth - 40));
 
             double frequency = 0;
-            int k = 0;
+            int bin = 0;
             int countRect = 1;
             for (int i = 1; i < thirdOctaveFrequencyBoundaries.length - 1; i += 3) {
                 double upperBound = thirdOctaveFrequencyBoundaries[i + 1];
-                float maxMagnitude = Float.MIN_VALUE;
-                while ((frequency = k * deltaFrequency) <= upperBound) {
-                    // Find max
-                    if (Math.abs(spectrum[2 * k]) > maxMagnitude) {
-                        maxMagnitude = Math.abs(spectrum[2 * k]);
-                    }
+                float meanMagnitude = 0;
+                int k = 0;
+                while ((frequency = bin * deltaFrequency) <= upperBound) {
+                    meanMagnitude += Math.abs(spectrum[bin]);
+                    bin++;
                     k++;
                 }
+                meanMagnitude /= k;
                 magnitudeBars.put(frequency, new RectF((countRect * barWidth) + 5,
-                        heigth - (heigth / dB_RANGE * (float) (10 * Math.log10(maxMagnitude))),
+                        heigth - (heigth / dB_RANGE * (float) (10 * Math.log10(meanMagnitude))),
                         (countRect * barWidth) + barWidth,
                         heigth - 40));
                 countRect++;

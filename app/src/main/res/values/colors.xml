@@ -7,6 +7,7 @@
     <color name="default_waveformFill">#80FFC0</color>
     <color name="default_playback_indicator">#ffff66</color>
     <color name="default_timecode">#ddffffdd</color>
+    <color name="default_spectrum_freq_label">#000000</color>
 
     <color name="bt_accent">#00B8D4</color>
     <color name="media_item_icon_playing">@color/bt_accent</color>
