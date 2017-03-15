@@ -7,12 +7,12 @@
 format compact; format shortE; clear; clc;
 
 fs = 48e3;              % Sampling frequency
-T = 1;                 % Signal duration
+T = 10;                 % Signal duration
 t = 0:1/fs:T;
-f0 = 200;               % Fundamental frequency
+f0 = 500;               % Fundamental frequency
 t0 = 1/f0;              % Signal period
 w = 2*pi*f0;            % Omega (angular frequency)
-A = 0.25;                % Amplitude
+A = 0.25;               % Amplitude
 
 % Generate signals
 x_sine = A * sin(w*t);
