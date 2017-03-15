@@ -79,6 +79,10 @@ public class PlayerPresenter {
         }
     }
 
+    public boolean isPlaying() {
+        return player.isPlaying();
+    }
+
     public int getSampleRate() {
         return player.getSampleRate();
     }
