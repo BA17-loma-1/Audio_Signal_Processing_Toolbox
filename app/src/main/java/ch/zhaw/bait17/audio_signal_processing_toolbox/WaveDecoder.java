@@ -1,5 +1,8 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
+import android.support.annotation.NonNull;
+import android.util.Log;
+
 import com.google.common.primitives.Floats;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -7,6 +10,7 @@ import java.io.InputStream;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,6 +55,7 @@ import java.util.List;
  */
 public class WaveDecoder {
 
+    private static final String TAG = WaveDecoder.class.getSimpleName();
     private static final int RIFF_HEADER = 0x46464952;          // "RIFF"   (little endian)
     private static final int WAVE_HEADER = 0x45564157;          // "WAVE"
     private static final int DATA_HEADER = 0x61746164;          // "data"
@@ -59,19 +64,26 @@ public class WaveDecoder {
     private static final int MIN_SUPPORTED_SAMPLE_RATE = 8000;
     private static final int MAX_SUPPORTED_SAMPLE_RATE = 48000;
     private static final int MAX_BITS_PER_SAMPLE = 16;
+    private static final int ENCODING_16_BITS = 16;
+    private static final int ENCODING_8_BITS = 8;
+    private static final int PCM_SAMPLES_BUFFER_SIZE = 32;
+
+    private InputStream is;
     private int dataOffset = 0;
+    private int totalBytesRead = 0;
     private WaveHeaderInfo header;
     private byte[] pcmData = new byte[0];
 
     /**
-     * @param input The InputStream to read from.
-     * @throws DecoderException
+     * Creates a new WaveDecoder instance.
+     * This decoder only supports RIFF WAV files with encoding of either {@link #ENCODING_8_BITS}
+     * or {@link #ENCODING_16_BITS} bits.
+     * @param inputStream The InputStream to read from.
+     * @throws DecoderException Throws DecoderException if reading from stream fails.
      */
-    public WaveDecoder(InputStream input) throws DecoderException {
-        if (input == null) {
-            throw new DecoderException("InputStream is null.");
-        }
-        readStream(input);
+    public WaveDecoder(@NonNull InputStream inputStream) throws DecoderException {
+        is = inputStream;
+        readStream(inputStream);
     }
 
     /**
@@ -79,12 +91,9 @@ public class WaveDecoder {
      * Remember, little endian saves the least significant byte (LSB) at the lowest address.
      * Closes the underlying InputStream. Consecutive calls to this method will result in a DecoderException
      * @param input The InputStream of the wave file.
-     * @throws DecoderException
+     * @throws DecoderException Throws DecoderException if reading from stream fails.
      */
-    private void readStream(InputStream input) throws DecoderException {
-        if (input == null) {
-            throw new DecoderException("InputStream cannot be null.");
-        }
+    private void readStream(@NonNull InputStream input) throws DecoderException {
         ByteBuffer buffer = ByteBuffer.allocate(MAX_HEADER_SIZE);
         buffer.limit(buffer.capacity());
         buffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -149,7 +158,7 @@ public class WaveDecoder {
                     waveStream.reset();
                     // Skip over the header
                     if (waveStream.skip(dataOffset) == dataOffset) {
-                        waveStream.read(pcmData, 0, pcmData.length);
+                        totalBytesRead = waveStream.read(pcmData, 0, pcmData.length);
                     }
                 }
                 waveStream.close();
@@ -160,21 +169,38 @@ public class WaveDecoder {
     }
 
     /**
-     * Returns the raw audio data in PCM format.
+     * Returns the the complete raw audio data in PCM format.
      * Byte order is little endian.
-     * In case of a decoder problem, this method will return an empty byte array.
-     * @return A byte array containing the PCM audio data.
-     * @throws IOException
+     * @return A byte array containing the PCM audio samples.
      */
-    public byte[] getRawPCM() throws IOException {
+    public byte[] getRawPCM() {
         byte[] pcm = new byte[pcmData.length];
         System.arraycopy(pcmData, 0, pcm, 0, pcmData.length);
         return pcm;
     }
 
     /**
-     * Returns the audio data as a short array..
-     * @return A short array containing the audio samples.
+     * Returns a buffer of PCM samples of size {@link #PCM_SAMPLES_BUFFER_SIZE} KB.
+     * Byte order is little endian.
+     * This method returns null if the underlying InputStream does not support mark and reset.
+     * @return A byte array containing the PCM audio samples.
+     * @throws IOException Throws IOException if samples cannot be read from InputStream
+     */
+    public byte[] getNextRawPCM() throws IOException {
+        byte[] pcm = new byte[PCM_SAMPLES_BUFFER_SIZE];
+        int bytesRead = 0;
+        if ((bytesRead = is.read(pcm, totalBytesRead, pcm.length)) >= 0) {
+            totalBytesRead += bytesRead;
+        } else {
+            // Reached the end of the InputStream.
+            is.close();
+        }
+        return pcm;
+    }
+
+    /**
+     * Returns the the complete raw audio data in PCM format.
+     * @return A short array containing the PCM audio samples.
      */
     public short[] getShort() {
         short[] buffer = new short[pcmData.length/2];
@@ -183,10 +209,29 @@ public class WaveDecoder {
     }
 
     /**
-     * Returns the audio data as a float array.
+     * Returns a buffer of PCM samples of {@link #PCM_SAMPLES_BUFFER_SIZE} KB.
+     * Byte order is little endian.
+     * This method returns null if the underlying InputStream does not support mark and reset.
+     * @return A short array containing the PCM audio samples.
+     * @throws IOException Throws IOException if samples cannot be read from InputStream
+     */
+    public short[] getNextShort() throws IOException {
+        byte[] pcmBytes = new byte[PCM_SAMPLES_BUFFER_SIZE * 2];
+        int bytesRead = 0;
+        if ((bytesRead = is.read(pcmBytes, totalBytesRead, pcmBytes.length)) >= 0) {
+            totalBytesRead += bytesRead;
+        } else {
+            // Reached the end of the InputStream.
+            is.close();
+        }
+        ShortBuffer pcm = ByteBuffer.wrap(pcmBytes).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+        return pcm.array();
+    }
+
+    /**
+     * Returns the the complete raw audio data in PCM format.
      * The float values lie in the range [-1,1].
-     * In case of a decoder problem, this method will return an empty float array.
-     * @return A float array containing the audio samples.
+     * @return A float array containing the PCM audio samples.
      */
     public float[] getFloat() {
         /*
@@ -208,19 +253,21 @@ public class WaveDecoder {
         buffer.rewind();
         List<Float> samples = new ArrayList<>();
         try {
-            if (header.getBitsPerSample() == 16) {
+            if (header.getBitsPerSample() == ENCODING_16_BITS) {
                 // Read two bytes (short) of PCM data at a time
                 while (true) {
                     samples.add(PCMUtil.shortByte2Float(buffer.getShort()));
                 }
-            } else {
+            } else if (header.getBitsPerSample() == ENCODING_8_BITS) {
                 // Read one byte of PCM data at a time
                 while (true) {
                     samples.add(PCMUtil.byte2Float(buffer.get()));
                 }
+            } else {
+                throw new DecoderException("Unsupported encoding.");
             }
-        } catch (BufferUnderflowException e) {
-
+        } catch (DecoderException | BufferUnderflowException e) {
+            Log.e(TAG, e.getMessage());
         }
         return Floats.toArray(Arrays.asList(samples.toArray(new Float[samples.size()])));
     }

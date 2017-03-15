@@ -7,8 +7,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
+
+/**
+ * @author georgrem, stockan1
+ */
 
 public class MediaBrowserActivity extends AppCompatActivity {
 
@@ -23,11 +26,10 @@ public class MediaBrowserActivity extends AppCompatActivity {
 
         String[] menuItems = {SAMPLE, DEVICE};
         ListView listView = (ListView) findViewById(R.id.mediumType_list);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, menuItems);
         listView.setAdapter(arrayAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String mediumType = (String) adapterView.getItemAtPosition(i);

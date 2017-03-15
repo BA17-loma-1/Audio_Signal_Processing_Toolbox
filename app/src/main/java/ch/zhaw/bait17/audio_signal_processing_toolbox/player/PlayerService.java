@@ -9,7 +9,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
- * Created by georgrem, stockan1 on 11.03.2017.
+ * @author georgrem, stockan1
  */
 
 public class PlayerService extends Service {
@@ -17,7 +17,7 @@ public class PlayerService extends Service {
     private static final String TAG = PlayerService.class.getSimpleName();
 
     private final IBinder binder = new PlayerBinder();
-    private AudioPlayer player = WavePlayer.getInstance();
+    private AudioPlayer player = MP3Player.getInstance();
 
     public static Intent getIntent(Context context) {
         return new Intent(context, PlayerService.class);
@@ -33,7 +33,7 @@ public class PlayerService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         // A client is binding to the service with bindService()
-        Log.d(TAG, "Service binded");
+        Log.d(TAG, "Service bound");
         return binder;
     }
 

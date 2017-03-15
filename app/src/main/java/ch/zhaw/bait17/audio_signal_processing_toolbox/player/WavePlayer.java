@@ -18,7 +18,7 @@ import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
-import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.ShortBuffer;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.DecoderException;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.Utils;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.WaveDecoder;
 
 /**
@@ -70,7 +71,7 @@ public class WavePlayer implements AudioPlayer {
     }
 
     @Override
-    public void play(String uri) {
+    public void play(@NonNull String uri) {
         // Already playing? Return!
         if (isPlaying()) {
             return;
@@ -97,10 +98,7 @@ public class WavePlayer implements AudioPlayer {
             return;
         }
         currentTrack = uri;
-
         keepPlaying = true;
-        audioTrack.flush();
-        audioTrack.play();
 
         thread = new Thread(new Runnable() {
             @Override
@@ -125,6 +123,9 @@ public class WavePlayer implements AudioPlayer {
             }
         });
         thread.start();
+
+        audioTrack.flush();
+        audioTrack.play();
     }
 
     @Override
@@ -215,12 +216,12 @@ public class WavePlayer implements AudioPlayer {
         return (int) ((playbackStart + audioTrack.getPlaybackHeadPosition()) * (1000.0 / sampleRate));
     }
 
-    private void createAudioTrack(String uri) throws FileNotFoundException, DecoderException {
+    private void createAudioTrack(@NonNull String uri) throws FileNotFoundException, DecoderException {
         Log.d(TAG, "Create new AudioTrack");
 
         WaveDecoder decoder;
         try {
-            InputStream is = context.getContentResolver().openInputStream(Uri.parse(uri));
+            InputStream is = Utils.getInputStreamFromURI(context, uri);
             decoder = new WaveDecoder(is);
         } catch (FileNotFoundException e) {
             throw new FileNotFoundException("File not found: " + uri);

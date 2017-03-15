@@ -6,19 +6,17 @@ import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 
 /**
- * Created by georgrem, stockan1 on 11.03.2017.
+ * @author georgrem, stockan1
  */
-
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 
 public class PlayerPresenter {
 
     private static final String TAG = PlayerPresenter.class.getSimpleName();
     private final Context context;
     private final PlaybackListener listener;
-
     private AudioPlayer player;
 
     private ServiceConnection serviceConnection = new ServiceConnection() {

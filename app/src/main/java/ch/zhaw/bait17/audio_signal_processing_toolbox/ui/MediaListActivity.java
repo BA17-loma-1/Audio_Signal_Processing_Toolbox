@@ -140,7 +140,7 @@ public class MediaListActivity extends AppCompatActivity {
         title = title == null ? filename : title;
         artist = artist == null ? "<unknown>" : artist;
         album = album == null ? "<unknown>" : album;
-        return new Track(title, artist, album, duration, uri.toString());
+        return new Track(title, artist, album, duration, uri);
     }
 
     private List<Track> getSongListFromDevice() {
@@ -168,7 +168,7 @@ public class MediaListActivity extends AppCompatActivity {
             }
             while (musicCursor.moveToNext());
         }
-        musicCursor.close();
+        if (musicCursor != null) musicCursor.close();
         return tracks;
     }
 
