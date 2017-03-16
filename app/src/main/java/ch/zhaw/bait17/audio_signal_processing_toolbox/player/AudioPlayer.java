@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 
 /**
- * Created by georgrem, stockan1 on 11.03.2017.
+ * @author georgrem, stockan1
  */
 
 public interface AudioPlayer {
@@ -28,6 +28,11 @@ public interface AudioPlayer {
     void stop();
 
     /**
+     * Releases the player and frees up all the associated resources.
+     */
+    void release();
+
+    /**
      * Returns true if the AudioTrack play state is PlAYSTATE_PLAYING.
      */
     boolean isPlaying();
@@ -38,23 +43,18 @@ public interface AudioPlayer {
     boolean isPaused();
 
     /**
-     * Releases the player and frees up all the associated resources.
-     */
-    void release();
-
-    /**
      * Returns a string representing the name of the currently selected track.
      */
     @Nullable
     String getCurrentTrack();
 
     /**
-     * Retuns the sample rate of the currently selected/played track.
+     * Returns the sample rate of the currently selected/played track.
      */
     int getSampleRate();
 
     /**
-     * Retuns the number of audio channels of the currently selected/played track.
+     * Returns the number of audio channels of the currently selected/played track.
      */
     int getChannels();
 

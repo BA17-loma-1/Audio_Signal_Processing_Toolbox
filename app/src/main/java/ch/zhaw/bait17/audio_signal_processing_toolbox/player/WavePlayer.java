@@ -26,7 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.ShortBuffer;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.DecoderException;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.Utils;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.Util;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.WaveDecoder;
 
 /**
@@ -66,6 +66,7 @@ public class WavePlayer implements AudioPlayer {
 
     @Override
     public void init(Context context, PlaybackListener listener) {
+        Log.d(TAG, "Init wave player");
         this.context = context;
         this.listener = listener;
     }
@@ -130,9 +131,9 @@ public class WavePlayer implements AudioPlayer {
 
     @Override
     public void pause() {
-        Log.d(TAG, "Pause");
         if (isPlaying()) {
             audioTrack.pause();
+            Log.d(TAG, "Paused");
             seekToPosition(getCurrentPosition());
         }
     }
@@ -143,43 +144,57 @@ public class WavePlayer implements AudioPlayer {
             keepPlaying = false;
             audioTrack.pause();     // Immediate stop
             audioTrack.stop();      // Unblock write to avoid deadlocks
+            Log.d(TAG, "Stopped");
             if (thread != null) {
                 try {
                     thread.join();
+                    Log.d(TAG, "Thread joined");
                 } catch (InterruptedException ex) {
 
                 }
                 thread = null;
+                Log.d(TAG, "Thread killed.");
             }
             audioTrack.flush();
         }
     }
 
     @Override
+    public void release() {
+        stop();
+        if (audioTrack != null) {
+            audioTrack.release();
+            Log.d(TAG, "Released");
+            audioTrack = null;
+        }
+        currentTrack = null;
+    }
+
+    @Override
     public boolean isPlaying() {
+        if (audioTrack == null) {
+            Log.d(TAG, String.format("isPlaying ? --> AudioTrack is null"));
+        } else {
+            Log.d(TAG, String.format("isPlaying ? --> %s", audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING));
+        }
         return audioTrack != null && audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING;
     }
 
     @Override
     public boolean isPaused() {
+        if (audioTrack == null) {
+            Log.d(TAG, String.format("isPaused ? --> AudioTrack is null"));
+        } else {
+            Log.d(TAG, String.format("isPaused ? --> %s", audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED));
+        }
         return audioTrack != null && audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED;
     }
 
     @Override
     @Nullable
     public String getCurrentTrack() {
+        Log.d(TAG, String.format("Current track: %s", currentTrack));
         return currentTrack;
-    }
-
-    @Override
-    public void release() {
-        Log.d(TAG, "Release");
-        stop();
-        if (audioTrack != null) {
-            audioTrack.release();
-            audioTrack = null;
-        }
-        currentTrack = null;
     }
 
     @Override
@@ -198,8 +213,8 @@ public class WavePlayer implements AudioPlayer {
 
     @Override
     public void seekToPosition(int msec) {
+        Log.d(TAG, "Seek to position");
         boolean wasPlaying = isPlaying();
-        stop();
         playbackStart = (int) (msec * sampleRate / 1000);
         if (playbackStart > numberOfSamplesPerChannel) {
             // No more samples to play
@@ -207,6 +222,7 @@ public class WavePlayer implements AudioPlayer {
         }
         audioTrack.setNotificationMarkerPosition(numberOfSamplesPerChannel - 1 - playbackStart);
         if (wasPlaying) {
+            Log.d(TAG, String.format("Was playing... now seeking to position %d", playbackStart));
             play(currentTrack);
         }
     }
@@ -219,9 +235,13 @@ public class WavePlayer implements AudioPlayer {
     private void createAudioTrack(@NonNull String uri) throws FileNotFoundException, DecoderException {
         Log.d(TAG, "Create new AudioTrack");
 
+        if (audioTrack != null) {
+            release();
+        }
+
         WaveDecoder decoder;
         try {
-            InputStream is = Utils.getInputStreamFromURI(context, uri);
+            InputStream is = Util.getInputStreamFromURI(context, uri);
             decoder = new WaveDecoder(is);
         } catch (FileNotFoundException e) {
             throw new FileNotFoundException("File not found: " + uri);

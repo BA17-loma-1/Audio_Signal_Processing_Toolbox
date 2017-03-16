@@ -37,7 +37,7 @@ public class SpectrumView extends View {
     private final double RENDER_INTERVALL = 1e8;
 
     private Thread renderThread;
-    private SpectrumRenderer2 renderer;
+    private SpectrumRenderer renderer;
     private TextPaint textPaint;
     private Paint strokePaint;
     private int sampleRate;
@@ -86,7 +86,7 @@ public class SpectrumView extends View {
         renderThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                renderer = new SpectrumRenderer2(strokePaint, textPaint, context);
+                renderer = new SpectrumRenderer(strokePaint, textPaint);
             }
         });
         renderThread.start();

@@ -18,12 +18,13 @@ public class PlayerPresenter {
     private final Context context;
     private final PlaybackListener listener;
     private AudioPlayer player;
+    private String currentTrack;
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "Bound service connected");
-            player = ((PlayerService.PlayerBinder) service).getService();
+            player = ((PlayerService.PlayerBinder) service).getService("mp3");
             player.init(context, listener);
         }
 

@@ -1,7 +1,6 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
 import android.Manifest;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -144,8 +143,7 @@ public class MediaListActivity extends AppCompatActivity {
     }
 
     private List<Track> getSongListFromDevice() {
-        ContentResolver contentResolver = getContentResolver();
-        Cursor musicCursor = contentResolver.query(
+        Cursor musicCursor = getContentResolver().query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
         if (musicCursor != null && musicCursor.moveToFirst()) {
             int nameColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
@@ -159,11 +157,13 @@ public class MediaListActivity extends AppCompatActivity {
                 String artist = musicCursor.getString(artistColumn);
                 String album = musicCursor.getString(albumColumn);
                 String duration = musicCursor.getString(durationColumn);
-                String uri = "file:///" + musicCursor.getString(nameColumn);
+                String file = "file:///" + musicCursor.getString(nameColumn);
+                Uri uri = Uri.fromFile(new File(file));
+                String mimeType = getContentResolver().getType(uri);
                 if (name.endsWith(".wav")) {
-                    tracks.add(new Track(title, artist, album, duration, uri));
+                    tracks.add(new Track(title, artist, album, duration, file));
                 } else if (name.endsWith(".mp3")) {
-                    tracks.add(new Track(title, artist, album, duration, uri));
+                    tracks.add(new Track(title, artist, album, duration, file));
                 }
             }
             while (musicCursor.moveToNext());

@@ -22,12 +22,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
-import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.Utils;
+
+import ch.zhaw.bait17.audio_signal_processing_toolbox.Util;
 import javazoom.jl.decoder.*;
 import javazoom.jl.decoder.DecoderException;
 
@@ -74,6 +73,7 @@ public class MP3Player implements AudioPlayer {
 
     @Override
     public void init(Context context, PlaybackListener listener) {
+        Log.d(TAG, "Init mp3 player");
         this.context = context;
         this.listener = listener;
     }
@@ -246,7 +246,7 @@ public class MP3Player implements AudioPlayer {
     public void seekToPosition(int msec) {
         Log.d(TAG, "Seek to position");
         boolean wasPlaying = isPlaying();
-        position = (int) (msec * sampleRate / 1000);
+        position = msec * sampleRate / 1000;
         /*
         if (playbackStart > numberOfSamplesPerChannel) {
             // No more samples to play
@@ -274,7 +274,7 @@ public class MP3Player implements AudioPlayer {
         }
 
         try {
-            is = Utils.getInputStreamFromURI(context, uri);
+            is = Util.getInputStreamFromURI(context, uri);
             bitstream = new Bitstream(is);
             decoder = new Decoder();
             extractFrameHeaderInfo(bitstream);
@@ -342,10 +342,6 @@ public class MP3Player implements AudioPlayer {
         } catch(BitstreamException | DecoderException ex) {
             Toast.makeText(context, "Failed to extract frame header data.\n " + ex.getMessage(), Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private InputStream getInputStreamFromByteArray(@NonNull byte[] data) {
-        return new ByteArrayInputStream(data);
     }
 
 }
