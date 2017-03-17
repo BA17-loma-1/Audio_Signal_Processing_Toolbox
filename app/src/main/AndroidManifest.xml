@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".ui.MediaBrowserActivity"
+            android:name=".ui.MediaListActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
@@ -25,14 +25,13 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.MediaListActivity" />
-
         <activity
             android:name=".ui.VisualisationActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+
+        <activity android:name=".ui.FilterActivity" />
 
         <service android:name=".player.PlayerService" />
-
     </application>
-
 </manifest>

@@ -1,15 +1,19 @@
 <resources>
     <string name="app_name">Audio Signal Processing Toolbox</string>
-    <string name="play_button">Play</string>
-    <string name="stop_button">Stop</string>
+
+    <!-- Media browser -->
     <string name="title_activity_media_browser">Media Browser</string>
     <string name="title_activity_media_list">Media List</string>
-    <string name="library_name">Waveform</string>
 
-    <string name="play_item">Play item</string>
-    <string name="currently_playing_song">Song currently playing</string>
-    <string name="currently_playing_artist">Artist of currently playing track</string>
+    <!-- Audio player -->
     <string name="play_pause">play or pause</string>
     <string name="skip_next">skip to next</string>
     <string name="skip_prev">skip to previous</string>
+    <string name="play_item">Play item</string>
+    <string name="currently_playing_song">Song currently playing</string>
+    <string name="currently_playing_artist">Artist of currently playing track</string>
+    <string name="title">Title</string>
+    <string name="artist">Artist</string>
+    <string name="start">start</string>
+    <string name="end">end</string>
 </resources>

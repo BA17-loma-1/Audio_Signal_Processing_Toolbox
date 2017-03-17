@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/pageView"
+    android:id="@+id/visualisationsView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
     <LinearLayout
-        android:id="@+id/viewContainer"
+        android:id="@+id/visualisationsContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -29,16 +29,17 @@
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_weight="1"
             android:background="@android:color/white"
-            android:visibility="invisible" />
+            android:visibility="visible" />
 
-        <View
+        <ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView
+            android:id="@+id/spectrogramView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_weight="0.71" />
-
+            android:layout_weight="1"
+            android:background="@android:color/white"
+            android:visibility="visible" />
     </LinearLayout>
-
 
     <RelativeLayout
         android:id="@+id/mediaControl"
@@ -58,7 +59,7 @@
             android:maxLines="1"
             android:shadowColor="@android:color/black"
             android:shadowRadius="20"
-            android:text="Title"
+            android:text="@string/title"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/fullscreen_line_color" />
 
@@ -75,7 +76,7 @@
             android:maxLines="1"
             android:shadowColor="@android:color/black"
             android:shadowRadius="20"
-            android:text="Artist"
+            android:text="@string/artist"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/fullscreen_secondary_line_color" />
 
@@ -99,7 +100,7 @@
                     android:layout_marginStart="@dimen/text_view_margin"
                     android:gravity="center_vertical"
                     android:maxLines="1"
-                    android:text="start"
+                    android:text="@string/start"
                     android:textColor="@android:color/white" />
 
                 <SeekBar
@@ -122,7 +123,7 @@
                     android:layout_marginEnd="@dimen/end_text_margin"
                     android:gravity="center_vertical"
                     android:maxLines="1"
-                    android:text="end"
+                    android:text="@string/end"
                     android:textColor="@android:color/white" />
 
             </RelativeLayout>

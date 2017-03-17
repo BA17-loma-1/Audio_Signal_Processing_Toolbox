@@ -6,6 +6,7 @@
         <attr name="playbackIndicatorColor" format="color" />
         <attr name="timecodeColor" format="color" />
     </declare-styleable>
+
     <declare-styleable name="SpectrumView">
         <attr name="spectrumFrequencyLabel" format="color" />
     </declare-styleable>
