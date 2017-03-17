@@ -5,7 +5,7 @@ import java.nio.ByteOrder;
 
 /**
  * Utility class.
- * Created by georgrem, stockan1 on 24.02.2017.
+ * @author georgrem, stockan1
  */
 
 public class PCMUtil {
@@ -72,7 +72,7 @@ public class PCMUtil {
     }
 
     /**
-     * Converts a float array into a 8-bit PCM byte array.
+     * <p>Converts a float array into a 8-bit PCM byte array.</p>
      * @param samples An array of floats
      * @return An array of bytes
      */

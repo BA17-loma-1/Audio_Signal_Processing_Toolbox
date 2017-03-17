@@ -2,7 +2,7 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
 import android.graphics.Paint;
 import android.text.TextPaint;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrumRenderer;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.ThirdOctaveSpectrumRenderer;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.Arrays;
@@ -10,13 +10,13 @@ import static org.junit.Assert.*;
 
 /**
  * Local unit tests of the FFT class.
- * @see SpectrumRenderer
+ * @see ThirdOctaveSpectrumRenderer
  *
  * Created by georgrem, stockan1 on 04.03.2017.
  */
 public class SpectrumRendererTest {
 
-    private SpectrumRenderer spectrumRenderer = new SpectrumRenderer(new Paint(), new TextPaint());
+    private ThirdOctaveSpectrumRenderer spectrumRenderer = new ThirdOctaveSpectrumRenderer(new Paint(), new TextPaint());
 
     /**
      * Sets up test fixture.

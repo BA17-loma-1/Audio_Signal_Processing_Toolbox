@@ -1,7 +1,7 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.player;
 
 /**
- * Created by georgrem, stockan1 on 23.02.2017.
+ * @author georgrem, stockan1
  */
 
 public interface PlaybackListener {

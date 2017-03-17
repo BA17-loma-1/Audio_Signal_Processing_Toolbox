@@ -142,11 +142,10 @@ public class WaveformView extends View {
     private void onSamplesChanged() {
         waveformPoints = new float[width * 4];
         drawWaveform(samples);
-        // Redraw view
         postInvalidate();
     }
 
-    public void drawWaveform(short[] samples) {
+    private void drawWaveform(short[] samples) {
         float lastX = -1;
         float lastY = -1;
         int pointIndex = 0;

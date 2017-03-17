@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
+import java.util.Map;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.SupportedAudioFormat;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 
 /**
@@ -17,21 +19,23 @@ public class PlayerPresenter {
     private static final String TAG = PlayerPresenter.class.getSimpleName();
     private final Context context;
     private final PlaybackListener listener;
-    private AudioPlayer player;
-    private String currentTrack;
+    private Map<String, AudioPlayer> audioPlayers;
+    private AudioPlayer currentAudioPlayer;
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "Bound service connected");
-            player = ((PlayerService.PlayerBinder) service).getService("mp3");
-            player.init(context, listener);
+            audioPlayers = ((PlayerService.PlayerBinder) service).getServices();
+            // TODO: Select the right player
+            currentAudioPlayer = audioPlayers.get(SupportedAudioFormat.MP3.toString());
+            currentAudioPlayer.init(context, listener);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.d(TAG, "Problem: bound service disconnected");
-            player = null;
+            currentAudioPlayer = null;
         }
     };
 
@@ -60,42 +64,42 @@ public class PlayerPresenter {
     public void selectTrack(Track track) {
         String uri = track.getUri();
 
-        if (player == null) return;
+        if (currentAudioPlayer == null) return;
 
-        String currentTrackUri = player.getCurrentTrack();
+        String currentTrackUri = currentAudioPlayer.getCurrentTrack();
 
         if (currentTrackUri == null || !currentTrackUri.equals(uri)) {
-            if (player.isPlaying()) {
-                player.pause();
-                player.stop();
+            if (currentAudioPlayer.isPlaying()) {
+                currentAudioPlayer.pause();
+                currentAudioPlayer.stop();
             }
-            player.play(uri);
-        } else if (player.isPlaying()) {
-            player.pause();
-            player.stop();
+            currentAudioPlayer.play(uri);
+        } else if (currentAudioPlayer.isPlaying()) {
+            currentAudioPlayer.pause();
+            currentAudioPlayer.stop();
         } else {
-            player.play(uri);
+            currentAudioPlayer.play(uri);
         }
     }
 
     public boolean isPlaying() {
-        return player.isPlaying();
+        return currentAudioPlayer.isPlaying();
     }
 
     public int getSampleRate() {
-        return player.getSampleRate();
+        return currentAudioPlayer.getSampleRate();
     }
 
     public int getChannels() {
-        return player.getChannels();
+        return currentAudioPlayer.getChannels();
     }
 
     public void seekToPosition(int msec) {
-        player.seekToPosition(msec);
+        currentAudioPlayer.seekToPosition(msec);
     }
 
     public int getCurrentPosition() {
-        return player.getCurrentPosition();
+        return currentAudioPlayer.getCurrentPosition();
     }
 
 }

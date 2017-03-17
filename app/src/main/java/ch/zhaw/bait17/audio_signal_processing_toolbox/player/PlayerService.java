@@ -11,6 +11,8 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.SupportedAudioFormat;
+
 /**
  * @author georgrem, stockan1
  */
@@ -24,8 +26,8 @@ public class PlayerService extends Service {
 
     public PlayerService() {
         audioPlayers = new HashMap<>();
-        audioPlayers.put("mp3", MP3Player.getInstance());
-        audioPlayers.put("wav", WavePlayer.getInstance());
+        audioPlayers.put(SupportedAudioFormat.MP3.toString(), MP3Player.getInstance());
+        audioPlayers.put(SupportedAudioFormat.WAVE.toString(), WavePlayer.getInstance());
     }
 
     public static Intent getIntent(Context context) {
@@ -35,11 +37,10 @@ public class PlayerService extends Service {
     public class PlayerBinder extends Binder {
         /**
          * Returns the singleton instance of the audio player that corresponds to the file type.
-         * @param fileType
-         * @return AudioPlayer
+         * @return
          */
-        public AudioPlayer getService(@NonNull String fileType) {
-            return audioPlayers.get(fileType);
+        public Map<String, AudioPlayer> getServices() {
+            return audioPlayers;
         }
     }
 

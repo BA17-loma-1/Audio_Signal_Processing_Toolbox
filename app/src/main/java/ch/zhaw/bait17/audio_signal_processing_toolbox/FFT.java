@@ -16,7 +16,6 @@ public class FFT {
     private static final int MIN_WINDOW_SIZE = 4096;
     private static final WindowType DEFAULT_WINDOW_TYPE = WindowType.HAMMING;
     private Window win;
-    private int windowSize;
 
     /**
      * Creates an instance of FFT with a Hamming window.

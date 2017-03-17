@@ -17,7 +17,6 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.v4.content.ContextCompat;
 import android.text.TextPaint;
@@ -37,7 +36,7 @@ public class SpectrumView extends View {
     private final double RENDER_INTERVALL = 1e8;
 
     private Thread renderThread;
-    private SpectrumRenderer renderer;
+    private ThirdOctaveSpectrumRenderer renderer;
     private TextPaint textPaint;
     private Paint strokePaint;
     private int sampleRate;
@@ -86,7 +85,7 @@ public class SpectrumView extends View {
         renderThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                renderer = new SpectrumRenderer(strokePaint, textPaint);
+                renderer = new ThirdOctaveSpectrumRenderer(strokePaint, textPaint);
             }
         });
         renderThread.start();
@@ -113,7 +112,6 @@ public class SpectrumView extends View {
     }
 
     private void onSamplesChanged() {
-        // Redraw view
         postInvalidate();
     }
 
