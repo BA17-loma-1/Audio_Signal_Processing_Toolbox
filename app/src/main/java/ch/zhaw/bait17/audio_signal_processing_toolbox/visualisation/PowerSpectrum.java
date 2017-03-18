@@ -2,7 +2,7 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation;
 
 import android.support.annotation.NonNull;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.FFT;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.PCMUtil;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.PCMUtil;
 
 /**
  * <p>Computes the power spectral density of the given audio samples. <br>

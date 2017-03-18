@@ -20,9 +20,11 @@ public class SpectrogramView extends View {
 
     private Context context;
     private int sampleRate;
+    private int channels;
     private int height, width;
     private float centerY;
     private Rect drawRect;
+    private int samplesReceived;
     private final Queue<PowerSpectrum> spectrogram = new ArrayBlockingQueue<>(SPECTROGRAM_LENGTH);
 
     public SpectrogramView(Context context) {
@@ -61,6 +63,7 @@ public class SpectrogramView extends View {
 
     public void setSamples(short[] samples) {
         if (samples != null) {
+            samplesReceived += samples.length;
             if (spectrogram.size() == SPECTROGRAM_LENGTH) {
                 // Remove the head of the queue.
                 spectrogram.remove();
@@ -74,8 +77,19 @@ public class SpectrogramView extends View {
         this.sampleRate = sampleRate;
     }
 
+    public void setChannels(int channels) {
+        this.channels = channels;
+    }
+
     private void onSamplesChanged() {
         postInvalidate();
+    }
+
+    private int getPlayTimeInMilliseconds() {
+        if (sampleRate != 0 && channels != 0) {
+            return samplesReceived / channels / sampleRate;
+        }
+        return 0;
     }
 
 }
