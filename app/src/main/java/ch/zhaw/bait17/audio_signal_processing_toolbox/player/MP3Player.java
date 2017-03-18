@@ -24,6 +24,9 @@ import android.util.Log;
 import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
+
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.LowPassFilter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
 import javazoom.jl.decoder.*;
 import javazoom.jl.decoder.DecoderException;
@@ -56,6 +59,7 @@ public class MP3Player implements AudioPlayer {
     private boolean keepPlaying = false;
     private int position;
     private int frameIndex;
+    private Filter filter;
 
     private MP3Player() {
 
@@ -74,6 +78,7 @@ public class MP3Player implements AudioPlayer {
         Log.d(TAG, "Init mp3 player");
         this.context = context;
         this.listener = listener;
+        filter = new LowPassFilter(context);
     }
 
     @Override
@@ -122,10 +127,13 @@ public class MP3Player implements AudioPlayer {
                         Log.d(TAG, String.format("Position %d:", position));
                         if (position >= pos) {
                             SampleBuffer samples = (SampleBuffer) decoder.decodeFrame(currentFrameHeader, bitstream);
-                            short[] pcm = samples.getBuffer();
-                            shortSamplesRead += pcm.length;
-                            shortSamplesWritten += audioTrack.write(pcm, 0, pcm.length);
-                            listener.onAudioDataReceived(pcm);
+                            short[] preFilterPCM = samples.getBuffer();
+
+                            short[] postFilterPCM = filter.apply(preFilterPCM);
+
+                            shortSamplesRead += postFilterPCM .length;
+                            shortSamplesWritten += audioTrack.write(postFilterPCM , 0, postFilterPCM.length);
+                            listener.onAudioDataReceived(postFilterPCM);
                             /*
                             short[] bufferToLog = new short[NUMBER_OF_SAMPLES_TO_LOG];
                             System.arraycopy(pcm, 0, bufferToLog, 0, NUMBER_OF_SAMPLES_TO_LOG);
@@ -291,9 +299,9 @@ public class MP3Player implements AudioPlayer {
             audioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
                 @Override
                 public void onMarkerReached(AudioTrack track) {
-                    track.stop();
+                    /*track.stop();
                     track.flush();
-                    track.release();
+                    track.release();*/
                     if (listener != null) {
                         listener.onCompletion();
                     }

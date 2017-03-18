@@ -169,7 +169,7 @@ public class VisualisationActivity extends AppCompatActivity implements OnSeekBa
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         currentTime.setText(DateUtils.formatElapsedTime(progress / 1000));
-        playerPresenter.seekToPosition(progress);
+        //playerPresenter.seekToPosition(progress);
     }
 
     @Override

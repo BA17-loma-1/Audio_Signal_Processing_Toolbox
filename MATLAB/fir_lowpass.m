@@ -4,7 +4,7 @@
 % 
 % FIR filter design: lowpass
 
-format compact; format shortE; clear; close all; clc;
+format compact; format short; clear; close all; clc;
 
 q = 15;                     % Quantization bits
 fs = 48e3;                  % Sample rate (not relevant) [Hz]
@@ -22,7 +22,7 @@ b_fir = h_fir.numerator;
 
 % Save the filter coefficients in signed Q15 format
 b_fir_q = fix(b_fir * 2^q);
-dlmwrite('output/b_fir_lowpass.txt', b_fir_q);
+dlmwrite('output/b_fir_lowpass.txt', b_fir, 'precision', '%1.12f');
 
 
 figure(1);

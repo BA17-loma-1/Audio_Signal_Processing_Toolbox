@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.TrackAdapter;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.AudioFormat;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.SupportedAudioFormat;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 
@@ -117,7 +118,7 @@ public class MediaListActivity extends AppCompatActivity {
     }
 
     private Track getTrack(int resId, String filename) {
-        String title, artist, album, duration;
+        String title, artist, album, duration, audioFormat;
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         String uri = "android.resource://" + getPackageName() + File.separator + resId;
         try {
@@ -132,11 +133,13 @@ public class MediaListActivity extends AppCompatActivity {
         title = title == null ? filename : title;
         artist = artist == null ? "<unknown>" : artist;
         album = album == null ? "<unknown>" : album;
-        return new Track(title, artist, album, duration, uri);
+        audioFormat = Track.getSupportedAudioFormats().get(1);
+        return new Track(title, artist, album, duration, uri, audioFormat);
     }
 
     private List<Track> getTracksFromDevice() {
         List<Track> tracksOnDevice = new ArrayList<>();
+        List<String> supportedAudioFormats = Track.getSupportedAudioFormats();
         Cursor musicCursor = getContentResolver().query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
         if (musicCursor != null && musicCursor.moveToFirst()) {
@@ -145,16 +148,17 @@ public class MediaListActivity extends AppCompatActivity {
             int artistColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
             int albumColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
             int durationColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
+            int mimeTypeColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE);
             do {
                 String name = musicCursor.getString(nameColumn);
                 String title = musicCursor.getString(titleColumn);
                 String artist = musicCursor.getString(artistColumn);
                 String album = musicCursor.getString(albumColumn);
                 String duration = musicCursor.getString(durationColumn);
+                String mimeType = musicCursor.getString(mimeTypeColumn);
                 String file = "file:///" + musicCursor.getString(nameColumn);
-                if (name.endsWith(SupportedAudioFormat.WAVE.toString())
-                        || name.endsWith(SupportedAudioFormat.MP3.toString())) {
-                    tracksOnDevice.add(new Track(title, artist, album, duration, file));
+                if (supportedAudioFormats.contains(mimeType)) {
+                    tracksOnDevice.add(new Track(title, artist, album, duration, file, mimeType));
                 }
             }
             while (musicCursor.moveToNext());

@@ -12,6 +12,6 @@ public interface Filter {
      * Apply the filter to {@code samples}.
      * @param samples
      */
-    void apply(short[] samples);
+    short[] apply(short[] samples);
 
 }
