@@ -2,8 +2,6 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.util;
 
 import android.support.annotation.NonNull;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Colour;
-
 /**
  * From: https://github.com/matthewbeckler/HeatMap/blob/master/Gradient.java
  */
