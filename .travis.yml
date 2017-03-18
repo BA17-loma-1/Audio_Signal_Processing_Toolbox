@@ -1,33 +1,35 @@
 # .travis.yml file for running continuous integration on Travis-CI with Android
 
-language: android
-jdk: oraclejdk8
-sudo: required
+# Doesn't work - Android SDK licence issue
 
-android:
-  components:
+#language: android
+#jdk: oraclejdk8
+#sudo: required
+
+#android:
+#  components:
     # use the latest revision of Android SDK Tools
-    - tools
-    - platform-tools
+#    - tools
+#    - platform-tools
 
     # The BuildTools version used by your project
     # and the SDK version used to compile your project
-    - build-tools-25.0.2
-    - android-19
-    - sys-img-armeabi-v7a-android-19
+#    - build-tools-25.0.2
+#    - android-19
+#    - sys-img-armeabi-v7a-android-19
 
     # Additional components
-    - extra-android-m2repository
-    - extra-google-m2repository
+#    - extra-android-m2repository
+#    - extra-google-m2repository
     
-  licenses:
-    - android-sdk-preview-license-52d11cd2
-    - android-sdk-license-c81a61d9
-    - android-sdk-license-.+
-    - google-gdk-license-.+
+#  licenses:
+#    - android-sdk-preview-license-52d11cd2
+#    - android-sdk-license-c81a61d9
+#    - android-sdk-license-.+
+#    - google-gdk-license-.+
 
-before_install:
-  - chmod +x gradlew
+#before_install:
+#  - chmod +x gradlew
 
-script:
-  - ./gradlew build connectedCheck --stacktrace
+#script:
+#  - ./gradlew build connectedCheck --stacktrace
