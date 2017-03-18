@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.PCMUtil;
+
 /**
  * Decodes a WAV file.
  * This class is designed to handle uncompressed PCM audio files, the most common type of RIFF files.
