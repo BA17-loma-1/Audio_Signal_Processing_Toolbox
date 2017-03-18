@@ -1,0 +1,15 @@
+% BAIT17 - Audio Signal Processing Toolbox for Android
+% author: georgrem, stockan1
+% version: March 2017
+% 
+% FIR filter design: bandpass
+
+format compact; format shortE; clear; close all; clc;
+
+q = 15;                     % Quantization bits
+fs = 48e3;                  % Sample rate (not relevant) [Hz]
+
+Apass = 0.1737;             % Rippel im  Durchlassbereich +/- 0.087 dB
+fpass1 = 1e3;               % Durchlassbereich (passband), Matrize [Hz]
+fstop1 = 2e3;               % Sperrbereich (stopband), Stempel [Hz]
+Astop1 = 80;                % min. Dämpfung im Sperrbereich [dB]
