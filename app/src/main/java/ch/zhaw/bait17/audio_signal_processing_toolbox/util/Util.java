@@ -1,15 +1,14 @@
-package ch.zhaw.bait17.audio_signal_processing_toolbox;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.util;
 
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 /**
- * Utility class.
+ * A General utility class.
  * @author georgrem, stockan1
  */
 

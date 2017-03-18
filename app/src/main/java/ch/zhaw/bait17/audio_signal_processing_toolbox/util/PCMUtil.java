@@ -1,10 +1,10 @@
-package ch.zhaw.bait17.audio_signal_processing_toolbox;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.util;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Utility class.
+ * PCM Utility class.
  * @author georgrem, stockan1
  */
 

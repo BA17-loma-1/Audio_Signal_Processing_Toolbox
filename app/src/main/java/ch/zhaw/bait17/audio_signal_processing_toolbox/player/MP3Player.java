@@ -24,7 +24,7 @@ import android.util.Log;
 import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.Util;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
 import javazoom.jl.decoder.*;
 import javazoom.jl.decoder.DecoderException;
 

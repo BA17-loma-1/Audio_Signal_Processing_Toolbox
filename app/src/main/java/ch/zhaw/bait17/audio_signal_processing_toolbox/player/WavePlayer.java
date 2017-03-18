@@ -26,7 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.ShortBuffer;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.DecoderException;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.Util;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.WaveDecoder;
 
 /**
