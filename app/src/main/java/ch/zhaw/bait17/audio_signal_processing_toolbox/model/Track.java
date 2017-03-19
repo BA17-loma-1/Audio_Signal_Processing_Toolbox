@@ -14,23 +14,18 @@ import java.util.List;
  */
 public class Track implements Parcelable {
 
-    private static final List<String> SUPPORTED_AUDIO_FORMATS = new ArrayList<>();
+    private String title, artist, album, duration, uri;
+    private SupportedAudioFormat audioFormat;
 
-    static {
-        SUPPORTED_AUDIO_FORMATS.add("audio/x-wav");
-        SUPPORTED_AUDIO_FORMATS.add("audio/mpeg");
-    }
-
-    private String title, artist, album, duration, uri, audioFormat;
 
     public Track(String title, String artist, String album,
-                 String duration, String uri, String audioFormat) {
-        this.audioFormat = audioFormat;
+                 String duration, String uri, SupportedAudioFormat audioFormat) {
         this.title = title;
         this.artist = artist;
         this.album = album;
         this.duration = duration;
         this.uri = uri;
+        this.audioFormat = audioFormat;
     }
 
     /**
@@ -40,16 +35,16 @@ public class Track implements Parcelable {
      * @param in a parcel to read this object
      */
     public Track(Parcel in) {
-        this.audioFormat = in.readString();
         this.title = in.readString();
         this.artist = in.readString();
         this.album = in.readString();
         this.duration = in.readString();
         this.uri = in.readString();
-    }
-
-    public static List<String> getSupportedAudioFormats() {
-        return SUPPORTED_AUDIO_FORMATS;
+        try {
+            this.audioFormat = SupportedAudioFormat.valueOf(in.readString());
+        } catch (IllegalArgumentException x) {
+            this.audioFormat = null;
+        }
     }
 
     /**
@@ -69,12 +64,12 @@ public class Track implements Parcelable {
      */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(audioFormat);
         dest.writeString(title);
         dest.writeString(artist);
         dest.writeString(album);
         dest.writeString(duration);
         dest.writeString(uri);
+        dest.writeString(audioFormat.toString());
     }
 
     /**
@@ -95,7 +90,7 @@ public class Track implements Parcelable {
     };
 
     public String getAudioFormat() {
-        return audioFormat;
+        return audioFormat.toString();
     }
 
     public String getTitle() {
@@ -125,8 +120,8 @@ public class Track implements Parcelable {
                 ", artist='" + artist + '\'' +
                 ", album='" + album + '\'' +
                 ", duration='" + duration + '\'' +
-                ", uri=" + uri +
+                ", uri='" + uri + '\'' +
+                ", audioFormat=" + audioFormat +
                 '}';
     }
-
 }
