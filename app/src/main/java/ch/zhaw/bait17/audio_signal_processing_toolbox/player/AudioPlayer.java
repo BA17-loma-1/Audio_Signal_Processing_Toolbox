@@ -57,6 +57,7 @@ public class AudioPlayer extends Thread {
         this.setName("AudioTrack Playback Thread (APT).");
         Log.d(TAG, "Thread '" + this.getName() + "' started.");
         super.start();
+        run();
     }
 
     /**
@@ -84,7 +85,12 @@ public class AudioPlayer extends Thread {
      * @return true if the sample block was added to the tail of the input queue
      */
     public boolean enqueueSampleBlock(@NonNull PCMSampleBlock sampleBlock) {
-        return inputQueue.offer(sampleBlock);
+        try {
+            return inputQueue.offer(sampleBlock, QUEUE_POLL_WAIT_TIME, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Log.e(TAG, e.getMessage());
+        }
+        return false;
     }
 
     /**

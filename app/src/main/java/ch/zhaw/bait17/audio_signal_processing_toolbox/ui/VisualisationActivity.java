@@ -95,7 +95,7 @@ public class VisualisationActivity extends AppCompatActivity implements OnSeekBa
             }
 
             @Override
-            public void onAudioDataReceived(short[] samples) {
+            public void onPreFilterAudioDataReceived(short[] samples) {
                 waveformView.setChannels(playerPresenter.getChannels());
                 waveformView.setSampleRate(playerPresenter.getSampleRate());
                 waveformView.setSamples(samples);
@@ -109,6 +109,11 @@ public class VisualisationActivity extends AppCompatActivity implements OnSeekBa
                         spectrumView.setVisibility(VISIBLE);
                     }
                 });
+            }
+
+            @Override
+            public void onPostFilterAudioDataReceived(short[] data) {
+
             }
 
         });
@@ -161,7 +166,7 @@ public class VisualisationActivity extends AppCompatActivity implements OnSeekBa
     }
 
     private void updateSeekBarProgress() {
-        seekBar.setProgress(playerPresenter.getCurrentPosition());
+        //seekBar.setProgress(playerPresenter.getCurrentPosition());
         seekHandler.postDelayed(updateProgressTask, PROGRESS_UPDATE_INTERNAL);
     }
 
