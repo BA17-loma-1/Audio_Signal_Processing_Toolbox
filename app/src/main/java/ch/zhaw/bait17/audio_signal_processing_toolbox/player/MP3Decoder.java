@@ -11,7 +11,15 @@ import javazoom.jl.decoder.DecoderException;
 import javazoom.jl.decoder.Header;
 import javazoom.jl.decoder.SampleBuffer;
 
-public class MP3Decoder {
+/**
+ * <p>
+ *     Implementation of a mp3 decoder.
+ *     PCM sample blocks can be read one by one with {@link #getNextSampleBlock()}.
+ * </p>
+ * @author georgrem, stockan1
+ */
+
+public class MP3Decoder implements AudioDecoder {
 
     private static final String TAG = MP3Decoder.class.getSimpleName();
 
@@ -31,6 +39,7 @@ public class MP3Decoder {
         init();
     }
 
+    @Override
     public PCMSampleBlock getNextSampleBlock() {
         try {
             Header currentFrameHeader = bitstream.readFrame();
@@ -51,10 +60,12 @@ public class MP3Decoder {
         return null;
     }
 
+    @Override
     public int getSampleRate() {
         return sampleRate;
     }
 
+    @Override
     public int getChannels() {
         return channels;
     }
