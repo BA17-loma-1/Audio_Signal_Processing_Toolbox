@@ -2,13 +2,11 @@
 % author: georgrem, stockan1
 % version: March 2017
 % 
-% FIR filter design: lowpass
+% FIR filter design: low pass
 
-format compact; format short; clear; close all; clc;
+format compact; format long; clear; close all; clc;
 
-q = 15;                     % Quantization bits
 fs = 48e3;                  % Sample rate (not relevant) [Hz]
-
 fpass = 1e3;                % Durchlassbereich (passband), Matrize [Hz]
 Apass = 0.1737;             % Rippel im  Durchlassbereich +/- 0.087 dB
 fstop = 2e3;                % Sperrbereich (stopband), Stempel [Hz]
@@ -20,8 +18,7 @@ h_fir = design(h, 'fir', 'FilterStructure', 'dfsymfir', 'JointOptimization', tru
 cost(h_fir)
 b_fir = h_fir.numerator;
 
-% Save the filter coefficients in signed Q15 format
-b_fir_q = fix(b_fir * 2^q);
+% Save the filter coefficients
 dlmwrite('output/b_fir_lowpass.txt', b_fir, 'precision', '%1.12f');
 
 

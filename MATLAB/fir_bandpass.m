@@ -2,13 +2,11 @@
 % author: georgrem, stockan1
 % version: March 2017
 % 
-% FIR filter design: bandpass
+% FIR filter design: band pass
 
 format compact; format long; clear; close all; clc;
 
-q = 15;                     % Quantization bits
 fs = 48e3;                  % Sample rate (not relevant) [Hz]
-
 Apass = 0.1737;             % Rippel im  Durchlassbereich +/- 0.087 dB
 fpass1 = 3e3;               % Durchlassbereich links (passband), Matrize [Hz]
 fstop1 = 2e3;               % Sperrbereich links (stopband), Stempel [Hz]
@@ -22,9 +20,8 @@ h_fir = design(h, 'fir', 'FilterStructure', 'dfsymfir', 'JointOptimization', tru
 cost(h_fir)
 b_fir = h_fir.numerator;
 
-% Save the filter coefficients in signed Q15 format
-b_fir_q = fix(b_fir * 2^q);
-dlmwrite('output/b_fir_bandpass.txt', b_fir);
+% Save the filter coefficients
+dlmwrite('output/b_fir_bandpass.txt', b_fir, 'precision', '%1.12f');
 
 
 figure(1);
