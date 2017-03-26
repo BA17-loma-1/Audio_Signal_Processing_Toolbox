@@ -1,11 +1,11 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
 /**
- * Created by georgrem, stockan1 on 22.02.2017.
+ * @author georgrem, stockan1
  */
 
 public enum AudioCodingFormat {
-    // Linear pulse-code modulation
+
     LINEAR_PCM(1);
 
     private String stringValue = "";

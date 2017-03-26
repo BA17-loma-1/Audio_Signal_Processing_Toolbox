@@ -1,14 +1,16 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.util;
 
-import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 
 /**
- * A General utility class.
+ * <p>
+ *     A general utility class.
+ * </p>
  * @author georgrem, stockan1
  */
 
@@ -16,14 +18,13 @@ public class Util {
 
     /**
      * Returns an InputStream of the resource specified in the parameter.
-     * @param context The application context.
      * @param uri The resource you want to read from.
      * @return An InputStream.
      * @throws FileNotFoundException Throws an exception if the file cannot be found.
      */
-    public static InputStream getInputStreamFromURI(@NonNull Context context, @NonNull String uri)
+    public static InputStream getInputStreamFromURI(@NonNull String uri)
             throws FileNotFoundException {
-        return context.getContentResolver().openInputStream(Uri.parse(uri));
+        return ApplicationContext.getAppContext().getContentResolver().openInputStream(Uri.parse(uri));
     }
 
     /**
@@ -33,6 +34,24 @@ public class Util {
      */
     public static InputStream getInputStreamFromByteArray(@NonNull byte[] data) {
         return new ByteArrayInputStream(data);
+    }
+
+    /**
+     * Computes and returns the greatest common divisor of two 32 bit integer numbers.
+     * @param n
+     * @param m
+     * @return
+     */
+    public static int gcd(int n, int m) {
+        if (n == 0) {
+            return m;
+        } else if (m == 0) {
+            return n;
+        } else if (n < m) {
+            return gcd(m % n, n);
+        } else {
+            return gcd(n % m, m);
+        }
     }
 
 }

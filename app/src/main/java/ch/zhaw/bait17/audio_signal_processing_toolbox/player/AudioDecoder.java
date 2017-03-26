@@ -1,5 +1,8 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.player;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PCMSampleBlock;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PreFilterSampleBlock;
+
 /**
  * An interface representing an audio decoder.
  * @author georgrem, stockan1

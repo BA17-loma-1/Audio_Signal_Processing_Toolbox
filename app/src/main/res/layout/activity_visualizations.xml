@@ -3,7 +3,7 @@
     android:id="@+id/visualisationsView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true" >
 
     <LinearLayout
         android:id="@+id/visualisationsContainer"
@@ -20,7 +20,9 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@android:color/white" />
+            android:background="?attr/colorAccent"
+            android:visibility="visible" >
+        </ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView>
 
         <ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrumView
             android:id="@+id/spectrumView"
@@ -28,144 +30,11 @@
             android:layout_height="0dp"
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_weight="1"
-            android:background="@android:color/white"
-            android:visibility="visible" />
-
-        <ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView
-            android:id="@+id/spectrogramView"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_weight="1"
-            android:background="@android:color/white"
-            android:visibility="visible" />
+            android:background="?attr/colorAccent"
+            android:visibility="visible" >
+        </ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrumView>
     </LinearLayout>
 
-    <RelativeLayout
-        android:id="@+id/mediaControl"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:background="@drawable/fullscreen_bg_gradient">
-
-        <TextView
-            android:id="@+id/track_title"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/track_artist"
-            android:ellipsize="end"
-            android:gravity="center_horizontal"
-            android:maxLines="1"
-            android:shadowColor="@android:color/black"
-            android:shadowRadius="20"
-            android:text="@string/title"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/fullscreen_line_color" />
-
-        <TextView
-            android:id="@+id/track_artist"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginBottom="85dp"
-            android:ellipsize="end"
-            android:fontFamily="sans-serif-light"
-            android:gravity="center_horizontal"
-            android:maxLines="1"
-            android:shadowColor="@android:color/black"
-            android:shadowRadius="20"
-            android:text="@string/artist"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/fullscreen_secondary_line_color" />
-
-        <LinearLayout
-            android:id="@+id/controllers"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:orientation="vertical"
-            android:visibility="visible">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="48dp">
-
-                <TextView
-                    android:id="@+id/currentTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginStart="@dimen/text_view_margin"
-                    android:gravity="center_vertical"
-                    android:maxLines="1"
-                    android:text="@string/start"
-                    android:textColor="@android:color/white" />
-
-                <SeekBar
-                    android:id="@+id/seekBar"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:layout_toEndOf="@+id/currentTime"
-                    android:layout_toStartOf="@+id/endTime" />
-
-                <TextView
-                    android:id="@+id/endTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignWithParentIfMissing="true"
-                    android:layout_marginEnd="@dimen/end_text_margin"
-                    android:gravity="center_vertical"
-                    android:maxLines="1"
-                    android:text="@string/end"
-                    android:textColor="@android:color/white" />
-
-            </RelativeLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="48dp">
-
-                <ImageButton
-                    android:id="@+id/prev"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="?selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/skip_prev"
-                    android:onClick="onClick_prev"
-                    android:src="@drawable/ic_skip_previous_white_48dp" />
-
-                <ImageButton
-                    android:id="@+id/play_pause"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:background="?selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/play_pause"
-                    android:onClick="onClick_play_pause"
-                    android:src="@drawable/uamp_ic_play_arrow_white_48dp" />
-
-                <ImageButton
-                    android:id="@+id/next"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="?selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/skip_next"
-                    android:onClick="onClick_next"
-                    android:src="@drawable/ic_skip_next_white_48dp" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </RelativeLayout>
+    <include layout="@layout/audio_player" />
 
 </RelativeLayout>

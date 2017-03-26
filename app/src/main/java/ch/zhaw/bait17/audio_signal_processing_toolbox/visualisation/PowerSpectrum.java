@@ -5,8 +5,10 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.FFT;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.PCMUtil;
 
 /**
- * <p>Computes the power spectral density of the given audio samples. <br>
- * The power spectral density is sometimes simply called power spectrum.</p>
+ * <p>
+ *     Computes the power spectral density of the given audio samples. <br>
+ *     The power spectral density is sometimes simply called power spectrum.
+ * </p>
  *
  * @author georgrem, stockan1
  */

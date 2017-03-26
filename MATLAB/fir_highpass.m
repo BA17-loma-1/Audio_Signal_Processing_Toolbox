@@ -2,24 +2,24 @@
 % author: georgrem, stockan1
 % version: March 2017
 % 
-% FIR filter design: low pass
+% FIR filter design: high pass
 
 format compact; format long; clear; close all; clc;
 
 fs = 48e3;                  % Sample rate (not relevant) [Hz]
 fpass = 3e3;                % Durchlassbereich (passband), Matrize [Hz]
 Apass = 0.1737;             % Rippel im  Durchlassbereich +/- 0.087 dB
-fstop = 5e3;                % Sperrbereich (stopband), Stempel [Hz]
-Astop = 80;                 % min. Dämpfung im Sperrbereich [dB]
+fstop = 2e3;                % Sperrbereich (stopband), Stempel [Hz]
+Astop = 60;                 % min. Dämpfung im Sperrbereich [dB]
 
 % Optimale Bestimmung des FIR-Tiefpassfilters
-h = fdesign.lowpass(fpass, fstop, Apass, Astop, fs);
+h = fdesign.highpass(fstop, fpass, Astop, Apass, fs);
 h_fir = design(h, 'fir', 'FilterStructure', 'dfsymfir', 'JointOptimization', true);
 cost(h_fir)
 b_fir = h_fir.numerator;
 
 % Save the filter coefficients
-dlmwrite('output/b_fir_lowpass.txt', b_fir, 'precision', '%1.12f');
+dlmwrite('output/b_fir_highpass.txt', b_fir, 'precision', '%1.12f');
 
 
 figure(1);

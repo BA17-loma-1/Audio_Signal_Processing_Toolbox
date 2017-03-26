@@ -2,7 +2,6 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
-
 import com.google.common.primitives.Floats;
 import java.io.DataInputStream;
 import java.io.IOException;

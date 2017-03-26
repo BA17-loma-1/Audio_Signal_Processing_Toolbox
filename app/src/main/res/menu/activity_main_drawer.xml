@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_media_list"
+            android:icon="@drawable/ic_playlist_music_black_24dp"
+            android:title="My music" />
+        <item
+            android:id="@+id/nav_visualisation"
+            android:icon="@drawable/filter"
+            android:title="Visualisation" />
+        <item
+            android:id="@+id/nav_filter"
+            android:icon="@android:drawable/star_big_on"
+            android:title="Filter" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/about_96"
+            android:title="About" />
+    </group>
+
+</menu>

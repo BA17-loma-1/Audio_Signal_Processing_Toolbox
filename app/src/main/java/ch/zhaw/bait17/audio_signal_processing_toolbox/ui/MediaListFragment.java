@@ -1,7 +1,9 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
 import android.Manifest;
-import android.content.Intent;
+import android.app.Activity;
+import android.app.Fragment;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
@@ -12,21 +14,20 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.TrackAdapter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.SupportedAudioFormat;
@@ -36,19 +37,67 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
  * @author georgrem, stockan1
  */
 
-public class MediaListActivity extends AppCompatActivity {
+public class MediaListFragment extends Fragment {
 
+    private static final String TAG = MediaListFragment.class.getSimpleName();
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
     public final static String KEY_TRACK = "ch.zhaw.bait17.audio_signal_processing_toolbox.TRACK";
     public final static String KEY_TRACKS = "ch.zhaw.bait17.audio_signal_processing_toolbox.TRACKS";
 
+    private  View rootView;
+    private Context context;
+    private OnTrackSelectedListener listener;
+
+    public interface OnTrackSelectedListener {
+        void onTrackSelected(List<Track> tracks, int trackPos);
+    }
+
+    // The onCreateView method is called when Fragment should create its View object hierarchy,
+    // either dynamically or via XML layout inflation.
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_media_list);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        rootView =  inflater.inflate(R.layout.media_list_view, container, false);
+        return rootView;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context;
+        Activity activity;
+        if (context instanceof Activity) {
+            activity = (Activity) context;
+            listener = (OnTrackSelectedListener) activity;
+        } else {
+            throw new ClassCastException(context.toString()
+                    + " must implement MediaListFragment.OnItemSelectedListener");
+        }
+    }
+
+    // This event is triggered soon after onCreateView().
+    // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         loadTrackList();
     }
 
+    // During startup, check if there are arguments passed to the fragment.
+    // onStart is a good place to do this because the layout has already been
+    // applied to the fragment at this point
+    @Override
+    public void onStart() {
+        super.onStart();
+        Bundle args = getArguments();
+        if (args != null) {
+
+        }
+    }
+
+    /*
+        This method is not being called by requestReadExternalStoragePermission().
+        It requires API level 21 and above.
+        Needs a fix to work around.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
                                            @NonNull int[] grantResults) {
@@ -56,14 +105,14 @@ public class MediaListActivity extends AppCompatActivity {
                 grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             loadTrackList();
         } else {
-            Toast.makeText(this, "You don't have permission to read from external storage.",
+            Toast.makeText(context, "You don't have permission to read from external storage.",
                     Toast.LENGTH_SHORT).show();
         }
     }
 
     private void loadTrackList() {
-        if (ContextCompat.checkSelfPermission(
-                this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(context,
+                Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             final List<Track> tracks = getAllTracks();
             Collections.sort(tracks, new Comparator<Track>() {
                 public int compare(Track a, Track b) {
@@ -71,18 +120,17 @@ public class MediaListActivity extends AppCompatActivity {
                 }
             });
 
-            ListView listView = (ListView) findViewById(R.id.media_list);
-            TrackAdapter trackAdapter = new TrackAdapter(this, (ArrayList) tracks);
+            final ListView listView = (ListView) rootView.findViewById(R.id.media_list);
+            TrackAdapter trackAdapter = new TrackAdapter((ArrayList) tracks);
             listView.setAdapter(trackAdapter);
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Track track = (Track) adapterView.getItemAtPosition(i);
-                    Intent intent = new Intent(MediaListActivity.this, VisualisationActivity.class);
-                    int trackPosNr = tracks.indexOf(track);
-                    intent.putExtra(KEY_TRACK, trackPosNr);
-                    intent.putParcelableArrayListExtra(KEY_TRACKS, (ArrayList) tracks);
-                    startActivity(intent);
+                    if (listener != null) {
+                        Track track = (Track) adapterView.getItemAtPosition(i);
+                        int trackPosNr = tracks.indexOf(track);
+                        listener.onTrackSelected(tracks, trackPosNr);
+                    }
                 }
             });
         } else {
@@ -101,7 +149,7 @@ public class MediaListActivity extends AppCompatActivity {
         List<Track> tracksInRaw = new ArrayList<>();
         Field[] fields = R.raw.class.getFields();
         for (Field field : fields) {
-            int rawId = getResources().getIdentifier(field.getName(), "raw", getPackageName());
+            int rawId = getResources().getIdentifier(field.getName(), "raw", context.getPackageName());
             if (rawId != 0) {
                 TypedValue value = new TypedValue();
                 getResources().getValue(rawId, value, true);
@@ -121,11 +169,12 @@ public class MediaListActivity extends AppCompatActivity {
     private Track getTrack(int resId, String filename) {
         String title, artist, album, duration, mimeType;
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        String uri = "android.resource://" + getPackageName() + File.separator + resId;
+        String uri = "android.resource://" + context.getPackageName()
+                + File.separator + resId;
         try {
-            mmr.setDataSource(getApplicationContext(), Uri.parse(uri));
+            mmr.setDataSource(context, Uri.parse(uri));
         } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
         }
         title = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
         artist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
@@ -141,7 +190,7 @@ public class MediaListActivity extends AppCompatActivity {
 
     private List<Track> getTracksFromDevice() {
         List<Track> tracksOnDevice = new ArrayList<>();
-        Cursor musicCursor = getContentResolver().query(
+        Cursor musicCursor = context.getContentResolver().query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
         if (musicCursor != null && musicCursor.moveToFirst()) {
             int nameColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
@@ -168,19 +217,20 @@ public class MediaListActivity extends AppCompatActivity {
     }
 
     private void requestReadExternalStoragePermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-            Snackbar.make(findViewById(R.id.media_list),
+        if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            Snackbar.make(rootView.findViewById(R.id.media_list),
                     "Read permission to external storage is required in order to access your audio files.",
                     Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ActivityCompat.requestPermissions(MediaListActivity.this,
+                    ActivityCompat.requestPermissions(getActivity(),
                             new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                             REQUEST_READ_EXTERNAL_STORAGE);
                 }
             }).show();
         } else {
-            ActivityCompat.requestPermissions(MediaListActivity.this,
+            ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                     REQUEST_READ_EXTERNAL_STORAGE);
         }

@@ -1,4 +1,4 @@
-package ch.zhaw.bait17.audio_signal_processing_toolbox.player;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.model;
 
 /**
  * A buffer that holds a block of PCM audio samples.
@@ -32,7 +32,7 @@ public class PCMSampleBlock {
      *
      * @return
      */
-    public int getSAMPLE_RATE() {
+    public int getSampleRate() {
         return SAMPLE_RATE;
     }
 

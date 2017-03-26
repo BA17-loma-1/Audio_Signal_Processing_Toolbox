@@ -1,17 +1,19 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter;
 
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
+
 /**
- * Interface representing a filter for online processing of PCM samples provided
- * as an array of {@code short}s.
+ * <p>
+ *     Filter interface
+ * </p>
  * @author georgrem, stockan1
  */
 
-public interface Filter {
+public interface Filter extends Parcelable {
 
-    /**
-     * Apply the filter to {@code samples}.
-     * @param samples
-     */
-    short[] apply(short[] samples);
+    short[] apply(@NonNull short[] input);
+
+    int getOrder();
 
 }

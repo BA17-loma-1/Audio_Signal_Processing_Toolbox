@@ -2,12 +2,13 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#FFFFFF</color>
     <color name="default_waveform">#000000</color>
     <color name="default_waveformFill">#80FFC0</color>
     <color name="default_playback_indicator">#ffff66</color>
-    <color name="default_timecode">#ddffffdd</color>
     <color name="default_spectrum_freq_label">#000000</color>
+    <color name="background_content">#ffffff</color>
+    <color name="background_fragment">#000000</color>
 
     <color name="bt_accent">#00B8D4</color>
     <color name="media_item_icon_playing">@color/bt_accent</color>
@@ -20,4 +21,7 @@
     <color name="background_gradient_start">#666666</color>
     <color name="background_gradient_end">#DDDDDD</color>
     <color name="default_background">#0096a6</color>
+    
+    <!-- Audio player -->
+    <color name="artist_track">#00FFFFFF</color>
 </resources>

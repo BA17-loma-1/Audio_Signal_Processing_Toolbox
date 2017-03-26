@@ -18,24 +18,21 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.view.View;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 
 /**
  *
  * @author georgrem, stockan1
  */
-public class WaveformView extends View {
+public class WaveformView extends AudioView {
 
-    private TextPaint textPaint;
     private Paint strokePaint, fillPaint, markerPaint;
     private int width, height;
     private float centerY;
-    private int audioLength, sampleRate, channels;
     private short[] samples;
     private float[] waveformPoints;
 
@@ -44,17 +41,18 @@ public class WaveformView extends View {
         init(context, null, 0);
     }
 
-    public WaveformView(Context context, AttributeSet attrs) {
+    public WaveformView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs, 0);
     }
 
-    public WaveformView(Context context, AttributeSet attrs, int defStyle) {
+    public WaveformView(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context, attrs, defStyle);
     }
 
     private void init(Context context, AttributeSet attrs, int defStyle) {
+        setWillNotDraw(false);
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.WaveformView, defStyle, 0);
@@ -66,16 +64,8 @@ public class WaveformView extends View {
                 ContextCompat.getColor(context, R.color.default_waveformFill));
         int mMarkerColor = a.getColor(R.styleable.WaveformView_playbackIndicatorColor,
                 ContextCompat.getColor(context, R.color.default_playback_indicator));
-        int mTextColor = a.getColor(R.styleable.WaveformView_timecodeColor,
-                ContextCompat.getColor(context, R.color.default_timecode));
 
         a.recycle();
-
-        textPaint = new TextPaint();
-        textPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-        textPaint.setTextAlign(Paint.Align.CENTER);
-        textPaint.setColor(mTextColor);
-        textPaint.setTextSize(getFontSize(getContext(), android.R.attr.textAppearanceSmall));
 
         strokePaint = new Paint();
         strokePaint.setColor(strokeColor);
@@ -114,29 +104,8 @@ public class WaveformView extends View {
     public void setSamples(short[] samples) {
         this.samples = samples;
         if (this.samples != null) {
-            calculateAudioLength();
             onSamplesChanged();
         }
-    }
-
-    public void setSampleRate(int sampleRate) {
-        this.sampleRate = sampleRate;
-        calculateAudioLength();
-    }
-
-    public void setChannels(int channels) {
-        this.channels = channels;
-        calculateAudioLength();
-    }
-
-    private void calculateAudioLength() {
-        if (samples == null || sampleRate == 0 || channels == 0)
-            return;
-        audioLength = calculateAudioLength(samples.length, sampleRate, channels);
-    }
-
-    public int getAudioLength() {
-        return audioLength;
     }
 
     private void onSamplesChanged() {
@@ -168,10 +137,6 @@ public class WaveformView extends View {
             lastX = x;
             lastY = y;
         }
-    }
-
-    private int calculateAudioLength(int samplesCount, int sampleRate, int channelCount) {
-        return ((samplesCount / channelCount) * 1000) / sampleRate;
     }
 
     private float getFontSize(Context ctx, int textAppearance) {

@@ -3,7 +3,6 @@
     package="ch.zhaw.bait17.audio_signal_processing_toolbox">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
@@ -16,7 +15,7 @@
         android:theme="@style/AppTheme" >
 
         <activity
-            android:name=".ui.MediaListActivity"
+            android:name=".ui.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
@@ -26,13 +25,5 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".ui.VisualisationActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
-
-        <activity android:name=".ui.FilterActivity" />
-
-        <service android:name=".player.PlayerService" />
     </application>
 </manifest>

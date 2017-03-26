@@ -5,7 +5,7 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.util;
  */
 public class HeatMap {
 
-    private static final int NUMBER_OF_STEPS = 255;
+    private static final int NUMBER_OF_STEPS = 256;
     private static final int ALPHA_FULL_TRANSPARENCY = 0;
     private static final int ALPHA_NO_TRANSPARENCY = 0xff;
 
@@ -14,12 +14,24 @@ public class HeatMap {
     private static final Colour RED    = new Colour(0xff, 0x00, 0x00, ALPHA_NO_TRANSPARENCY);
     private static final Colour GREEN  = new Colour(0x00, 0x80, 0x00, ALPHA_NO_TRANSPARENCY);
     private static final Colour BLUE   = new Colour(0x00, 0x00, 0xff, ALPHA_NO_TRANSPARENCY);
+    private static final Colour LILA   = new Colour(181, 32, 0xff, ALPHA_NO_TRANSPARENCY);
     private static final Colour BLACK  = new Colour(0x00, 0x00, 0x00, ALPHA_NO_TRANSPARENCY);
     private static final Colour WHITE  = new Colour(0xff, 0xff, 0xff, ALPHA_NO_TRANSPARENCY);
 
+    // Predefined heat maps
     public static final Colour[] GREY_SCALE = Gradient.createGradient(WHITE, BLACK, NUMBER_OF_STEPS);
 
     public static final Colour[] YELLOW_ORANGE_BLUE = Gradient.createMultiGradient(
             new Colour[]{YELLOW, ORANGE, BLUE}, NUMBER_OF_STEPS);
+
+    public static final Colour[] BLUE_YELLOW_RED = Gradient.createMultiGradient(
+            new Colour[]{BLUE, YELLOW, RED}, NUMBER_OF_STEPS);
+
+    public static final Colour[] BLUE_YELLOW = Gradient.createGradient(BLUE, YELLOW, NUMBER_OF_STEPS);
+
+    public static final Colour[] WHITE_RED = Gradient.createGradient(WHITE, RED, NUMBER_OF_STEPS);
+
+    public final static Colour[] RAINBOW = Gradient.createMultiGradient(
+            new Colour[]{BLACK, LILA, BLUE, GREEN, YELLOW, ORANGE, RED}, 2*NUMBER_OF_STEPS);
 
 }

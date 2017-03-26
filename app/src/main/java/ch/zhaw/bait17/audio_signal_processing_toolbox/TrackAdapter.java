@@ -1,15 +1,12 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import java.util.ArrayList;
-
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 
 public class TrackAdapter extends BaseAdapter {
@@ -17,9 +14,9 @@ public class TrackAdapter extends BaseAdapter {
     private ArrayList<Track> tracks;
     private LayoutInflater inflater;
 
-    public TrackAdapter(Context context, ArrayList<Track> tracks) {
+    public TrackAdapter(ArrayList<Track> tracks) {
         this.tracks = tracks;
-        inflater = LayoutInflater.from(context);
+        inflater = LayoutInflater.from(ApplicationContext.getAppContext());
     }
 
     @Override
