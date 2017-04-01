@@ -14,16 +14,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.RadioButton;
-import android.widget.Spinner;
-import android.widget.Toast;
-
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FIRFilter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FilterType;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FilterUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 
@@ -37,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private Toolbar toolbar;
     private ActionBarDrawerToggle actionBarDrawerToggle;
+    private Map<FilterType, Filter> filters;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements
         ft.replace(R.id.content_frame, new MediaListFragment());
         ft.replace(R.id.audio_player_fragment, new AudioPlayerFragment());
         ft.commit();
+
+        initFilters();
     }
 
     @Override
@@ -137,12 +137,22 @@ public class MainActivity extends AppCompatActivity implements
         switch (view.getId()) {
             case R.id.radio_low_pass_filter:
                 if (checked) {
-                    filter = getLowPassFilter();
+                    filter = filters.get(FilterType.LOWPASS);
                 }
                 break;
             case R.id.radio_high_pass_filter:
                 if (checked) {
-                    filter = getHighPassFilter();
+                    filter = filters.get(FilterType.HIGHPASS);
+                }
+                break;
+            case R.id.radio_band_pass_filter:
+                if (checked) {
+                    filter = filters.get(FilterType.BANDPASS);
+                }
+                break;
+            case R.id.radio_band_stop_filter:
+                if (checked) {
+                    filter = filters.get(FilterType.BANDSTOP);
                 }
                 break;
             case R.id.radio_no_filter:
@@ -179,28 +189,17 @@ public class MainActivity extends AppCompatActivity implements
         Fragment fragment = null;
         String title = "";
 
-        switch (id) {
-            case R.id.nav_media_list:
-                fragment = new MediaListFragment();
-                title = "My Music";
-                break;
-            case R.id.nav_visualisation:
-                fragment = new VisualisationFragment();
-                title = "Visualisation";
-                break;
-            case R.id.nav_visualisation_configuration:
-                fragment = new VisualisationConfigurationFragment();
-                title = "Visualisation Configuration";
-                break;
-            case R.id.nav_filter:
-                fragment = new FilterFragment();
-                title = "Filter";
-                break;
-            case R.id.nav_about:
-                title = "About the app";
-                break;
-            default:
-                break;
+        if (id == R.id.nav_media_list) {
+            fragment = new MediaListFragment();
+            title = "My Music";
+        } else if (id == R.id.nav_visualisation) {
+            fragment = new VisualisationFragment();
+            title = "Visualisation";
+        } else if (id == R.id.nav_filter) {
+            fragment = FilterFragment.newInstance(filters.values().toArray(new Filter[filters.size()]));
+            title = "Filter";
+        } else if (id == R.id.nav_about) {
+            title = "About the app";
         }
 
         if (fragment != null) {
@@ -217,22 +216,22 @@ public class MainActivity extends AppCompatActivity implements
 
     @Nullable
     private Filter getLowPassFilter() {
-        float[] filterCoefficients = FilterUtil.getCoefficients(getResources().
-                openRawResource(R.raw.b_fir_lowpass));
-        if (filterCoefficients != null) {
-            return new FIRFilter(filterCoefficients);
-        }
-        return null;
+        return FilterUtil.getFilter(getResources().openRawResource(R.raw.b_fir_lowpass));
     }
 
     @Nullable
     private Filter getHighPassFilter() {
-        float[] filterCoefficients = FilterUtil.getCoefficients(getResources().
-                openRawResource(R.raw.b_fir_highpass));
-        if (filterCoefficients != null) {
-            return new FIRFilter(filterCoefficients);
-        }
-        return null;
+        return FilterUtil.getFilter(getResources().openRawResource(R.raw.b_fir_highpass));
+    }
+
+    @Nullable
+    private Filter getBandPassFilter() {
+        return FilterUtil.getFilter(getResources().openRawResource(R.raw.b_fir_bandpass));
+    }
+
+    @Nullable
+    private Filter getBandStopFilter() {
+        return FilterUtil.getFilter(getResources().openRawResource(R.raw.b_fir_bandstop));
     }
 
     @Override
@@ -247,6 +246,14 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void setTitle(CharSequence title) {
         getSupportActionBar().setTitle(title);
+    }
+
+    private void initFilters() {
+        filters = new HashMap<>();
+        filters.put(FilterType.LOWPASS, getLowPassFilter());
+        filters.put(FilterType.HIGHPASS, getHighPassFilter());
+        filters.put(FilterType.BANDPASS, getBandPassFilter());
+        filters.put(FilterType.BANDSTOP, getBandStopFilter());
     }
 
 }

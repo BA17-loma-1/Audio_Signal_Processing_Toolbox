@@ -20,7 +20,6 @@
             android:id="@+id/textview_low_pass_filter_spec"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/low_pass_fiter_spec"
             android:textSize="14sp"
             android:textColor="@android:color/darker_gray"
             android:padding="3sp" >
@@ -35,7 +34,34 @@
             android:id="@+id/textview_high_pass_filter_spec"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/high_pass_fiter_spec"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray"
+            android:padding="3sp" >
+        </TextView>
+        <RadioButton android:id="@+id/radio_band_pass_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/band_pass_filter"
+            android:onClick="onRadioButtonClicked" >
+        </RadioButton>
+        <TextView
+            android:id="@+id/textview_band_pass_filter_spec"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray"
+            android:padding="3sp" >
+        </TextView>
+        <RadioButton android:id="@+id/radio_band_stop_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/band_stop_filter"
+            android:onClick="onRadioButtonClicked" >
+        </RadioButton>
+        <TextView
+            android:id="@+id/textview_band_stop_filter_spec"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:textSize="14sp"
             android:textColor="@android:color/darker_gray"
             android:padding="3sp" >
