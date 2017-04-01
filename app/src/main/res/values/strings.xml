@@ -27,8 +27,8 @@
     <!-- Filter -->
     <string name="low_pass_filter">Low pass filter</string>
     <string name="high_pass_filter">High pass filter</string>
+    <string name="band_pass_filter">Band pass filter</string>
+    <string name="band_stop_filter">Band stop filter</string>
     <string name="no_filter">No filter</string>
-    <string name="low_pass_fiter_spec">fpass = 3 kHz, Apass = +/-0.1737 dB, fstop = 5 kHz, Astop = 80 dB</string>
-    <string name="high_pass_fiter_spec">fstop = 2 kHz, Astop = 60 dB, fpass = 3 kHz, Apass = +/-0.1737 dB</string>
 
 </resources>

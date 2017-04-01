@@ -4,22 +4,29 @@
 % 
 % FIR filter design: low pass
 
-format compact; format long; clear; close all; clc;
+format compact; format short; clear; close all; clc;
 
 fs = 48e3;                  % Sample rate (not relevant) [Hz]
-fpass = 3e3;                % Durchlassbereich (passband), Matrize [Hz]
-Apass = 0.1737;             % Rippel im  Durchlassbereich +/- 0.087 dB
-fstop = 5e3;                % Sperrbereich (stopband), Stempel [Hz]
+fpass = 1e3;                % Durchlassbereich (pass band), Matrize [Hz]
+Apass = 0.02;               % Rippel im Durchlassbereich [dB]
+fstop = 2e3;                % Sperrbereich (stop band), Stempel [Hz]
 Astop = 80;                 % min. Dämpfung im Sperrbereich [dB]
 
-% Optimale Bestimmung des FIR-Tiefpassfilters
+% Optimale Bestimmung des FIR-Filters
 h = fdesign.lowpass(fpass, fstop, Apass, Astop, fs);
 h_fir = design(h, 'fir', 'FilterStructure', 'dfsymfir', 'JointOptimization', true);
 cost(h_fir)
 b_fir = h_fir.numerator;
+fprintf('DC gain\t\t\t\t\t\t\t: %d\n', sum(b_fir))
 
-% Save the filter coefficients
-dlmwrite('output/b_fir_lowpass.txt', b_fir, 'precision', '%1.12f');
+
+% Write filter spec and coefficients to text file
+fd = fopen('output/b_fir_lowpass.txt', 'w+');
+fprintf(fd, 'lowpass,fpass1 %5.3d,Apass1 %1.3f,fstop1 %5.3d,Astop1 %3.0d\n', ...
+    fpass, Apass, fstop, Astop);
+fclose(fd);
+dlmwrite('output/b_fir_lowpass.txt', b_fir, '-append', 'delimiter', ',', ...
+    'precision', '%1.12f');
 
 
 figure(1);

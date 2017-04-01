@@ -1,7 +1,9 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 /**
  * <p>
@@ -12,25 +14,47 @@ import android.support.annotation.NonNull;
 
 public class FIRFilter implements Filter {
 
+    private static final String TAG = FIRFilter.class.getSimpleName();
+    private FilterSpec filterSpec;
     private final int ORDER;
-    private float[] fir_coeffs;         // The impulse response of the filter_view
+    private final float[] COEFFICIENTS;         // The impulse response of the filter
+    private int[] overlap;
 
     /**
      *
+     * @param filterSpec
      * @param coefficients
      */
-    public FIRFilter(@NonNull float[] coefficients) {
-        fir_coeffs = new float[coefficients.length];
-        System.arraycopy(coefficients, 0, fir_coeffs, 0, coefficients.length);
-        ORDER = fir_coeffs.length - 1;
+    public FIRFilter(@NonNull FilterSpec filterSpec, @NonNull float[] coefficients) {
+        this.filterSpec = filterSpec;
+        COEFFICIENTS = new float[coefficients.length];
+        System.arraycopy(coefficients, 0, COEFFICIENTS, 0, coefficients.length);
+        ORDER = COEFFICIENTS.length - 1;
+        overlap = new int[coefficients.length];
     }
 
+    /**
+     * Returns the filter specifications.
+     * @return
+     */
+    @Override
+    public FilterSpec getFilterSpec() {
+        return filterSpec;
+    }
+
+    /**
+     * Returns the filter order.
+     * @return
+     */
+    public int getOrder() {
+        return ORDER;
+    }
 
     /**
      * <p>
-     *     Process in-place with discrete convolution.
-     *     Calculate only the samples in the output signal where the impulse response is fully
-     *     immersed in the input signal.
+     *     Process a block of PCM samples with discrete convolution.
+     *     Calculates the full convolution and takes advantage of symmetry of FIR filters
+     *     to reduce multiplications.
      * </p>
      * <p>
      *     See The Scientist and Engineer's Guide to Digital Signal Processing for detailed
@@ -40,42 +64,63 @@ public class FIRFilter implements Filter {
      * @param input a {@code short} array of input samples
      * @return a {@code short} array of filtered samples
      */
-    @Override
     public short[] apply(@NonNull short[] input) {
-        final int samplesLength = input.length;
-        short[] output = new short[samplesLength];
-        System.arraycopy(input, 0, output, 0, output.length);
-        if (fir_coeffs != null) {
-            /*
-             This program handles undefined samples in the input signal by ignoring them,
-             therefore we need to set the start index for the outer loop.
-             */
-            int convolutionLength = samplesLength + fir_coeffs.length - 1;
-            for (int n = 0; n < convolutionLength; n++) {
-                // accumulator holds the convolution sum.
-                int accumulator = 0;
-                for (int k = 0; k < fir_coeffs.length; k++) {
-                    if (n-k >= 0 && n-k < input.length) {
-                        accumulator += fir_coeffs[k] * input[n - k];
-                    }
-                }
-                if (n < output.length) {
-                    if (accumulator > Short.MAX_VALUE) {
-                        output[n] = Short.MAX_VALUE;
-                    } else if (accumulator < Short.MIN_VALUE) {
-                        output[n] = Short.MIN_VALUE;
-                    } else {
-                        output[n] = (short) accumulator;
-                    }
-                }
-            }
+        if (input.length == 0 || getOrder() <= 0) {
+            return  input;
         }
+        short[] fullConvolution = new short[input.length + getOrder()];
+        convoluteInputSide(input, fullConvolution, input.length);
+        short[] output = new short[input.length];
+        System.arraycopy(fullConvolution, 0, output, 0, output.length);
         return output;
     }
 
-    @Override
-    public int getOrder() {
-        return ORDER;
+    /**
+     * <p>
+     *     Discrete convolution using the input side algorithm.
+     *     FIR filters have symmetrical impulse response. Full convolution is performed but
+     *     not needed calculations due to symmetry in impulse response are eliminated.
+     * </p>
+     * <p>
+     *     Source: {@Link https://christianfloisand.wordpress.com/2013/02/18/the-different-sides-of-convolution/}
+     * </p>
+     * @param input
+     * @return
+     */
+    private void convoluteInputSide(short[] input, short[] output, int inputLength) {
+        int i,j;
+        float temp;
+        int halfOrder = getOrder() / 2;
+        for (i = 0; i < inputLength; ++i) {
+            for (j = 0; j < halfOrder; ++j) {
+                temp = COEFFICIENTS[j] * input[i];
+                output[i + j] += temp;
+                output[i + COEFFICIENTS.length - j - 1] += temp;   // Symmetry
+            }
+            output[i + j] += COEFFICIENTS[j] * input[i];           // Midpoint value
+        }
+
+        // Overlap-add
+        for (int k = 0; k < COEFFICIENTS.length; ++k) {
+            output[k] += overlap[k];
+            overlap[k] = output[inputLength + k - 1];
+        }
+    }
+
+    /**
+     * <p>
+     *     Discrete convolution using the output side algorithm.
+     *     FIR filters have symmetrical impulse response. Full convolution is performed but
+     *     not needed calculations due to symmetry in impulse response are eliminated.
+     * </p>
+     * <p>
+     *     Source: {@Link https://christianfloisand.wordpress.com/2013/02/18/the-different-sides-of-convolution/}
+     * </p>
+     * @param input
+     * @return
+     */
+    private void convoluteOutputSide(short[] input, short[] output) {
+
     }
 
     @Override
@@ -85,13 +130,17 @@ public class FIRFilter implements Filter {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(this.filterSpec, flags);
         dest.writeInt(this.ORDER);
-        dest.writeFloatArray(this.fir_coeffs);
+        dest.writeFloatArray(this.COEFFICIENTS);
+        dest.writeIntArray(this.overlap);
     }
 
     protected FIRFilter(Parcel in) {
+        this.filterSpec = in.readParcelable(FilterSpec.class.getClassLoader());
         this.ORDER = in.readInt();
-        this.fir_coeffs = in.createFloatArray();
+        this.COEFFICIENTS = in.createFloatArray();
+        this.overlap = in.createIntArray();
     }
 
     public static final Creator<FIRFilter> CREATOR = new Creator<FIRFilter>() {

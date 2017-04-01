@@ -1,12 +1,19 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter;
 
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.Toast;
+import com.google.common.primitives.Floats;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 
 /**
  * <p>
@@ -18,23 +25,98 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 
 public class FilterUtil {
 
+    private static final String TAG = FilterUtil.class.getSimpleName();
+
     @Nullable
-    public static float[] getCoefficients(InputStream is) {
+    public static Filter getFilter(InputStream is) {
+        Filter filter = null;
         try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-            String[] line = br.readLine().split(",");
-            float[] coefficients = new float[line.length];
-            for (int i = 0; i < coefficients.length; i++) {
-                // Check for illegal values ? --> stable filter_view
-                float c = Float.parseFloat(line[i]);
-                coefficients[i] = c;
+            FilterSpec filterSpec = getFilterSpec(br.readLine().split(","));
+            float[] coefficients = getParsedCoefficients(br.readLine().split(","));
+            if (filterSpec != null) {
+                filter = new FIRFilter(filterSpec, coefficients);
+            } else {
+                throw new NullPointerException("FilterSpec is null.");
             }
-            return coefficients;
-        } catch(IOException ex) {
+        } catch(IOException | NullPointerException ex) {
             Toast.makeText(ApplicationContext.getAppContext(),
-                    "Filter coefficients import failed.\n" + ex.getMessage(),
-                    Toast.LENGTH_SHORT).show();
-            return null;
+                    "Failed to get filter.\n" + ex.getMessage(), Toast.LENGTH_SHORT).show();
         }
+        return filter;
+    }
+
+    private static float[] getParsedCoefficients(String[] coeffs) {
+        List<Float> coefficients = new ArrayList<>();
+            for (String s : coeffs) {
+                try {
+                    coefficients.add(Float.parseFloat(s));
+                } catch(NumberFormatException | NullPointerException e) {
+                    Log.e(TAG, "Parsing of coefficients failed.\n" + e.getMessage());
+                }
+            }
+        return Floats.toArray(coefficients);
+    }
+
+    @Nullable
+    private static FilterSpec getFilterSpec(String[] specTokens) {
+        FilterSpec filterSpec = null;
+        FilterType filterType = null;
+        Map<String, Float> specMap = new HashMap<>();
+        for (String s : specTokens) {
+            try {
+                String[] item = s.split("  *");
+                if (item.length == 1) {
+                    for (FilterType type : FilterType.values()) {
+                        if (type.getType().equals(item[0].trim())) {
+                            filterType = type;
+                            break;
+                        }
+                    }
+                } else if (item.length == 2) {
+                    specMap.put(item[0].trim(), Float.parseFloat(item[1].trim()));
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Parsing of filter specifications failed.\n" + e.getMessage());
+            }
+        }
+
+        if (filterType == null) {
+            Log.e(TAG, "Unknown filter type.");
+        } else {
+            FilterSpec.Builder builder = new FilterSpec.Builder(filterType);
+            for (Map.Entry<String, Float> entry : specMap.entrySet()) {
+                switch (entry.getKey()) {
+                    case Constants.FREQUENCY_PASS_1:
+                        builder.frequencyPassBand1(entry.getValue());
+                        break;
+                    case Constants.FREQUENCY_PASS_2:
+                        builder.frequencyPassBand2(entry.getValue());
+                        break;
+                    case Constants.FREQUENCY_STOP_1:
+                        builder.frequencyStopBand1(entry.getValue());
+                        break;
+                    case Constants.FREQUENCY_STOP_2:
+                        builder.frequencyStopBand2(entry.getValue());
+                        break;
+                    case Constants.AMOUNT_RIPPLE_PASS_1:
+                        builder.amountRipplePassBand1(entry.getValue());
+                        break;
+                    case Constants.AMOUNT_RIPPLE_PASS_2:
+                        builder.amountRipplePassBand2(entry.getValue());
+                        break;
+                    case Constants.ATTENUATION_STOP_1:
+                        builder.attenuationStopBand1(entry.getValue());
+                        break;
+                    case Constants.ATTENUATION_STOP_2:
+                        builder.attenuationStopBand2(entry.getValue());
+                        break;
+                    default:
+                        break;
+                }
+            }
+            filterSpec = builder.build();
+        }
+        return filterSpec;
     }
 
 }
