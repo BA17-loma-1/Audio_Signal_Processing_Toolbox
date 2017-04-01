@@ -189,18 +189,30 @@ public class MainActivity extends AppCompatActivity implements
         Fragment fragment = null;
         String title = "";
 
-        if (id == R.id.nav_media_list) {
-            fragment = new MediaListFragment();
-            title = "My Music";
-        } else if (id == R.id.nav_visualisation) {
-            fragment = new VisualisationFragment();
-            title = "Visualisation";
-        } else if (id == R.id.nav_filter) {
-            fragment = FilterFragment.newInstance(filters.values().toArray(new Filter[filters.size()]));
-            title = "Filter";
-        } else if (id == R.id.nav_about) {
-            title = "About the app";
+        switch (id) {
+            case R.id.nav_media_list:
+                fragment = new MediaListFragment();
+                title = "My Music";
+                break;
+            case R.id.nav_visualisation:
+                fragment = new VisualisationFragment();
+                title = "Visualisation";
+                break;
+            case R.id.nav_visualisation_configuration:
+                fragment = new VisualisationConfigurationFragment();
+                title = "Visualisation Configuration";
+                break;
+            case R.id.nav_filter:
+                fragment = FilterFragment.newInstance(filters.values().toArray(new Filter[filters.size()]));
+                title = "Filter";
+                break;
+            case R.id.nav_about:
+                title = "About the app";
+                break;
+            default:
+                break;
         }
+
 
         if (fragment != null) {
             ft.replace(R.id.content_frame, fragment);
