@@ -2,6 +2,7 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.util;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 
 /**
  * PCM Utility class.
@@ -107,6 +108,23 @@ public class PCMUtil {
             buffer.putShort(i, (short) f).array();
         }
         return buffer.array();
+    }
+
+    /**
+     * <p>Converts a float array into a short array.</p>
+     * @param samples An array of floats
+     * @return An array of shorts
+     */
+    public static short[] float2ShortArray(float[] samples) {
+        short[] buffer = new short[samples.length];
+        short s = 0;
+        for (int i = 0; i < samples.length; i++) {
+            s = (short) (samples[i] * BIAS_16_BIT);
+            if (s < -BIAS_16_BIT) s = -BIAS_16_BIT;
+            if (s > BIAS_16_BIT - 1) s = (BIAS_16_BIT - 1);
+            buffer[i] = s;
+        }
+        return buffer;
     }
 
 }

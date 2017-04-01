@@ -5,13 +5,9 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.support.annotation.NonNull;
 import android.util.Log;
-
 import java.util.concurrent.ArrayBlockingQueue;
-
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PCMSampleBlock;
-
-import static ch.zhaw.bait17.audio_signal_processing_toolbox.player.PlayerPresenter.QUEUE_SIZE;
 
 /**
  * Audio player based on {@code AudioTrack}.
@@ -23,6 +19,7 @@ public class AudioPlayer {
 
     private static final String TAG = AudioPlayer.class.getSimpleName();
     private static final int BUFFER_LENGTH_PER_CHANNEL_IN_SECONDS = 3;
+    private static final int QUEUE_SIZE = 10;
 
     private AudioTrack audioTrack;
     private volatile boolean keepPlaying = false;

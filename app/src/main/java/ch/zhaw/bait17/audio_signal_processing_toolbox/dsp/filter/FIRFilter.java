@@ -16,7 +16,7 @@ public class FIRFilter implements Filter {
     private FilterSpec filterSpec;
     private final int ORDER;
     private final float[] COEFFICIENTS;         // The impulse response of the filter
-    private int[] overlap;
+    private float[] overlap;
 
     /**
      *
@@ -28,7 +28,7 @@ public class FIRFilter implements Filter {
         COEFFICIENTS = new float[coefficients.length];
         System.arraycopy(coefficients, 0, COEFFICIENTS, 0, coefficients.length);
         ORDER = COEFFICIENTS.length - 1;
-        overlap = new int[coefficients.length];
+        overlap = new float[coefficients.length];
     }
 
     /**
@@ -62,13 +62,13 @@ public class FIRFilter implements Filter {
      * @param input a {@code short} array of input samples
      * @return a {@code short} array of filtered samples
      */
-    public short[] apply(@NonNull short[] input) {
+    public float[] apply(@NonNull float[] input) {
         if (input.length == 0 || getOrder() <= 0) {
             return  input;
         }
-        short[] fullConvolution = new short[input.length + getOrder()];
+        float[] fullConvolution = new float[input.length + getOrder()];
         convolveInputSide(input, fullConvolution, input.length);
-        short[] output = new short[input.length];
+        float[] output = new float[input.length];
         System.arraycopy(fullConvolution, 0, output, 0, output.length);
         return output;
     }
@@ -85,7 +85,7 @@ public class FIRFilter implements Filter {
      * @param input
      * @return
      */
-    private void convolveInputSide(short[] input, short[] output, int inputLength) {
+    private void convolveInputSide(float[] input, float[] output, int inputLength) {
         int i,j;
         float temp;
         int halfOrder = getOrder() / 2;
@@ -131,14 +131,14 @@ public class FIRFilter implements Filter {
         dest.writeParcelable(this.filterSpec, flags);
         dest.writeInt(this.ORDER);
         dest.writeFloatArray(this.COEFFICIENTS);
-        dest.writeIntArray(this.overlap);
+        dest.writeFloatArray(this.overlap);
     }
 
     protected FIRFilter(Parcel in) {
         this.filterSpec = in.readParcelable(FilterSpec.class.getClassLoader());
         this.ORDER = in.readInt();
         this.COEFFICIENTS = in.createFloatArray();
-        this.overlap = in.createIntArray();
+        this.overlap = in.createFloatArray();
     }
 
     public static final Creator<FIRFilter> CREATOR = new Creator<FIRFilter>() {

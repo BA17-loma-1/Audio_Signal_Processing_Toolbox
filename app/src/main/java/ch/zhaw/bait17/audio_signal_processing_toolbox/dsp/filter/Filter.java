@@ -19,7 +19,7 @@ public interface Filter extends Parcelable {
      * @param input
      * @return
      */
-    short[] apply(@NonNull short[] input);
+    float[] apply(@NonNull float[] input);
 
     FilterSpec getFilterSpec();
 

@@ -16,6 +16,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PCMSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PostFilterSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PreFilterSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.PCMUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
 
 import static javazoom.jl.decoder.Obuffer.OBUFFERSIZE;
@@ -33,8 +34,8 @@ import static javazoom.jl.decoder.Obuffer.OBUFFERSIZE;
 public class PlayerPresenter {
 
     private static final String TAG = PlayerPresenter.class.getSimpleName();
-    public static final int QUEUE_SIZE = 1000;
-    private static final int NUMBER_OF_FRAMES = 1;
+    public static final int QUEUE_SIZE = 10;
+    private static final int NUMBER_OF_FRAMES = 8;
 
     private AudioDecoder mp3Decoder;
     private AudioPlayer audioPlayer;
@@ -172,34 +173,30 @@ public class PlayerPresenter {
 
                 while (keepDecoding) {
                     if (postFilterSampleBuffer.size() < QUEUE_SIZE) {
-                        while (keepDecoding) {
-                            if (postFilterSampleBuffer.size() < QUEUE_SIZE) {
-                                short[] frames = new short[OBUFFERSIZE * NUMBER_OF_FRAMES];
-                                int offset = 0;
-                                for (int j = 0; j < NUMBER_OF_FRAMES; j++) {
-                                    PCMSampleBlock pcmSampleBlock = mp3Decoder.getNextSampleBlock();
-                                    if (pcmSampleBlock != null) {
-                                        short[] frame = pcmSampleBlock.getSamples();
-                                        for (int i = 0; i < frame.length; i++) {
-                                            frames[i + offset] = frame[i];
-                                        }
-                                        offset += OBUFFERSIZE;
-                                    } else {
-                                        // No more frames to decode, we reached of the InputStream. --> quit
-                                        keepDecoding = false;
-                                        keepFeedingSamples = false;
-                                    }
+                        short[] frames = new short[OBUFFERSIZE * NUMBER_OF_FRAMES];
+                        int offset = 0;
+                        for (int j = 0; j < NUMBER_OF_FRAMES; j++) {
+                            PCMSampleBlock pcmSampleBlock = mp3Decoder.getNextSampleBlock();
+                            if (pcmSampleBlock != null) {
+                                short[] frame = pcmSampleBlock.getSamples();
+                                for (int i = 0; i < frame.length; i++) {
+                                    frames[i + offset] = frame[i];
                                 }
-
-                                preFilterSampleBuffer.offer(new PreFilterSampleBlock(
-                                        frames, Constants.DEFAULT_SAMPLE_RATE));
-
-                                PCMSampleBlock output = applyFilter(new PCMSampleBlock(frames, Constants.DEFAULT_SAMPLE_RATE));
-
-                                postFilterSampleBuffer.offer(new PostFilterSampleBlock(
-                                        output.getSamples(), Constants.DEFAULT_SAMPLE_RATE));
+                                offset += OBUFFERSIZE;
+                            } else {
+                                // No more frames to decode, we reached of the InputStream. --> quit
+                                keepDecoding = false;
+                                keepFeedingSamples = false;
                             }
                         }
+
+                        preFilterSampleBuffer.offer(new PreFilterSampleBlock(
+                                frames, Constants.DEFAULT_SAMPLE_RATE));
+
+                        PCMSampleBlock output = applyFilter(new PCMSampleBlock(frames, Constants.DEFAULT_SAMPLE_RATE));
+
+                        postFilterSampleBuffer.offer(new PostFilterSampleBlock(
+                                output.getSamples(), Constants.DEFAULT_SAMPLE_RATE));
                     }
                 }
                 Log.d(TAG, "Finished decoding");
@@ -226,8 +223,8 @@ public class PlayerPresenter {
         if (filter == null) {
             return new PostFilterSampleBlock(input.getSamples(), input.getSampleRate());
         }
-        short[] samples = input.getSamples();
-        short[] filtered = filter.apply(samples);
+        float[] samples = PCMUtil.short2FloatArray(input.getSamples());
+        short[] filtered = PCMUtil.float2ShortArray(filter.apply(samples));
         return new PostFilterSampleBlock(filtered, input.getSampleRate());
     }
 
