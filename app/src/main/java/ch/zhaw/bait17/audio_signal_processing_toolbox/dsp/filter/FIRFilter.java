@@ -1,9 +1,7 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 /**
  * <p>
@@ -69,7 +67,7 @@ public class FIRFilter implements Filter {
             return  input;
         }
         short[] fullConvolution = new short[input.length + getOrder()];
-        convoluteInputSide(input, fullConvolution, input.length);
+        convolveInputSide(input, fullConvolution, input.length);
         short[] output = new short[input.length];
         System.arraycopy(fullConvolution, 0, output, 0, output.length);
         return output;
@@ -87,7 +85,7 @@ public class FIRFilter implements Filter {
      * @param input
      * @return
      */
-    private void convoluteInputSide(short[] input, short[] output, int inputLength) {
+    private void convolveInputSide(short[] input, short[] output, int inputLength) {
         int i,j;
         float temp;
         int halfOrder = getOrder() / 2;
@@ -119,7 +117,7 @@ public class FIRFilter implements Filter {
      * @param input
      * @return
      */
-    private void convoluteOutputSide(short[] input, short[] output) {
+    private void convolveOutputSide(short[] input, short[] output) {
 
     }
 
