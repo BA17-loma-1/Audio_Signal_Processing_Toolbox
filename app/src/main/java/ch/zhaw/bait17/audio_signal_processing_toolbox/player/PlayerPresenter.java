@@ -7,6 +7,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
@@ -19,7 +20,6 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.PCMUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
 
-import static javazoom.jl.decoder.Obuffer.OBUFFERSIZE;
 
 /**
  * <p>
@@ -34,8 +34,7 @@ import static javazoom.jl.decoder.Obuffer.OBUFFERSIZE;
 public class PlayerPresenter {
 
     private static final String TAG = PlayerPresenter.class.getSimpleName();
-    public static final int QUEUE_SIZE = 10;
-    private static final int NUMBER_OF_FRAMES = 8;
+    private static final int QUEUE_SIZE = 70;
 
     private AudioDecoder mp3Decoder;
     private AudioPlayer audioPlayer;
@@ -173,50 +172,42 @@ public class PlayerPresenter {
 
                 while (keepDecoding) {
                     if (postFilterSampleBuffer.size() < QUEUE_SIZE) {
-                        short[] frames = new short[OBUFFERSIZE * NUMBER_OF_FRAMES];
-                        int offset = 0;
-                        for (int j = 0; j < NUMBER_OF_FRAMES; j++) {
-                            PCMSampleBlock pcmSampleBlock = mp3Decoder.getNextSampleBlock();
-                            if (pcmSampleBlock != null) {
-                                short[] frame = pcmSampleBlock.getSamples();
-                                for (int i = 0; i < frame.length; i++) {
-                                    frames[i + offset] = frame[i];
-                                }
-                                offset += OBUFFERSIZE;
-                            } else {
-                                // No more frames to decode, we reached of the InputStream. --> quit
-                                keepDecoding = false;
-                                keepFeedingSamples = false;
-                            }
+                        PCMSampleBlock pcmSampleBlock = mp3Decoder.getNextSampleBlock();
+                        if (pcmSampleBlock != null) {
+                            short[] samples = pcmSampleBlock.getSamples();
+                            short[] frame = Arrays.copyOf(samples, samples.length);
+
+                            preFilterSampleBuffer.offer(new PreFilterSampleBlock(
+                                    frame, Constants.DEFAULT_SAMPLE_RATE));
+
+                            PCMSampleBlock output = applyFilter(new PCMSampleBlock(frame, Constants.DEFAULT_SAMPLE_RATE));
+
+                            postFilterSampleBuffer.offer(new PostFilterSampleBlock(
+                                    output.getSamples(), Constants.DEFAULT_SAMPLE_RATE));
+                        } else {
+                            // No more frames to decode, we reached of the InputStream. --> quit
+                            keepDecoding = false;
+                            keepFeedingSamples = false;
                         }
-
-                        preFilterSampleBuffer.offer(new PreFilterSampleBlock(
-                                frames, Constants.DEFAULT_SAMPLE_RATE));
-
-                        PCMSampleBlock output = applyFilter(new PCMSampleBlock(frames, Constants.DEFAULT_SAMPLE_RATE));
-
-                        postFilterSampleBuffer.offer(new PostFilterSampleBlock(
-                                output.getSamples(), Constants.DEFAULT_SAMPLE_RATE));
                     }
                 }
                 Log.d(TAG, "Finished decoding");
-                /*
                 audioPlayer.stopPlayback();
                 if (feederThread != null) {
                     try {
                         feederThread.join();
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        Log.e(TAG, e.getMessage());
                     }
                 }
                 Log.d(TAG, "Decoding stop");
                 Log.d(TAG, "Decoding thread '" + Thread.currentThread().getName() + "' stop");
-                */
             }
         });
         decoderThread.start();
-        audioPlayer.play();
         startAudioPlayerFeed();
+        while (audioPlayer.getInputBufferSize() < AudioPlayer.getQueueSize()) ;
+        audioPlayer.play();
     }
 
     private PostFilterSampleBlock applyFilter(PCMSampleBlock input) {

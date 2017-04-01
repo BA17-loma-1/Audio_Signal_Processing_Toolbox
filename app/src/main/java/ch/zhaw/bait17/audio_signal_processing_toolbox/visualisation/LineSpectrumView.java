@@ -27,7 +27,6 @@ import android.util.TypedValue;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 
 /**
- *
  * @author georgrem, stockan1
  */
 public class LineSpectrumView extends AudioView {
@@ -99,7 +98,6 @@ public class LineSpectrumView extends AudioView {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (samples != null) {
-            waveformPoints = new float[width * 4];
             float[] amplitudes = getSpectrumPoints(samples);
 
             float[] logAmplitudes = new float[amplitudes.length];
@@ -108,7 +106,7 @@ public class LineSpectrumView extends AudioView {
             }
 
             drawWaveform(amplitudes);
-            //canvas.scale(1,1);
+            // canvas.scale(1,1);
             canvas.drawLines(waveformPoints, strokePaint);
         }
     }
@@ -123,7 +121,7 @@ public class LineSpectrumView extends AudioView {
     private float[] getSpectrumPoints(short[] samples) {
         float[] spectrum = getPowerSpectrum(samples);
         for (int i = 0; i < spectrum.length; i++) {
-            spectrum[i] = 10 * (float) Math.log10(spectrum[i]);
+            spectrum[i] = -10 * (float) Math.log10(spectrum[i]);
         }
         return spectrum;
     }
@@ -133,28 +131,21 @@ public class LineSpectrumView extends AudioView {
     }
 
     private void drawWaveform(float[] samples) {
-        float lastX = -1;
-        float lastY = -1;
+        waveformPoints = new float[samples.length * 2];
+
         int pointIndex = 0;
         float max = Short.MAX_VALUE;
+        int ZERO_DEZ_REF = 50;
 
         /* For efficiency, we don't draw all of the samples in the buffer, but only the ones
            that align with pixel boundaries. */
-        for (int x = 0; x < width; x++) {
-            int index = (int) (((x * 1.0f) / width) * samples.length);
-            float sample = samples[index];
-            //float y = centerY - ((sample / max) * centerY);
-            float y = height / 2 - 2 - sample * 2;
+        for (int i = 0; i < samples.length; i++) {
+            int x = (i+1) / samples.length * width;
+            float y = ZERO_DEZ_REF - samples[i];
 
-            if (lastX != -1) {
-                waveformPoints[pointIndex++] = lastX;
-                waveformPoints[pointIndex++] = lastY;
-                waveformPoints[pointIndex++] = x;
-                waveformPoints[pointIndex++] = y;
-            }
+            waveformPoints[pointIndex++] = x;
+            waveformPoints[pointIndex++] = y;
 
-            lastX = x;
-            lastY = y;
         }
     }
 
