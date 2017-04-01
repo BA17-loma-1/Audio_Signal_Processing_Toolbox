@@ -1,9 +1,11 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,22 +13,27 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PostFilterSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PreFilterSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.LineSpectrumView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.PowerSpectrum;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrumView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView;
 
 public class VisualisationFragment extends Fragment {
+
+    private static final String KEY_AUDIOVIEW_MAP = VisualisationFragment.class.getSimpleName() + ".AUDIOVIEW_MAP";
 
     private Map<ViewPosition, AudioView> views;
     private int fftResolution;
@@ -47,9 +54,23 @@ public class VisualisationFragment extends Fragment {
         }
     }
 
+    // Creates a new fragment given a map
+    // VisualisationFragment.newInstance(views);
+    public static VisualisationFragment newInstance(HashMap<ViewPosition, AudioView> views) {
+        VisualisationFragment fragment = new VisualisationFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(KEY_AUDIOVIEW_MAP, views);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Get back arguments
+        // Bundle args = this.getArguments();
+        // if(args.getSerializable(KEY_AUDIOVIEW_MAP) != null)
+        //     views = (HashMap<ViewPosition, AudioView>) args.getSerializable(KEY_AUDIOVIEW_MAP);
     }
 
     // The onCreateView method is called when Fragment should create its View object hierarchy,
@@ -61,7 +82,8 @@ public class VisualisationFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.content_visualisation, container, false);
         SpectrogramView topView = (SpectrogramView) rootView.findViewById(R.id.view_top);
-        WaveformView bottomView = (WaveformView) rootView.findViewById(R.id.view_bottom);
+        //WaveformView bottomView = (WaveformView) rootView.findViewById(R.id.view_bottom);
+        LineSpectrumView bottomView = (LineSpectrumView) rootView.findViewById(R.id.view_bottom2);
 
         if (topView != null) {
             addView(topView, ViewPosition.TOP);
@@ -110,6 +132,11 @@ public class VisualisationFragment extends Fragment {
             WaveformView waveformView = getWaveformView();
             if (waveformView != null) {
                 waveformView.setSamples(sampleBlock.getSamples());
+            }
+
+            LineSpectrumView lineSpectrumView = getLineSpectrumView();
+            if (lineSpectrumView != null) {
+                lineSpectrumView.setSamples(sampleBlock.getSamples());
             }
         }
     }
@@ -236,6 +263,18 @@ public class VisualisationFragment extends Fragment {
             }
         }
         return waveformView;
+    }
+
+    @Nullable
+    private LineSpectrumView getLineSpectrumView() {
+        LineSpectrumView lineSpectrumView = null;
+        for (AudioView view : views.values()) {
+            if (view instanceof LineSpectrumView) {
+                lineSpectrumView = (LineSpectrumView) view;
+                break;
+            }
+        }
+        return lineSpectrumView;
     }
 
 }

@@ -2,11 +2,15 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.player;
 
 import android.util.Log;
 import android.widget.Toast;
+
 import org.greenrobot.eventbus.EventBus;
+
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.concurrent.ArrayBlockingQueue;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PCMSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PostFilterSampleBlock;
@@ -14,19 +18,23 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PreFilterSampleBlock
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
 
+import static javazoom.jl.decoder.Obuffer.OBUFFERSIZE;
+
 /**
  * <p>
- *     A versatile yet easy to use player facade.
- *     It hides the complexity of decoding the audio source, feeding PCM samples to the audio player
- *     and controlling the audio playback.
+ * A versatile yet easy to use player facade.
+ * It hides the complexity of decoding the audio source, feeding PCM samples to the audio player
+ * and controlling the audio playback.
  * </p>
+ *
  * @author georgrem, stockan1
  */
 
 public class PlayerPresenter {
 
     private static final String TAG = PlayerPresenter.class.getSimpleName();
-    private static final int QUEUE_SIZE = 1;
+    public static final int QUEUE_SIZE = 1000;
+    private static final int NUMBER_OF_FRAMES = 1;
 
     private AudioDecoder mp3Decoder;
     private AudioPlayer audioPlayer;
@@ -50,6 +58,7 @@ public class PlayerPresenter {
 
     /**
      * Starts the audio playback.
+     *
      * @param track
      */
     public void selectTrack(Track track) {
@@ -114,20 +123,6 @@ public class PlayerPresenter {
         }
     }
 
-    private void preFillSampleBuffer() {
-        PCMSampleBlock sampleBlock = null;
-        do {
-            sampleBlock = mp3Decoder.getNextSampleBlock();
-            if (sampleBlock != null) {
-                preFilterSampleBuffer.offer(new PreFilterSampleBlock(
-                        sampleBlock.getSamples(), sampleBlock.getSampleRate()));
-                PostFilterSampleBlock output = applyFilter(sampleBlock);
-                postFilterSampleBuffer.offer(output);
-            }
-        } while (postFilterSampleBuffer.size() < QUEUE_SIZE);
-        Log.d(TAG, "Post filter_view sample buffer filled");
-    }
-
     private void startAudioPlayerFeed() {
         feederThread = new Thread() {
             @Override
@@ -136,7 +131,7 @@ public class PlayerPresenter {
                 Log.d(TAG, "Sample feed thread '" + Thread.currentThread().getName() + "' start");
                 Log.d(TAG, "Sample feed start");
                 while (keepFeedingSamples) {
-                    if (audioPlayer.getInputBufferSize() < AudioPlayer.getQueueSize()) {
+                    if (audioPlayer.getInputBufferSize() < QUEUE_SIZE) {
 
                         PreFilterSampleBlock preFilterSampleBlock = preFilterSampleBuffer.poll();
                         if (preFilterSampleBlock != null) {
@@ -167,7 +162,6 @@ public class PlayerPresenter {
     }
 
     private void decode() {
-        preFillSampleBuffer();
         keepDecoding = true;
         keepFeedingSamples = true;
         decoderThread = new Thread(new Runnable() {
@@ -178,20 +172,38 @@ public class PlayerPresenter {
 
                 while (keepDecoding) {
                     if (postFilterSampleBuffer.size() < QUEUE_SIZE) {
-                        PCMSampleBlock pcmSampleBlock = mp3Decoder.getNextSampleBlock();
-                        if (pcmSampleBlock != null) {
-                            preFilterSampleBuffer.offer(new PreFilterSampleBlock(
-                                    pcmSampleBlock.getSamples(), pcmSampleBlock.getSampleRate()));
-                            PCMSampleBlock output = applyFilter(pcmSampleBlock);
-                            postFilterSampleBuffer.offer(new PostFilterSampleBlock(
-                                    output.getSamples(), output.getSampleRate()));
-                        } else {
-                            // No more frames to decode, we reached of the InputStream. --> quit
-                            keepDecoding = false;
-                            keepFeedingSamples = false;
+                        while (keepDecoding) {
+                            if (postFilterSampleBuffer.size() < QUEUE_SIZE) {
+                                short[] frames = new short[OBUFFERSIZE * NUMBER_OF_FRAMES];
+                                int offset = 0;
+                                for (int j = 0; j < NUMBER_OF_FRAMES; j++) {
+                                    PCMSampleBlock pcmSampleBlock = mp3Decoder.getNextSampleBlock();
+                                    if (pcmSampleBlock != null) {
+                                        short[] frame = pcmSampleBlock.getSamples();
+                                        for (int i = 0; i < frame.length; i++) {
+                                            frames[i + offset] = frame[i];
+                                        }
+                                        offset += OBUFFERSIZE;
+                                    } else {
+                                        // No more frames to decode, we reached of the InputStream. --> quit
+                                        keepDecoding = false;
+                                        keepFeedingSamples = false;
+                                    }
+                                }
+
+                                preFilterSampleBuffer.offer(new PreFilterSampleBlock(
+                                        frames, Constants.DEFAULT_SAMPLE_RATE));
+
+                                PCMSampleBlock output = applyFilter(new PCMSampleBlock(frames, Constants.DEFAULT_SAMPLE_RATE));
+
+                                postFilterSampleBuffer.offer(new PostFilterSampleBlock(
+                                        output.getSamples(), Constants.DEFAULT_SAMPLE_RATE));
+                            }
                         }
                     }
                 }
+                Log.d(TAG, "Finished decoding");
+                /*
                 audioPlayer.stopPlayback();
                 if (feederThread != null) {
                     try {
@@ -202,6 +214,7 @@ public class PlayerPresenter {
                 }
                 Log.d(TAG, "Decoding stop");
                 Log.d(TAG, "Decoding thread '" + Thread.currentThread().getName() + "' stop");
+                */
             }
         });
         decoderThread.start();

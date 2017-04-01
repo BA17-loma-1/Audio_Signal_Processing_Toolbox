@@ -30,7 +30,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
  *
  * @author georgrem, stockan1
  */
-public class SpectrumView extends View {
+public class SpectrumView extends AudioView {
 
     private static final String TAG = SpectrumView.class.getSimpleName();
     private final double RENDER_INTERVALL = 1e8;

@@ -5,19 +5,23 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.support.annotation.NonNull;
 import android.util.Log;
+
 import java.util.concurrent.ArrayBlockingQueue;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PCMSampleBlock;
 
+import static ch.zhaw.bait17.audio_signal_processing_toolbox.player.PlayerPresenter.QUEUE_SIZE;
+
 /**
  * Audio player based on {@code AudioTrack}.
+ *
  * @author georgrem, stockan1
  */
 
 public class AudioPlayer {
 
     private static final String TAG = AudioPlayer.class.getSimpleName();
-    private static final int QUEUE_SIZE = 1;
     private static final int BUFFER_LENGTH_PER_CHANNEL_IN_SECONDS = 3;
 
     private AudioTrack audioTrack;
@@ -29,7 +33,7 @@ public class AudioPlayer {
 
     /**
      * <p>
-     *     Create an audio player and initialise the {@code AudioTrack} for playback.
+     * Create an audio player and initialise the {@code AudioTrack} for playback.
      * </p>
      */
     public AudioPlayer() {
@@ -40,6 +44,7 @@ public class AudioPlayer {
 
     /**
      * Return the size of the internal sample block buffer.
+     *
      * @return
      */
     public static int getQueueSize() {
@@ -48,6 +53,7 @@ public class AudioPlayer {
 
     /**
      * Add a new {@code PCMSampleBlock} to the input queue for playback.
+     *
      * @param sampleBlock A {@code PCMSampleBlock}
      * @return true if the sample block was added to the tail of the input queue
      */
@@ -59,7 +65,7 @@ public class AudioPlayer {
      * Clear the internal sample buffer.
      */
     public void clearSampleBuffer() {
-        inputQueue.clear();;
+        inputQueue.clear();
     }
 
     public boolean isInputBufferFull() {
@@ -94,10 +100,11 @@ public class AudioPlayer {
                             Log.e(TAG, "Interrupted while paused.");
                         }
                     } else {
-                        sampleBlock = inputQueue.poll();
+                        if (!inputQueue.isEmpty()) sampleBlock = inputQueue.poll();
                         if (sampleBlock != null) {
                             short[] pcm = sampleBlock.getSamples();
                             audioTrack.write(pcm, 0, pcm.length);
+                            Log.d(TAG, "Input queue size: " + inputQueue.size());
                         }
                     }
                 }

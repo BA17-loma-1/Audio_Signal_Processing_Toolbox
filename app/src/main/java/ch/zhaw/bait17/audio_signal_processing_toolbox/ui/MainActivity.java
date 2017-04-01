@@ -14,8 +14,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.RadioButton;
+import android.widget.Spinner;
+import android.widget.Toast;
+
 import java.util.List;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FIRFilter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
@@ -174,17 +179,28 @@ public class MainActivity extends AppCompatActivity implements
         Fragment fragment = null;
         String title = "";
 
-        if (id == R.id.nav_media_list) {
-            fragment = new MediaListFragment();
-            title = "My Music";
-        } else if (id == R.id.nav_visualisation) {
-            fragment = new VisualisationFragment();
-            title = "Visualisation";
-        } else if (id == R.id.nav_filter) {
-            fragment = new FilterFragment();
-            title = "Filter";
-        } else if (id == R.id.nav_about) {
-            title = "About the app";
+        switch (id) {
+            case R.id.nav_media_list:
+                fragment = new MediaListFragment();
+                title = "My Music";
+                break;
+            case R.id.nav_visualisation:
+                fragment = new VisualisationFragment();
+                title = "Visualisation";
+                break;
+            case R.id.nav_visualisation_configuration:
+                fragment = new VisualisationConfigurationFragment();
+                title = "Visualisation Configuration";
+                break;
+            case R.id.nav_filter:
+                fragment = new FilterFragment();
+                title = "Filter";
+                break;
+            case R.id.nav_about:
+                title = "About the app";
+                break;
+            default:
+                break;
         }
 
         if (fragment != null) {

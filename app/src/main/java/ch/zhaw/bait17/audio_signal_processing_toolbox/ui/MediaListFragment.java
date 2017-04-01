@@ -1,6 +1,7 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
@@ -8,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -22,12 +24,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.TrackAdapter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.SupportedAudioFormat;
@@ -44,7 +48,7 @@ public class MediaListFragment extends Fragment {
     public final static String KEY_TRACK = "ch.zhaw.bait17.audio_signal_processing_toolbox.TRACK";
     public final static String KEY_TRACKS = "ch.zhaw.bait17.audio_signal_processing_toolbox.TRACKS";
 
-    private  View rootView;
+    private View rootView;
     private Context context;
     private OnTrackSelectedListener listener;
 
@@ -56,13 +60,37 @@ public class MediaListFragment extends Fragment {
     // either dynamically or via XML layout inflation.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        rootView =  inflater.inflate(R.layout.media_list_view, container, false);
+        rootView = inflater.inflate(R.layout.media_list_view, container, false);
         return rootView;
     }
 
+    @TargetApi(23)
     @Override
     public void onAttach(Context context) {
-        super.onAttach(context);
+        // This method avoid to call super.onAttach(context) if I'm not using api 23 or more
+        if (Build.VERSION.SDK_INT >= 23) {
+            super.onAttach(context);
+            onAttachToContext(context);
+        }
+    }
+
+    /*
+     * Deprecated on API 23
+     * Use onAttachToContext instead
+     */
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (Build.VERSION.SDK_INT < 23) {
+            onAttachToContext(activity);
+        }
+    }
+
+    /*
+     * This method will be called from one of the two previous method
+     */
+    private void onAttachToContext(Context context) {
         this.context = context;
         Activity activity;
         if (context instanceof Activity) {

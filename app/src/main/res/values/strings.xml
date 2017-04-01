@@ -31,4 +31,12 @@
     <string name="low_pass_fiter_spec">fpass = 3 kHz, Apass = +/-0.1737 dB, fstop = 5 kHz, Astop = 80 dB</string>
     <string name="high_pass_fiter_spec">fstop = 2 kHz, Astop = 60 dB, fpass = 3 kHz, Apass = +/-0.1737 dB</string>
 
+    <!-- Spinner entries -->
+    <string-array name="view_list">
+        <item>Choose a View</item>
+        <item>Line Spectrum</item>
+        <item>Spectrogram </item>
+        <item>Waveform</item>
+    </string-array>
+
 </resources>
