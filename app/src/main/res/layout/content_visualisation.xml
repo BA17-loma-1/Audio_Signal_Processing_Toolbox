@@ -17,14 +17,13 @@
         android:layout_weight="1"></ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView>
 
     <ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView
-        android:id="@+id/view_bottom"
+        android:id="@+id/view_middle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:visibility="gone"></ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView>
+        android:layout_weight="1"></ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView>
 
     <ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.LineSpectrumView
-        android:id="@+id/view_bottom2"
+        android:id="@+id/view_bottom"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"></ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.LineSpectrumView>

@@ -40,7 +40,7 @@ public class VisualisationFragment extends Fragment {
     private CircularFifoQueue<short[]> trunkBuffer;
 
     private enum ViewPosition {
-        BOTTOM("bottom"), TOP("top");
+        BOTTOM("bottom"), MIDDLE("middle"), TOP("top");
 
         private String position;
 
@@ -82,11 +82,14 @@ public class VisualisationFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.content_visualisation, container, false);
         SpectrogramView topView = (SpectrogramView) rootView.findViewById(R.id.view_top);
-        //WaveformView bottomView = (WaveformView) rootView.findViewById(R.id.view_bottom);
-        LineSpectrumView bottomView = (LineSpectrumView) rootView.findViewById(R.id.view_bottom2);
+        WaveformView middleView = (WaveformView) rootView.findViewById(R.id.view_middle);
+        LineSpectrumView bottomView = (LineSpectrumView) rootView.findViewById(R.id.view_bottom);
 
         if (topView != null) {
             addView(topView, ViewPosition.TOP);
+        }
+        if (middleView != null) {
+            addView(middleView, ViewPosition.MIDDLE);
         }
         if (bottomView != null) {
             addView(bottomView, ViewPosition.BOTTOM);

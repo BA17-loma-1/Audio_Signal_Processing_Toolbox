@@ -1,17 +1,3 @@
-/**
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation;
 
 import android.content.Context;
@@ -22,7 +8,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 
@@ -33,9 +18,8 @@ public class LineSpectrumView extends AudioView {
 
     private Paint strokePaint, fillPaint, markerPaint;
     private int width, height;
-    private float centerY;
     private short[] samples;
-    private float[] waveformPoints;
+    private float[] spectrumPoints;
 
     public LineSpectrumView(Context context) {
         super(context);
@@ -91,7 +75,6 @@ public class LineSpectrumView extends AudioView {
         super.onSizeChanged(w, h, oldw, oldh);
         width = getMeasuredWidth();
         height = getMeasuredHeight();
-        centerY = height / 2f;
     }
 
     @Override
@@ -102,12 +85,68 @@ public class LineSpectrumView extends AudioView {
 
             float[] logAmplitudes = new float[amplitudes.length];
             for (int i = 0; i < logAmplitudes.length; i++) {
-                logAmplitudes[i] = (float) Math.log10(amplitudes[i]);
+                logAmplitudes[i] = 10 * (float) Math.log10(amplitudes[i]);
             }
 
-            drawWaveform(amplitudes);
-            // canvas.scale(1,1);
-            canvas.drawLines(waveformPoints, strokePaint);
+            drawSpectrumCurveShape(amplitudes, 50);
+            canvas.drawLines(spectrumPoints, strokePaint);
+
+            drawSpectrumLineShape(amplitudes, 100, canvas);
+
+            drawSpectrumCurveShape(logAmplitudes, 150);
+            canvas.drawLines(spectrumPoints, strokePaint);
+
+            drawSpectrumBarShape(amplitudes, 200, canvas);
+        }
+    }
+
+    private void drawSpectrumCurveShape(float[] amplitudes, int ZERO_DEZ_REF) {
+        spectrumPoints = new float[amplitudes.length * 4];
+        int pointIndex = 0;
+        float lastX = -1;
+        float lastY = -1;
+
+        /* For efficiency, we don't draw all of the samples in the buffer, but only the ones
+           that align with pixel boundaries. */
+        for (int x = 0; x < width; x++) {
+            int index = (int) (((x * 1.0f) / width) * amplitudes.length);
+            float amplitude = amplitudes[index];
+            float y = ZERO_DEZ_REF - amplitude;
+
+            if (lastX != -1) {
+                spectrumPoints[pointIndex++] = lastX;
+                spectrumPoints[pointIndex++] = lastY;
+                spectrumPoints[pointIndex++] = x;
+                spectrumPoints[pointIndex++] = y;
+            }
+            lastX = x;
+            lastY = y;
+        }
+    }
+
+    private void drawSpectrumLineShape(float[] amplitudes, int ZERO_DEZ_REF, Canvas canvas) {
+        /* For efficiency, we don't draw all of the samples in the buffer, but only the ones
+           that align with pixel boundaries. */
+        for (int x = 0; x < width; x++) {
+            int index = (int) (((x * 1.0f) / width) * amplitudes.length);
+            float sample = amplitudes[index];
+            float downy = ZERO_DEZ_REF - (sample);
+            int upy = ZERO_DEZ_REF;
+            canvas.drawLine(x, downy, x, upy, strokePaint);
+        }
+    }
+
+    private void drawSpectrumBarShape(float[] amplitudes, int ZERO_DEZ_REF, Canvas canvas) {
+        /* For efficiency, we don't draw all of the samples in the buffer, but only the ones
+           that align with pixel boundaries. */
+        int scaledWidt = width/5;
+        for (int x = 0; x < scaledWidt; x++) {
+            int index = (int) (((x * 1.0f) / scaledWidt) * amplitudes.length);
+            float sample = amplitudes[index];
+            float downy = ZERO_DEZ_REF - (sample);
+            int upy = ZERO_DEZ_REF;
+            canvas.scale(1, 1);
+            canvas.drawRect(x * 5, downy, x * 5 + 5, upy, strokePaint);
         }
     }
 
@@ -128,39 +167,6 @@ public class LineSpectrumView extends AudioView {
 
     private float[] getPowerSpectrum(@NonNull short[] samples) {
         return new PowerSpectrum(samples).getPowerSpectrum();
-    }
-
-    private void drawWaveform(float[] samples) {
-        waveformPoints = new float[samples.length * 2];
-
-        int pointIndex = 0;
-        float max = Short.MAX_VALUE;
-        int ZERO_DEZ_REF = 50;
-
-        /* For efficiency, we don't draw all of the samples in the buffer, but only the ones
-           that align with pixel boundaries. */
-        for (int i = 0; i < samples.length; i++) {
-            int x = (i+1) / samples.length * width;
-            float y = ZERO_DEZ_REF - samples[i];
-
-            waveformPoints[pointIndex++] = x;
-            waveformPoints[pointIndex++] = y;
-
-        }
-    }
-
-    private int calculateAudioLength(int samplesCount, int sampleRate, int channelCount) {
-        return ((samplesCount / channelCount) * 1000) / sampleRate;
-    }
-
-    private float getFontSize(Context ctx, int textAppearance) {
-        TypedValue typedValue = new TypedValue();
-        ctx.getTheme().resolveAttribute(textAppearance, typedValue, true);
-        int[] textSizeAttr = new int[]{android.R.attr.textSize};
-        TypedArray arr = ctx.obtainStyledAttributes(typedValue.data, textSizeAttr);
-        float fontSize = arr.getDimensionPixelSize(0, -1);
-        arr.recycle();
-        return fontSize;
     }
 
 }
