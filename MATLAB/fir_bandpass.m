@@ -8,15 +8,15 @@ format compact; format short; clear; close all; clc;
 
 fs = 48e3;                  % Sample rate (not relevant) [Hz]
 Apass = 0.02;               % Rippel im Durchlassbereich [dB]
-fpass1 = 7.5e2;             % Durchlassbereich links (pass band 1) [Hz]
-fstop1 = 2.5e2;             % Sperrbereich links (stop band1 ) [Hz]
-fpass2 = 5e3;               % Durchlassbereich rechts (pass band 2) [Hz]
-fstop2 = 6e3;               % Sperrbereich rechts (stop band 2) [Hz]
-Astop = 80;                 % min. Dämpfung in Sperrbereichen [dB]
+fpass1 = 3e3;               % Durchlassbereich links (pass band 1) [Hz]
+fstop1 = 2e3;               % Sperrbereich links (stop band1 ) [Hz]
+fpass2 = 4e3;               % Durchlassbereich rechts (pass band 2) [Hz]
+fstop2 = 5e3;               % Sperrbereich rechts (stop band 2) [Hz]
+Astop = 90;                 % min. Dämpfung in Sperrbereichen [dB]
 
 % Optimale Bestimmung des FIR-Filters
 h = fdesign.bandpass(fstop1,fpass1,fpass2,fstop2,Astop,Apass,Astop,fs);
-h_fir = design(h, 'fir', 'FilterStructure', 'dfsymfir', 'JointOptimization', true);
+h_fir = design(h, 'equiripple');%'fir', 'FilterStructure', 'dfsymfir', 'JointOptimization', true);
 cost(h_fir)
 b_fir = h_fir.numerator;
 fprintf('DC gain\t\t\t\t\t\t\t: %d\n', sum(b_fir))
