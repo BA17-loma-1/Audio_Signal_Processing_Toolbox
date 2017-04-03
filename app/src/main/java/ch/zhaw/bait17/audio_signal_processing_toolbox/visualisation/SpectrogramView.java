@@ -32,6 +32,10 @@ public class SpectrogramView extends AudioView {
 
     private static final Colour[] gradient = HeatMap.RAINBOW;
     private static final String TAG = SpectrogramView.class.getSimpleName();
+    private static final double dB_RANGE = 60;
+    private static final double dB_BOTTOM = -30;
+    private static final double db_PEAK = dB_RANGE - Math.abs(dB_BOTTOM);
+
 
     private Paint paint = new Paint();
     private Bitmap bitmap;
@@ -84,7 +88,6 @@ public class SpectrogramView extends AudioView {
     }
 
     public void setMagnitudes(@NonNull float[] hMag) {
-        //Log.d(TAG, "Magnitudes size: " + hMag.length);
         magnitudes = new float[hMag.length];
         System.arraycopy(hMag, 0, magnitudes, 0, hMag.length);
         postInvalidate();
@@ -101,42 +104,54 @@ public class SpectrogramView extends AudioView {
             return;
         }
 
+        double mindB = 0;
+        double maxdB = 0;
         int widthColorGradient = 30;
         int widthFrequencyAxis = 60;
-        int rWidth = width - widthColorGradient - widthFrequencyAxis;
-        paint.setStrokeWidth(5);
+        int spectrogramWidth = width - widthColorGradient - widthFrequencyAxis;
+        paint.setStrokeWidth(3);
         boolean logFrequency = false;
 
         // Update buffer bitmap
-        paint.setColor(Color.BLACK);
-        this.canvas.drawLine(pos%rWidth, 0, pos % rWidth, height, paint);
         for (int i = 0; i < height; i++) {
-            float j = getValueFromRelativePosition((float)(height-i)/height, 1, getSampleRate() / 2, logFrequency);
+            float j = getValueFromRelativePosition((float) (height - i) / height, 1, getSampleRate() / 2, logFrequency);
             j /= getSampleRate() / 2;
-            float mag = magnitudes[(int) (j*magnitudes.length/2)];
-            float dB = (float) Math.max(0,10*Math.log10(mag));
-            Colour colour = getColour(dB * 0.032f);
+            float mag = magnitudes[(int) (j * magnitudes.length / 2)];
+            double dB = (10 * Math.log10(mag));
+            if (i == 0) {
+                mindB = dB;
+            }
+            if (dB > maxdB) {
+                maxdB = dB;
+            }
+            if (dB < mindB) {
+                mindB = dB;
+            }
+            Colour colour = getColour(dB);
             paint.setColor(colour.getRGB());
-            int x = pos%rWidth;
+            int x = pos % spectrogramWidth;
             int y = i;
             this.canvas.drawPoint(x, y, paint);
-            this.canvas.drawPoint(x, y, paint); // make color brighter
+            //this.canvas.drawPoint(x, y, paint); // make color brighter
             //this.canvas.drawPoint(pos%rWidth, height-i, paint); // make color even brighter
         }
 
+        //Log.d(TAG, String.format("min dB = %f, max dB = %f, dB range = %f", mindB, maxdB, maxdB - mindB));
+
         // Draw bitmap
-        if (pos < rWidth) {
+        if (pos < spectrogramWidth) {
             canvas.drawBitmap(bitmap, widthColorGradient, 0, paint);
         } else {
-            canvas.drawBitmap(bitmap, (float) widthColorGradient - pos%rWidth, 0, paint);
-            canvas.drawBitmap(bitmap, (float) widthColorGradient + (rWidth - pos%rWidth), 0, paint);
+            canvas.drawBitmap(bitmap, (float) widthColorGradient - pos % spectrogramWidth, 0, paint);
+            canvas.drawBitmap(bitmap, (float) widthColorGradient + (spectrogramWidth - pos % spectrogramWidth), 0, paint);
         }
 
-        // Draw gradient
+        // Draw gradient (decibel scale)
         paint.setColor(Color.BLACK);
         canvas.drawRect(0, 0, widthColorGradient, height, paint);
         for (int i = 0; i < height; i++) {
-            Colour colour = getColour(i / (float) height);
+            int index = (int) (gradient.length - 1 - (i / (float) height) * (gradient.length - 1));
+            Colour colour = gradient[index];
             paint.setColor(colour.getRGB());
             canvas.drawLine(0, i, widthColorGradient - 5, i, paint);
         }
@@ -145,9 +160,9 @@ public class SpectrogramView extends AudioView {
         float ratio = 0.8f * getResources().getDisplayMetrics().density;
         paint.setTextSize(12f * ratio);
         paint.setColor(Color.WHITE);
-        canvas.drawRect(rWidth + widthColorGradient, 0, width, height, paint);
+        canvas.drawRect(spectrogramWidth + widthColorGradient, 0, width, height, paint);
         paint.setColor(Color.BLACK);
-        canvas.drawText("kHz", rWidth + widthColorGradient, 12 * ratio, paint);
+        canvas.drawText("kHz", spectrogramWidth + widthColorGradient, 12 * ratio, paint);
 
         int minFrequency = (int) Math.floor(Math.log10(10));
         int maxFrequency = (int) Math.ceil(Math.log10(getSampleRate() / 2));
@@ -155,14 +170,14 @@ public class SpectrogramView extends AudioView {
         if (logFrequency) {
             for (int i = minFrequency; i < maxFrequency; i++) {
                 float y = getRelativePosition((float) Math.pow(10,i), 1, getSampleRate() / 2, logFrequency);
-                canvas.drawText("1e"+i, rWidth + widthColorGradient, (1f-y)*height, paint);
+                canvas.drawText("1e"+i, spectrogramWidth + widthColorGradient, (1f-y)*height, paint);
             }
         } else {
             for (int i=0; i<(getSampleRate() - 500)/2; i+=1000)
-                canvas.drawText(" "+i/1000, rWidth + widthColorGradient, height*(1f-(float) i/(getSampleRate() / 2)), paint);
+                canvas.drawText(" "+i/1000, spectrogramWidth + widthColorGradient, height*(1f-(float) i/(getSampleRate() / 2)), paint);
         }
 
-        pos++;
+        pos += paint.getStrokeWidth();
     }
 
     /**
@@ -171,9 +186,9 @@ public class SpectrogramView extends AudioView {
      */
     private float getRelativePosition(float value, float minValue, float maxValue, boolean log) {
         if (log) {
-            return ((float) Math.log10(1+value-minValue) / (float) Math.log10(1+maxValue-minValue));
+            return ((float) Math.log10( 1+ value - minValue) / (float) Math.log10(1 + maxValue - minValue));
         } else {
-            return (value-minValue)/(maxValue-minValue);
+            return (value - minValue) / (maxValue - minValue);
         }
     }
 
@@ -183,20 +198,22 @@ public class SpectrogramView extends AudioView {
      */
     private float getValueFromRelativePosition(float position, float minValue, float maxValue, boolean log) {
         if (log) {
-            return (float) (Math.pow(10, position*Math.log10(1+maxValue-minValue))+minValue-1);
+            return (float) (Math.pow(10, position * Math.log10(1 + maxValue - minValue)) + minValue - 1);
         } else {
-            return minValue + position*(maxValue-minValue);
+            return minValue + position * (maxValue - minValue);
         }
     }
 
-    public Colour getColour(float unit) {
-        if (unit <= 0) {
-            return gradient[0];
+    public Colour getColour(double dB) {
+        if (dB <= dB_BOTTOM || Double.compare(dB, Double.NEGATIVE_INFINITY) == 0) {
+            dB = dB_BOTTOM;
         }
-        if (unit >= 1) {
-            return gradient[gradient.length - 1];
+        if (dB >= db_PEAK || Double.compare(dB, Double.POSITIVE_INFINITY) == 0) {
+            dB = db_PEAK;
         }
-        int index = (int) (unit * (gradient.length - 1));
+        // Scaled dB
+        double dbScaled = dB + Math.abs(dB_BOTTOM);
+        int index = (int) ((dbScaled / dB_RANGE) * (gradient.length - 1));
         return gradient[index];
     }
 
