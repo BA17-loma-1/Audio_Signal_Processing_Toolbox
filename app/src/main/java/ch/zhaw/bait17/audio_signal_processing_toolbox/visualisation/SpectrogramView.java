@@ -32,8 +32,8 @@ public class SpectrogramView extends AudioView {
 
     private static final Colour[] gradient = HeatMap.RAINBOW;
     private static final String TAG = SpectrogramView.class.getSimpleName();
-    private static final double dB_RANGE = 60;
-    private static final double dB_BOTTOM = -30;
+    private static final double dB_RANGE = 100;
+    private static final double dB_BOTTOM = -60;
     private static final double db_PEAK = dB_RANGE - Math.abs(dB_BOTTOM);
 
 
