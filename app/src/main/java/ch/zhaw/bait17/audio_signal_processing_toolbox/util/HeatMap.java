@@ -31,7 +31,10 @@ public class HeatMap {
 
     public static final Colour[] WHITE_RED = Gradient.createGradient(WHITE, RED, NUMBER_OF_STEPS);
 
+    public static final Colour[] BLUE_WHITE_RED = Gradient.createMultiGradient(
+            new Colour[]{BLUE, WHITE, RED}, NUMBER_OF_STEPS);
+
     public final static Colour[] RAINBOW = Gradient.createMultiGradient(
-            new Colour[]{BLACK, LILA, BLUE, GREEN, YELLOW, ORANGE, RED}, 2*NUMBER_OF_STEPS);
+            new Colour[]{BLACK, LILA, BLUE, GREEN, YELLOW, ORANGE, RED}, 2 * NUMBER_OF_STEPS);
 
 }
