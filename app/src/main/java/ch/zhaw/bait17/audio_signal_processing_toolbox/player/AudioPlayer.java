@@ -255,50 +255,53 @@ public class AudioPlayer {
      * Starts the audio playback.
      */
     private void startPlayback() {
-        keepPlaying = true;
-        paused = false;
-        audioTrack.play();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "Playback thread '" + Thread.currentThread().getName() + "' start");
-                Log.d(TAG, "Playback start");
-                while (keepPlaying) {
-                    if (paused) {
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            Log.e(TAG, "Interrupted while paused.");
-                        }
-                    } else {
-                        decodedSamples = mp3Decoder.getNextSampleBlock();
-                        if (decodedSamples != null) {
-                            frames = Arrays.copyOf(decodedSamples, decodedSamples.length);
-                            filteredSamples = applyFilter(frames);
-                            if (audioTrack.write(filteredSamples, 0, filteredSamples.length)
-                                    < filteredSamples.length) {
-                                Log.d(TAG, "Dropped samples.");
+        // Sometimes AudioTrack initialisation fails - we need to check if AudioTrack is ready.
+        if (isAudioTrackInitialised()) {
+            keepPlaying = true;
+            paused = false;
+            audioTrack.play();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "Playback thread '" + Thread.currentThread().getName() + "' start");
+                    Log.d(TAG, "Playback start");
+                    while (keepPlaying) {
+                        if (paused) {
+                            try {
+                                Thread.sleep(10);
+                            } catch (InterruptedException e) {
+                                Log.e(TAG, "Interrupted while paused.");
                             }
-                            // Broadcast pre filter sample block using event bus
-                            eventBus.post(new PreFilterSampleBlock(frames, sampleRate));
-                            // Broadcast post filter sample block using event bus
-                            eventBus.post(new PostFilterSampleBlock(filteredSamples, sampleRate));
                         } else {
-                            // No more frames to decode, we reached the end of the InputStream. --> quit
-                            keepPlaying = false;
+                            decodedSamples = mp3Decoder.getNextSampleBlock();
+                            if (decodedSamples != null) {
+                                frames = Arrays.copyOf(decodedSamples, decodedSamples.length);
+                                filteredSamples = applyFilter(frames);
+                                if (audioTrack.write(filteredSamples, 0, filteredSamples.length)
+                                        < filteredSamples.length) {
+                                    Log.d(TAG, "Dropped samples.");
+                                }
+                                // Broadcast pre filter sample block using event bus
+                                eventBus.post(new PreFilterSampleBlock(frames, sampleRate));
+                                // Broadcast post filter sample block using event bus
+                                eventBus.post(new PostFilterSampleBlock(filteredSamples, sampleRate));
+                            } else {
+                                // No more frames to decode, we reached the end of the InputStream. --> quit
+                                keepPlaying = false;
+                            }
                         }
                     }
+                    Log.d(TAG, "Finished decoding");
+                    audioTrack.pause();
+                    audioTrack.stop();
+                    audioTrack.flush();
+                    audioTrack.release();
+                    Log.d(TAG, "AudioTrack pause/stop/flush/release.");
+                    Log.d(TAG, "Playback stop");
+                    Log.d(TAG, "Playback thread '" + Thread.currentThread().getName() + "' stop");
                 }
-                Log.d(TAG, "Finished decoding");
-                audioTrack.pause();
-                audioTrack.stop();
-                audioTrack.flush();
-                audioTrack.release();
-                Log.d(TAG, "AudioTrack pause/stop/flush/release.");
-                Log.d(TAG, "Playback stop");
-                Log.d(TAG, "Playback thread '" + Thread.currentThread().getName() + "' stop");
-            }
-        }).start();
+            }).start();
+        }
     }
 
     private short[] applyFilter(short[] input) {
