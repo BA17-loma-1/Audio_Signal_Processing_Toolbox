@@ -3,7 +3,7 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,12 +15,11 @@ import java.util.List;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.player.PlayerPresenter;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.player.AudioPlayer;
 
 /**
  * @author georgrem, stockan1
  */
-
 public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeListener {
 
     private static final String BUNDLE_ARGUMENT_FILTER = "filter_view";
@@ -34,11 +33,11 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     };
 
     private View rootView;
-    private Thread playerThread;
     private List<Track> tracks;
     private Track currentTrack;
+    private Track nextTrack;
     private int trackPosNr;
-    private PlayerPresenter playerPresenter;
+    private static AudioPlayer audioPlayer;
     private TextView currentTime;
     private TextView endTime;
     private SeekBar seekBar;
@@ -79,12 +78,12 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     @Override
     public void onStart() {
         super.onStart();
+        audioPlayer = AudioPlayer.getInstance();
         Bundle args = getArguments();
-        Filter filter = null;
         if (args != null) {
-            filter = args.getParcelable(BUNDLE_ARGUMENT_FILTER);
+            Filter filter = args.getParcelable(BUNDLE_ARGUMENT_FILTER);
+            audioPlayer.setFilter(filter);
         }
-        playerPresenter = new PlayerPresenter(filter);
     }
 
     @Override
@@ -99,11 +98,11 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        playerPresenter.seekToPosition(seekBar.getProgress());
+        audioPlayer.seekToPosition(seekBar.getProgress());
     }
 
     public void setFilter(Filter filter) {
-        playerPresenter.setFilter(filter);
+        audioPlayer.setFilter(filter);
     }
 
     public void setTracks(List<Track> tracks) {
@@ -112,59 +111,61 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
     public void setTrackPosNr(int trackPosNr) {
         this.trackPosNr = trackPosNr;
-        playTrack();
     }
 
-    public void setTrack(Track track) {
-        Track previousTrack = currentTrack;
-        currentTrack = track;
-        if (!track.equals(previousTrack)) {
-            if (playerThread != null && playerPresenter.isPlaying()) {
-                // Play newly selected track
-                pauseTrack();
-            }
-            playTrack();
-        }
-    }
-
-    private void pauseTrack() {
-        if (playerThread != null) {
-            playerPresenter.stop();
-            try {
-                playerThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void playTrack() {
-        if (playerThread != null && playerPresenter.isPlaying()) {
-            playPauseButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
-            pauseTrack();
+    public void setTrack(@NonNull Track track) {
+        if (currentTrack == null) {
+            // First time a track is selected.
+            currentTrack = track;
+            nextTrack = currentTrack;
         } else {
+            nextTrack = track;
+        }
+        audioPlayer.selectTrack(track);
+        playPauseTrack();
+    }
+
+    public void playPauseTrack() {
+        if (currentTrack == nextTrack) {
+            // No change in track selection.
+            if (audioPlayer.isPlaying()) {
+                playPauseButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
+                audioPlayer.pausePlayback();
+            } else if (audioPlayer.isPaused()) {
+                playPauseButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
+                audioPlayer.resumePlayback();
+            } else {
+                playPauseButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
+                audioPlayer.play();
+            }
+        } else {
+            // A new track has been selected.
             playPauseButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
-            playerThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    playerPresenter.selectTrack(currentTrack);
-                }
-            });
-            playerThread.start();
+            currentTrack = nextTrack;
             updateTrackPropertiesOnUI();
+            audioPlayer.stopPlayback();
+            while (!audioPlayer.isStopped()) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+
+                }
+            }
+            playPauseButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
+            audioPlayer.play();
         }
     }
 
     public void playPreviousTrack() {
         trackPosNr--;
         if (trackPosNr < 0) trackPosNr = tracks.size() - 1;
-        playTrack();
+        playPauseTrack();
     }
 
     public void playNextTrack() {
         trackPosNr++;
         if (trackPosNr >= tracks.size()) trackPosNr = 0;
-        playTrack();
+        playPauseTrack();
     }
 
     private void updateTrackPropertiesOnUI() {

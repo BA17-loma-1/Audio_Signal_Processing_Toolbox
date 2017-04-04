@@ -14,8 +14,7 @@ public enum SupportedAudioFormat {
         this.audioFormat = audioFormat;
     }
 
-    @Override
-    public String toString() {
+    public String getAudioFormat() {
         return audioFormat;
     }
 
