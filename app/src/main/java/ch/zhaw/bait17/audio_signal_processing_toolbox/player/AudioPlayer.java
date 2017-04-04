@@ -347,7 +347,9 @@ public class AudioPlayer {
      * Initialises the EventBus.
      */
     private void buildEventBus() {
-        eventBus = EventBus.getDefault();
+        eventBus = EventBus.builder()
+                .logNoSubscriberMessages(false)
+                .installDefaultEventBus();
     }
 
 }
