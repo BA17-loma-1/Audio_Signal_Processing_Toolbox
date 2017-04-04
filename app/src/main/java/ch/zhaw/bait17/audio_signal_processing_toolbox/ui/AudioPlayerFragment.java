@@ -146,6 +146,7 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             audioPlayer.stopPlayback();
             while (!audioPlayer.isStopped()) {
                 try {
+                    // Sleep until the playback thread has stopped.
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
 

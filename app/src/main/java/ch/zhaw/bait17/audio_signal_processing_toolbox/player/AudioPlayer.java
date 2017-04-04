@@ -340,6 +340,9 @@ public class AudioPlayer {
         return audioTrack != null && audioTrack.getState() == AudioTrack.STATE_INITIALIZED;
     }
 
+    /**
+     * Initialises the EventBus.
+     */
     private void buildEventBus() {
         eventBus = EventBus.getDefault();
     }
