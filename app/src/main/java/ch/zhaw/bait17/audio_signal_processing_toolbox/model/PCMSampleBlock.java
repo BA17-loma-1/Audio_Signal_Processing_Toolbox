@@ -5,7 +5,7 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.model;
  * @author georgrem, stockan1
  */
 
-public class PCMSampleBlock {
+public abstract class PCMSampleBlock {
 
     private short[] samples;
     private final int SAMPLE_RATE;
