@@ -24,14 +24,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.TrackAdapter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.SupportedAudioFormat;
@@ -142,15 +139,12 @@ public class MediaListFragment extends Fragment {
         if (ContextCompat.checkSelfPermission(context,
                 Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             final List<Track> tracks = getAllTracks();
-            Collections.sort(tracks, new Comparator<Track>() {
-                public int compare(Track a, Track b) {
-                    return a.getTitle().compareTo(b.getTitle());
-                }
-            });
+            Collections.sort(tracks);
 
             final ListView listView = (ListView) rootView.findViewById(R.id.media_list);
-            TrackAdapter trackAdapter = new TrackAdapter((ArrayList) tracks);
+            TrackAdapter trackAdapter = new TrackAdapter(tracks);
             listView.setAdapter(trackAdapter);
+
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {

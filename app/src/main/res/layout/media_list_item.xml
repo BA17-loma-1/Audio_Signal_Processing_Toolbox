@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="@dimen/media_item_height">
 
@@ -12,34 +14,33 @@
         android:layout_marginStart="@dimen/media_item_icon_margin_start"
         android:contentDescription="@string/play_item"
         android:src="@drawable/ic_play_arrow_black_36dp"
-        android:tint="@color/media_item_icon_not_playing"
-        android:tintMode="src_in" />
+        android:tint="@color/media_item_icon_not_playing" />
 
     <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_marginStart="@dimen/media_item_text_margin_start"
-        android:orientation="vertical">
+        android:layout_marginStart="@dimen/media_item_text_margin_start" >
 
         <TextView
             android:id="@+id/track_title"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:attr/textColorPrimary" />
+            android:textColor="@color/media_list_title" />
 
         <TextView
             android:id="@+id/track_artist"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorSecondary" />
+            android:textColor="@color/media_list_artist" />
 
     </LinearLayout>
 

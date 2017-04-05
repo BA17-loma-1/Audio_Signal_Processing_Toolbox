@@ -5,20 +5,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import java.util.ArrayList;
+import java.util.List;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 
 public class TrackAdapter extends BaseAdapter {
 
-    static class ViewHolderItem {
+    private static class ViewHolderItem {
         TextView title;
         TextView artist;
     }
 
-    private ArrayList<Track> tracks;
+    private List<Track> tracks;
     private LayoutInflater inflater;
 
-    public TrackAdapter(ArrayList<Track> tracks) {
+    public TrackAdapter(List<Track> tracks) {
         this.tracks = tracks;
         inflater = LayoutInflater.from(ApplicationContext.getAppContext());
     }

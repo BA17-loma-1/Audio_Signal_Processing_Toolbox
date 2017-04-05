@@ -2,21 +2,18 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import java.util.ArrayList;
-import java.util.List;
+import android.support.annotation.NonNull;
 
 /**
- * Plain object to hold a audiotrack attributes
- * This is a parcelable object since we need to pass a audiotrack
- * objects between activities
+ * Plain object to hold a audio track attributes.
+ * This is a parcelable object since we need to pass audio track objects between fragments.
  *
  * @author georgrem, stockan1
  */
-public class Track implements Parcelable {
+public class Track implements Comparable<Track>, Parcelable {
 
     private String title, artist, album, duration, uri;
     private SupportedAudioFormat audioFormat;
-
 
     public Track(String title, String artist, String album,
                  String duration, String uri, SupportedAudioFormat audioFormat) {
@@ -47,9 +44,6 @@ public class Track implements Parcelable {
         }
     }
 
-    /**
-     * Define the kind of object that you gonna parcel
-     */
     @Override
     public int describeContents() {
         return hashCode();
@@ -73,10 +67,14 @@ public class Track implements Parcelable {
     }
 
     /**
-     * <p>This field is needed for Android to be able to
-     * create new objects, individually or as arrays</p>
-     * <p>If you don’t do that, Android framework will throw exception
-     * Parcelable protocol requires a Parcelable.Creator object called CREATOR</p>
+     * <p>
+     *     This field is needed for Android to be able to create new objects,
+     *     individually or as arrays.
+     * </p>
+     * <p>
+     *     If you don’t do that, Android framework will throw exception Parcelable protocol
+     *     requires a Parcelable.Creator object called CREATOR.
+     * </p>
      */
     public static final Parcelable.Creator<Track> CREATOR
             = new Parcelable.Creator<Track>() {
@@ -115,13 +113,44 @@ public class Track implements Parcelable {
 
     @Override
     public String toString() {
-        return "Track{" +
-                "title='" + title + '\'' +
-                ", artist='" + artist + '\'' +
-                ", album='" + album + '\'' +
-                ", duration='" + duration + '\'' +
-                ", uri='" + uri + '\'' +
-                ", audioFormat=" + audioFormat +
-                '}';
+        StringBuilder sb = new StringBuilder();
+        sb.append("Track{")
+            .append("title='" + title)
+            .append("', artist='" +  artist)
+            .append("', album='" + album)
+            .append("', duration='" + duration)
+            .append("', uri='" + uri)
+            .append("', audioFormat='" + audioFormat)
+            .append("'}");
+        String s = sb.toString();
+        return sb.toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof Track)) {
+            return false;
+        }
+        Track track = (Track) o;
+        return track.artist.equalsIgnoreCase(artist) && track.title.equalsIgnoreCase(title)
+                && track.album.equalsIgnoreCase(album) && track.audioFormat== audioFormat;
+    }
+
+    @Override
+    public int compareTo(@NonNull Track track) {
+        int artistDiff = artist.compareToIgnoreCase(track.artist);
+        if (artistDiff != 0) {
+            return artistDiff;
+        }
+        int titleDiff = title.compareToIgnoreCase(track.title);
+        if (titleDiff != 0) {
+            return titleDiff;
+        }
+        // Artist and title are equal, compare album name
+        return album.compareToIgnoreCase(track.album);
+    }
+
 }

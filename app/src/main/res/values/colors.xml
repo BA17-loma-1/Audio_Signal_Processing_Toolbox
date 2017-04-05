@@ -10,6 +10,10 @@
     <color name="background_content">#ffffff</color>
     <color name="background_fragment">#000000</color>
 
+    <!-- Media list items -->
+    <color name="media_list_artist">#777</color>
+    <color name="media_list_title">#393F42</color>
+
     <color name="bt_accent">#00B8D4</color>
     <color name="media_item_icon_playing">@color/bt_accent</color>
     <color name="media_item_icon_not_playing">#ccc</color>
