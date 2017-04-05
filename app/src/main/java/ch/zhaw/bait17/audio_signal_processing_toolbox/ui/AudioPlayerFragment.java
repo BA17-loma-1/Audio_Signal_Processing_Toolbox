@@ -126,34 +126,36 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     }
 
     public void playPauseTrack() {
-        if (currentTrack == nextTrack) {
-            // No change in track selection.
-            if (audioPlayer.isPlaying()) {
-                playPauseButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
-                audioPlayer.pausePlayback();
-            } else if (audioPlayer.isPaused()) {
-                playPauseButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
-                audioPlayer.resumePlayback();
+        if (currentTrack != null && nextTrack != null) {
+            if (currentTrack == nextTrack) {
+                // No change in track selection.
+                if (audioPlayer.isPlaying()) {
+                    playPauseButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
+                    audioPlayer.pausePlayback();
+                } else if (audioPlayer.isPaused()) {
+                    playPauseButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
+                    audioPlayer.resumePlayback();
+                } else {
+                    playPauseButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
+                    audioPlayer.play();
+                }
             } else {
+                // A new track has been selected.
+                playPauseButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
+                currentTrack = nextTrack;
+                updateTrackPropertiesOnUI();
+                audioPlayer.stopPlayback();
+                while (!audioPlayer.isStopped()) {
+                    try {
+                        // Sleep until the playback thread has stopped.
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+
+                    }
+                }
                 playPauseButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
                 audioPlayer.play();
             }
-        } else {
-            // A new track has been selected.
-            playPauseButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
-            currentTrack = nextTrack;
-            updateTrackPropertiesOnUI();
-            audioPlayer.stopPlayback();
-            while (!audioPlayer.isStopped()) {
-                try {
-                    // Sleep until the playback thread has stopped.
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-
-                }
-            }
-            playPauseButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
-            audioPlayer.play();
         }
     }
 
