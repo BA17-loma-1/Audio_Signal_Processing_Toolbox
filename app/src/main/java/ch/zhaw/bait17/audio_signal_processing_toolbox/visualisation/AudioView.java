@@ -7,6 +7,7 @@ import android.view.View;
 
 /**
  * All audio data visualisations must extend this class.
+ *
  * @author georgrem, stockan1
  */
 
@@ -29,6 +30,7 @@ public abstract class AudioView extends View {
 
     /**
      * Returns the sample rate.
+     *
      * @return
      */
     protected int getSampleRate() {
@@ -37,6 +39,7 @@ public abstract class AudioView extends View {
 
     /**
      * Sets the sample rate.
+     *
      * @param sampleRate
      */
     public void setSampleRate(int sampleRate) {
@@ -45,6 +48,7 @@ public abstract class AudioView extends View {
 
     /**
      * Returns the number of audio channels.
+     *
      * @return
      */
     protected int getChannels() {
@@ -53,6 +57,7 @@ public abstract class AudioView extends View {
 
     /**
      * Sets the number of channels.
+     *
      * @param channels
      */
     public void setChannels(int channels) {
@@ -70,10 +75,19 @@ public abstract class AudioView extends View {
 
     /**
      * Returns true if the view is defined as a pre-filter_view view.
+     *
      * @return
      */
     public boolean isPreFilterView() {
         return preFilterView;
     }
+
+
+    /**
+     * "Inflating" a view means taking the layout XML and parsing it to create the view object
+     *
+     * @return AudioView
+     */
+    public abstract AudioView getInflatedView();
 
 }

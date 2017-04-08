@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/waveformView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:fitsSystemWindows="true" >
-
-    <ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView
-        android:id="@+id/waveformView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-    </ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView>
-
-</LinearLayout>
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"></ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView>

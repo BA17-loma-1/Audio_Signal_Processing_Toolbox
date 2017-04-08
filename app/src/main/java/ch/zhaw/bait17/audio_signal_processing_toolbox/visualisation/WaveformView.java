@@ -2,9 +2,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,10 +22,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.View;
+
+import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 
 /**
- *
  * @author georgrem, stockan1
  */
 public class WaveformView extends AudioView {
@@ -142,11 +144,17 @@ public class WaveformView extends AudioView {
     private float getFontSize(Context ctx, int textAppearance) {
         TypedValue typedValue = new TypedValue();
         ctx.getTheme().resolveAttribute(textAppearance, typedValue, true);
-        int[] textSizeAttr = new int[] { android.R.attr.textSize };
+        int[] textSizeAttr = new int[]{android.R.attr.textSize};
         TypedArray arr = ctx.obtainStyledAttributes(typedValue.data, textSizeAttr);
         float fontSize = arr.getDimensionPixelSize(0, -1);
         arr.recycle();
         return fontSize;
+    }
+
+    @Override
+    public AudioView getInflatedView() {
+        return (AudioView) View.inflate(ApplicationContext.getAppContext(),
+                R.layout.waveform_view, null);
     }
 
 }

@@ -1,13 +1,13 @@
 /**
  * Spectrogram Android application
  * Copyright (c) 2013 Guillaume Adam  http://www.galmiza.net/
-
+ * <p>
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from the use of this software.
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it freely,
  * subject to the following restrictions:
-
+ * <p>
  * 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
@@ -23,8 +23,11 @@ import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+
+import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Colour;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.HeatMap;
 
@@ -169,12 +172,12 @@ public class SpectrogramView extends AudioView {
 
         if (logFrequency) {
             for (int i = minFrequency; i < maxFrequency; i++) {
-                float y = getRelativePosition((float) Math.pow(10,i), 1, getSampleRate() / 2, logFrequency);
-                canvas.drawText("1e"+i, spectrogramWidth + widthColorGradient, (1f-y)*height, paint);
+                float y = getRelativePosition((float) Math.pow(10, i), 1, getSampleRate() / 2, logFrequency);
+                canvas.drawText("1e" + i, spectrogramWidth + widthColorGradient, (1f - y) * height, paint);
             }
         } else {
-            for (int i=0; i<(getSampleRate() - 500)/2; i+=1000)
-                canvas.drawText(" "+i/1000, spectrogramWidth + widthColorGradient, height*(1f-(float) i/(getSampleRate() / 2)), paint);
+            for (int i = 0; i < (getSampleRate() - 500) / 2; i += 1000)
+                canvas.drawText(" " + i / 1000, spectrogramWidth + widthColorGradient, height * (1f - (float) i / (getSampleRate() / 2)), paint);
         }
 
         pos += paint.getStrokeWidth();
@@ -186,7 +189,7 @@ public class SpectrogramView extends AudioView {
      */
     private float getRelativePosition(float value, float minValue, float maxValue, boolean log) {
         if (log) {
-            return ((float) Math.log10( 1+ value - minValue) / (float) Math.log10(1 + maxValue - minValue));
+            return ((float) Math.log10(1 + value - minValue) / (float) Math.log10(1 + maxValue - minValue));
         } else {
             return (value - minValue) / (maxValue - minValue);
         }
@@ -215,6 +218,12 @@ public class SpectrogramView extends AudioView {
         double dbScaled = dB + Math.abs(dB_BOTTOM);
         int index = (int) ((dbScaled / dB_RANGE) * (gradient.length - 1));
         return gradient[index];
+    }
+
+    @Override
+    public AudioView getInflatedView() {
+        return (AudioView) View.inflate(ApplicationContext.getAppContext(),
+                R.layout.spectrogram_view, null);
     }
 
 }

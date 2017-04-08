@@ -16,14 +16,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RadioButton;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FilterType;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FilterUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
 
 /**
  * @author georgrem, stockan1
@@ -32,6 +35,12 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         MediaListFragment.OnTrackSelectedListener {
+
+    private static final String TAG_AUDIO_PLAYER_FRAGMENT = "AUDIO_PLAYER";
+    private static final String TAG_FILTER_FRAGMENT = "FILTER";
+    private static final String TAG_MEDIA_LIST_FRAGMENT = "MEDIA_LIST";
+    private static final String TAG_VISUALISATION_CONFIGURATION_FRAGMENT = "VISUALISATION_CONFIGURATION";
+    private static final String TAG_VISUALISATION_FRAGMENT = "VISUALISATION";
 
     private Toolbar toolbar;
     private ActionBarDrawerToggle actionBarDrawerToggle;
@@ -53,12 +62,8 @@ public class MainActivity extends AppCompatActivity implements
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(R.id.content_frame, new MediaListFragment());
-        ft.replace(R.id.audio_player_fragment, new AudioPlayerFragment());
-        ft.commit();
-
         initFilters();
+        initFragments();
     }
 
     @Override
@@ -169,6 +174,22 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    private void initFragments() {
+        Fragment visualisationConfigurationFragment = new VisualisationConfigurationFragment();
+        AudioView[] activeViews = ((VisualisationConfigurationFragment) visualisationConfigurationFragment).getActiveViews();
+
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(R.id.content_frame, FilterFragment.newInstance(filters.values().toArray(new Filter[filters.size()])),
+                TAG_FILTER_FRAGMENT);
+        ft.replace(R.id.content_frame, visualisationConfigurationFragment,
+                TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
+        ft.replace(R.id.content_frame, VisualisationFragment.newInstance(activeViews),
+                TAG_VISUALISATION_FRAGMENT);
+        ft.replace(R.id.content_frame, new MediaListFragment(), TAG_MEDIA_LIST_FRAGMENT);
+        ft.replace(R.id.audio_player_fragment, new AudioPlayerFragment());
+        ft.commit();
+    }
+
     @Nullable
     private AudioPlayerFragment getAudioPlayerFragment() {
         Fragment fragment = getFragmentManager().findFragmentById(R.id.audio_player_fragment);
@@ -179,33 +200,44 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    private Fragment getFragmentByTag(String tag_fragmentName) {
+        return getFragmentManager().findFragmentByTag(tag_fragmentName);
+    }
+
     /*
         Handle navigation view item clicks here.
         Swap fragments in the main content view.
     */
     private boolean selectMenuItem(@NonNull MenuItem item) {
-        int id = item.getItemId();
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         // Store containerViewId and associated Fragment
         Fragment fragment = null;
         String title = "";
+        String tag_fragmentName = "";
 
-        switch (id) {
+        switch (item.getItemId()) {
             case R.id.nav_media_list:
-                fragment = new MediaListFragment();
+                fragment = getFragmentByTag(TAG_MEDIA_LIST_FRAGMENT);
                 title = "My Music";
+                tag_fragmentName = TAG_MEDIA_LIST_FRAGMENT;
                 break;
             case R.id.nav_visualisation:
-                fragment = new VisualisationFragment();
+                Fragment vcf = getFragmentByTag(TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
+                AudioView[] activeViews = ((VisualisationConfigurationFragment) vcf).getActiveViews();
+                fragment = getFragmentByTag(TAG_VISUALISATION_FRAGMENT);
+                ((VisualisationFragment) fragment).setViews(activeViews);
                 title = "Visualisation";
+                tag_fragmentName = TAG_VISUALISATION_FRAGMENT;
                 break;
             case R.id.nav_visualisation_configuration:
-                fragment = new VisualisationConfigurationFragment();
+                fragment = getFragmentByTag(TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
                 title = "Visualisation Configuration";
+                tag_fragmentName = TAG_VISUALISATION_CONFIGURATION_FRAGMENT;
                 break;
             case R.id.nav_filter:
-                fragment = FilterFragment.newInstance(filters.values().toArray(new Filter[filters.size()]));
+                fragment = getFragmentByTag(TAG_FILTER_FRAGMENT);
                 title = "Filter";
+                tag_fragmentName = TAG_FILTER_FRAGMENT;
                 break;
             case R.id.nav_about:
                 title = "About the app";
@@ -214,9 +246,8 @@ public class MainActivity extends AppCompatActivity implements
                 break;
         }
 
-
         if (fragment != null) {
-            ft.replace(R.id.content_frame, fragment);
+            ft.replace(R.id.content_frame, fragment, tag_fragmentName);
         }
         ft.addToBackStack(null);
         ft.commit();

@@ -8,7 +8,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.view.View;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 
 /**
@@ -139,7 +141,7 @@ public class LineSpectrumView extends AudioView {
     private void drawSpectrumBarShape(float[] amplitudes, int ZERO_DEZ_REF, Canvas canvas) {
         /* For efficiency, we don't draw all of the samples in the buffer, but only the ones
            that align with pixel boundaries. */
-        int scaledWidt = width/5;
+        int scaledWidt = width / 5;
         for (int x = 0; x < scaledWidt; x++) {
             int index = (int) (((x * 1.0f) / scaledWidt) * amplitudes.length);
             float sample = amplitudes[index];
@@ -167,6 +169,12 @@ public class LineSpectrumView extends AudioView {
 
     private float[] getPowerSpectrum(@NonNull short[] samples) {
         return new PowerSpectrum(samples).getPowerSpectrum();
+    }
+
+    @Override
+    public AudioView getInflatedView() {
+        return (AudioView) View.inflate(ApplicationContext.getAppContext(),
+                R.layout.line_spectrum_view, null);
     }
 
 }

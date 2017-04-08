@@ -1,31 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/content_visualisation"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorAccent"
     android:orientation="vertical"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="ch.zhaw.bait17.audio_signal_processing_toolbox.ui.MainActivity">
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView
-        android:id="@+id/view_top"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"></ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView>
-
-    <ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView
-        android:id="@+id/view_middle"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"></ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView>
-
-    <ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.LineSpectrumView
-        android:id="@+id/view_bottom"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"></ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.LineSpectrumView>
+    <!-- add views dynamically on runtime -->
 
 </LinearLayout>

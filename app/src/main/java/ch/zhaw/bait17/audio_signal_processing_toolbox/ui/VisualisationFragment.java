@@ -1,18 +1,16 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
-import java.io.Serializable;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.LinearLayout;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.greenrobot.eventbus.EventBus;
@@ -21,6 +19,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PCMSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PostFilterSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PreFilterSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
@@ -31,35 +30,23 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramV
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrumView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView;
 
+
 public class VisualisationFragment extends Fragment {
 
-    private static final String KEY_AUDIOVIEW_MAP = VisualisationFragment.class.getSimpleName() + ".AUDIOVIEW_MAP";
+    private static final String TAG = VisualisationFragment.class.getSimpleName();
+    private static final String KEY_AUDIOVIEWS = VisualisationFragment.class.getSimpleName() + ".AUDIOVIEWS";
 
-    private Map<ViewPosition, AudioView> views;
     private int fftResolution;
     private CircularFifoQueue<short[]> trunkBuffer;
+    private AudioView[] views;
 
-    private enum ViewPosition {
-        BOTTOM("bottom"), MIDDLE("middle"), TOP("top");
 
-        private String position;
-
-        ViewPosition(String position) {
-            this.position = position;
-        }
-
-        @Override
-        public String toString() {
-            return position;
-        }
-    }
-
-    // Creates a new fragment given a map
+    // Creates a new fragment given a array
     // VisualisationFragment.newInstance(views);
-    public static VisualisationFragment newInstance(HashMap<ViewPosition, AudioView> views) {
+    public static VisualisationFragment newInstance(AudioView[] views) {
         VisualisationFragment fragment = new VisualisationFragment();
         Bundle args = new Bundle();
-        args.putSerializable(KEY_AUDIOVIEW_MAP, views);
+        args.putSerializable(KEY_AUDIOVIEWS, views);
         fragment.setArguments(args);
         return fragment;
     }
@@ -68,9 +55,9 @@ public class VisualisationFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Get back arguments
-        // Bundle args = this.getArguments();
-        // if(args.getSerializable(KEY_AUDIOVIEW_MAP) != null)
-        //     views = (HashMap<ViewPosition, AudioView>) args.getSerializable(KEY_AUDIOVIEW_MAP);
+        Bundle args = this.getArguments();
+        if (args.getSerializable(KEY_AUDIOVIEWS) != null)
+            views = (AudioView[]) args.getSerializable(KEY_AUDIOVIEWS);
     }
 
     // The onCreateView method is called when Fragment should create its View object hierarchy,
@@ -80,20 +67,28 @@ public class VisualisationFragment extends Fragment {
         fftResolution = Constants.DEFAULT_FFT_RESOLUTION;
         trunkBuffer = new CircularFifoQueue<>();
 
-        View rootView = inflater.inflate(R.layout.content_visualisation, container, false);
-        SpectrogramView topView = (SpectrogramView) rootView.findViewById(R.id.view_top);
-        WaveformView middleView = (WaveformView) rootView.findViewById(R.id.view_middle);
-        LineSpectrumView bottomView = (LineSpectrumView) rootView.findViewById(R.id.view_bottom);
+        final View rootView = inflater.inflate(R.layout.content_visualisation, container, false);
 
-        if (topView != null) {
-            addView(topView, ViewPosition.TOP);
-        }
-        if (middleView != null) {
-            addView(middleView, ViewPosition.MIDDLE);
-        }
-        if (bottomView != null) {
-            addView(bottomView, ViewPosition.BOTTOM);
-        }
+        // we have to wait for the drawing phase for the actual measurements
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.content_visualisation);
+                int viewHeight = linearLayout.getHeight() / 2;
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, viewHeight);
+
+                for (AudioView view : views) {
+                    // replace identical instances
+                    if (view.getParent() != null)
+                        ((ViewGroup) view.getParent()).removeView(view);
+                    linearLayout.addView(view, layoutParams);
+                }
+
+            }
+        });
 
         return rootView;
     }
@@ -106,13 +101,14 @@ public class VisualisationFragment extends Fragment {
         //frequency.setText("FFT size: " + fftResolution);
     }
 
+
     @Override
     public void onStart() {
         super.onStart();
         // Register for event bus
         EventBus.getDefault().register(this);
 
-        for (AudioView view : views.values()) {
+        for (AudioView view : views) {
             if (view instanceof SpectrogramView) {
                 ((SpectrogramView) view).setFFTWindowSize(fftResolution);
             }
@@ -129,17 +125,10 @@ public class VisualisationFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onPreFilterSampleBlockReceived(PreFilterSampleBlock sampleBlock) {
         if (sampleBlock != null) {
-            setSampleRate(sampleBlock.getSampleRate());
-            setChannels(sampleBlock.getSampleRate());
-
-            WaveformView waveformView = getWaveformView();
-            if (waveformView != null) {
-                waveformView.setSamples(sampleBlock.getSamples());
-            }
-
-            LineSpectrumView lineSpectrumView = getLineSpectrumView();
-            if (lineSpectrumView != null) {
-                lineSpectrumView.setSamples(sampleBlock.getSamples());
+            for (AudioView view : views) {
+                if (view.isPreFilterView()) {
+                    setViewParameters(view, sampleBlock);
+                }
             }
         }
     }
@@ -147,35 +136,60 @@ public class VisualisationFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onPostFilterSampleBlockReceived(PostFilterSampleBlock sampleBlock) {
         if (sampleBlock != null) {
-            setSampleRate(sampleBlock.getSampleRate());
-            setChannels(sampleBlock.getSampleRate());
-            short[] samples = sampleBlock.getSamples();
-            int trunkSize = Util.gcd(samples.length, fftResolution);
-            if (trunkSize == 1) {
-                trunkBuffer.offer(samples);
-            } else {
-                truncate(samples, trunkSize);
-            }
-
-            boolean enoughData = false;
-            int sampleBlockSize = 0;
-            short[] trunk = null;
-            Iterator<short[]> iter = trunkBuffer.iterator();
-            while (iter.hasNext() && !enoughData) {
-                sampleBlockSize += iter.next().length;
-                if (sampleBlockSize >= fftResolution) {
-                    enoughData = true;
+            for (AudioView view : views) {
+                if (!view.isPreFilterView()) {
+                    setViewParameters(view, sampleBlock);
                 }
-            }
-
-            if (enoughData) {
-                sendMagnitudesToSpectrogramView();
             }
         }
     }
 
-    private void sendMagnitudesToSpectrogramView() {
-        SpectrogramView spectrogramView = getSpectrogramView();
+    private void setViewParameters(AudioView view, PCMSampleBlock sampleBlock) {
+        view.setSampleRate(sampleBlock.getSampleRate());
+        view.setChannels(sampleBlock.getSampleRate());
+        if (view instanceof LineSpectrumView) {
+            LineSpectrumView lineSpectrumView = (LineSpectrumView) view;
+            lineSpectrumView.setSamples(sampleBlock.getSamples());
+        }
+        if (view instanceof SpectrogramView) {
+            SpectrogramView spectrogramView = (SpectrogramView) view;
+            initSpectrogramView(sampleBlock, spectrogramView);
+        }
+        if (view instanceof SpectrumView) {
+            SpectrumView spectrumView = (SpectrumView) view;
+            spectrumView.setSamples(sampleBlock.getSamples());
+        }
+        if (view instanceof WaveformView) {
+            WaveformView waveformView = (WaveformView) view;
+            waveformView.setSamples(sampleBlock.getSamples());
+        }
+    }
+
+    private void initSpectrogramView(PCMSampleBlock sampleBlock, SpectrogramView spectrogramView) {
+        short[] samples = sampleBlock.getSamples();
+        int trunkSize = Util.gcd(samples.length, fftResolution);
+        if (trunkSize == 1) {
+            trunkBuffer.offer(samples);
+        } else {
+            truncate(samples, trunkSize);
+        }
+
+        boolean enoughData = false;
+        int sampleBlockSize = 0;
+        Iterator<short[]> iter = trunkBuffer.iterator();
+        while (iter.hasNext() && !enoughData) {
+            sampleBlockSize += iter.next().length;
+            if (sampleBlockSize >= fftResolution) {
+                enoughData = true;
+            }
+        }
+
+        if (enoughData) {
+            sendMagnitudesToSpectrogramView(spectrogramView);
+        }
+    }
+
+    private void sendMagnitudesToSpectrogramView(SpectrogramView spectrogramView) {
         if (spectrogramView != null) {
             int totalTrunkSize = 0;
             short[] trunk = null;
@@ -213,71 +227,7 @@ public class VisualisationFragment extends Fragment {
         return new PowerSpectrum(samples);
     }
 
-    private void addView(@NonNull AudioView view, @NonNull ViewPosition position) {
-        if (views == null) {
-            views = new HashMap<>();
-        }
-        views.put(position, view);
+    public void setViews(AudioView[] views) {
+        this.views = views;
     }
-
-    private void setSampleRate(int sampleRate) {
-        for (AudioView view : views.values()) {
-            view.setSampleRate(sampleRate);
-        }
-    }
-
-    private void setChannels(int channels) {
-        for (AudioView view : views.values()) {
-            view.setChannels(channels);
-        }
-    }
-
-    @Nullable
-    private SpectrogramView getSpectrogramView() {
-        SpectrogramView spectrogramView = null;
-        for (AudioView view : views.values()) {
-            if (view instanceof SpectrogramView) {
-                spectrogramView = (SpectrogramView) view;
-                break;
-            }
-        }
-        return spectrogramView;
-    }
-
-    @Nullable
-    private SpectrumView getSpectrumView() {
-        SpectrumView spectrumView = null;
-        for (AudioView view : views.values()) {
-            if (view instanceof SpectrumView) {
-                spectrumView = (SpectrumView) view;
-                break;
-            }
-        }
-        return spectrumView;
-    }
-
-    @Nullable
-    private WaveformView getWaveformView() {
-        WaveformView waveformView = null;
-        for (AudioView view : views.values()) {
-            if (view instanceof WaveformView) {
-                waveformView = (WaveformView) view;
-                break;
-            }
-        }
-        return waveformView;
-    }
-
-    @Nullable
-    private LineSpectrumView getLineSpectrumView() {
-        LineSpectrumView lineSpectrumView = null;
-        for (AudioView view : views.values()) {
-            if (view instanceof LineSpectrumView) {
-                lineSpectrumView = (LineSpectrumView) view;
-                break;
-            }
-        }
-        return lineSpectrumView;
-    }
-
 }

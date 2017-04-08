@@ -30,13 +30,4 @@
     <string name="band_pass_filter">Band pass filter</string>
     <string name="band_stop_filter">Band stop filter</string>
     <string name="no_filter">No filter</string>
-
-    <!-- Spinner entries -->
-    <string-array name="view_list">
-        <item>Choose a View</item>
-        <item>Line Spectrum</item>
-        <item>Spectrogram </item>
-        <item>Waveform</item>
-    </string-array>
-
 </resources>
