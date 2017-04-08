@@ -3,34 +3,31 @@
     android:id="@+id/visualisation_configuration_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorAccent"
     android:orientation="vertical">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
         android:text="Choose your top visualisation"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/media_list_title"
-        android:textSize="24sp" />
+        android:textSize="20sp" />
 
     <Spinner
         android:id="@+id/top_spinner"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/media_list_artist" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <RadioGroup
         android:id="@+id/radioGroup_top"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/end_text_margin">
 
         <RadioButton
             android:id="@+id/radio_preFilter_top"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:button="@drawable/radio_selector"
             android:checked="true"
             android:text="pre filter" />
 
@@ -38,25 +35,20 @@
             android:id="@+id/radio_postFilter_top"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:button="@drawable/radio_selector"
             android:text="post filter" />
     </RadioGroup>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
         android:text="Choose your bottom visualisation"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/media_list_title"
-        android:textSize="24sp" />
+        android:textSize="20sp" />
 
     <Spinner
         android:id="@+id/bottom_spinner"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/media_list_artist" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <RadioGroup
         android:id="@+id/radioGroup_bottom"
@@ -67,6 +59,7 @@
             android:id="@+id/radio_preFilter_bottom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:button="@drawable/radio_selector"
             android:checked="true"
             android:text="pre filter" />
 
@@ -74,6 +67,7 @@
             android:id="@+id/radio_postFilter_bottom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:button="@drawable/radio_selector"
             android:text="post filter" />
     </RadioGroup>
 

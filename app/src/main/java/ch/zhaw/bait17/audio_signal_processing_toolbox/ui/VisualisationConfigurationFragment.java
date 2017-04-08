@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 
@@ -16,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.CustomSpinnerAdapter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.LineSpectrumView;
@@ -34,16 +34,19 @@ public class VisualisationConfigurationFragment extends Fragment implements
 
     private static Map<String, AudioView> views = new HashMap<>();
 
+    private RadioGroup radioGroupTop;
+    private RadioGroup radioGroupBottom;
     private Spinner spinnerTop;
     private Spinner spinnerBottom;
     private AudioView[] activeViews = {
             new SpectrogramView(ApplicationContext.getAppContext()),
             new SpectrogramView(ApplicationContext.getAppContext())};
+    private int images[] = {R.drawable.spectrum, R.drawable.spectrogram, R.drawable.line_spectrum, R.drawable.waveform};
 
     static {
         views.put("Line Spectrum", new LineSpectrumView(ApplicationContext.getAppContext()));
         views.put("Spectrogram", new SpectrogramView(ApplicationContext.getAppContext()));
-        //views.put("Spectrum", new SpectrumView(ApplicationContext.getAppContext()));
+        views.put("Spectrum", new SpectrumView(ApplicationContext.getAppContext()));
         views.put("Waveform", new WaveformView(ApplicationContext.getAppContext()));
     }
 
@@ -55,24 +58,20 @@ public class VisualisationConfigurationFragment extends Fragment implements
 
         Set<String> keys = views.keySet();
         String[] viewNames = keys.toArray(new String[keys.size()]);
-
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(
-                ApplicationContext.getAppContext(),
-                android.R.layout.simple_spinner_item, viewNames);
-        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        CustomSpinnerAdapter customSpinnerAdapter = new CustomSpinnerAdapter(ApplicationContext.getAppContext(), images, viewNames);
 
         spinnerTop = (Spinner) view.findViewById(R.id.top_spinner);
-        spinnerTop.setAdapter(spinnerArrayAdapter);
+        spinnerTop.setAdapter(customSpinnerAdapter);
         spinnerTop.setOnItemSelectedListener(this);
 
         spinnerBottom = (Spinner) view.findViewById(R.id.bottom_spinner);
-        spinnerBottom.setAdapter(spinnerArrayAdapter);
+        spinnerBottom.setAdapter(customSpinnerAdapter);
         spinnerBottom.setOnItemSelectedListener(this);
 
-        RadioGroup radioGroupTop = (RadioGroup) view.findViewById(R.id.radioGroup_top);
+        radioGroupTop = (RadioGroup) view.findViewById(R.id.radioGroup_top);
         radioGroupTop.setOnCheckedChangeListener(this);
 
-        RadioGroup radioGroupBottom = (RadioGroup) view.findViewById(R.id.radioGroup_bottom);
+        radioGroupBottom = (RadioGroup) view.findViewById(R.id.radioGroup_bottom);
         radioGroupBottom.setOnCheckedChangeListener(this);
 
         return view;
@@ -96,9 +95,13 @@ public class VisualisationConfigurationFragment extends Fragment implements
         audioView = audioView.getInflatedView();
         switch (parent.getId()) {
             case R.id.top_spinner:
+                boolean isPreFilterViewTop = radioGroupTop.getCheckedRadioButtonId() == R.id.radio_preFilter_top;
+                audioView.setPreFilterView(isPreFilterViewTop);
                 activeViews[0] = audioView;
                 break;
             case R.id.bottom_spinner:
+                boolean isPreFilterViewBottom = radioGroupBottom.getCheckedRadioButtonId() == R.id.radio_preFilter_bottom;
+                audioView.setPreFilterView(isPreFilterViewBottom);
                 activeViews[1] = audioView;
                 break;
             default:
