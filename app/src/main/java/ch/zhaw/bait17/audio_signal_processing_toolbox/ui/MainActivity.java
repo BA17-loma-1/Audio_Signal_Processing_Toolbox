@@ -187,6 +187,7 @@ public class MainActivity extends AppCompatActivity implements
                 TAG_VISUALISATION_FRAGMENT);
         ft.replace(R.id.content_frame, new MediaListFragment(), TAG_MEDIA_LIST_FRAGMENT);
         ft.replace(R.id.audio_player_fragment, new AudioPlayerFragment());
+        ft.addToBackStack(null);
         ft.commit();
     }
 

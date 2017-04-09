@@ -10,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +42,8 @@ public class VisualisationConfigurationFragment extends Fragment implements
     private AudioView[] activeViews = {
             new SpectrogramView(ApplicationContext.getAppContext()),
             new SpectrogramView(ApplicationContext.getAppContext())};
-    private int images[] = {R.drawable.spectrum, R.drawable.spectrogram, R.drawable.line_spectrum, R.drawable.waveform};
+    private int images[] = {R.drawable.line_spectrum, R.drawable.spectrogram,
+            R.drawable.spectrum, R.drawable.waveform};
 
     static {
         views.put("Line Spectrum", new LineSpectrumView(ApplicationContext.getAppContext()));
@@ -58,6 +60,7 @@ public class VisualisationConfigurationFragment extends Fragment implements
 
         Set<String> keys = views.keySet();
         String[] viewNames = keys.toArray(new String[keys.size()]);
+        Arrays.sort(viewNames);
         CustomSpinnerAdapter customSpinnerAdapter = new CustomSpinnerAdapter(ApplicationContext.getAppContext(), images, viewNames);
 
         spinnerTop = (Spinner) view.findViewById(R.id.top_spinner);
