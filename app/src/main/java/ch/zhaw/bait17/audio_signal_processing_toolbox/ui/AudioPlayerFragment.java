@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +17,15 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.player.AudioPlayer;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.player.PlaybackListener;
 
 /**
  * @author georgrem, stockan1
  */
+
 public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeListener {
 
+    private static final String TAG = AudioPlayerFragment.class.getSimpleName();
     private static final String BUNDLE_ARGUMENT_FILTER = "filter_view";
     private static final long PROGRESS_UPDATE_INTERNAL = 1000;
     private final Handler seekHandler = new Handler();
@@ -32,7 +36,6 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         }
     };
 
-    private View rootView;
     private List<Track> tracks;
     private Track currentTrack;
     private Track nextTrack;
@@ -66,7 +69,7 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     // either dynamically or via XML layout inflation.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.audio_player, container, false);
+        View rootView = inflater.inflate(R.layout.audio_player, container, false);
         currentTime = (TextView) rootView.findViewById(R.id.currentTime);
         endTime = (TextView) rootView.findViewById(R.id.endTime);
         seekBar = (SeekBar) rootView.findViewById(R.id.seekBar);
@@ -79,6 +82,17 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     public void onStart() {
         super.onStart();
         audioPlayer = AudioPlayer.getInstance();
+        audioPlayer.setOnPlaybackListener(new PlaybackListener() {
+            @Override
+            public void onProgress(int progress) {
+
+            }
+
+            @Override
+            public void onCompletion() {
+                setPlayButtonOnUI();
+            }
+        });
         Bundle args = getArguments();
         if (args != null) {
             Filter filter = args.getParcelable(BUNDLE_ARGUMENT_FILTER);
@@ -130,18 +144,18 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             if (currentTrack == nextTrack) {
                 // No change in track selection.
                 if (audioPlayer.isPlaying()) {
-                    playPauseButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
+                    setPlayButtonOnUI();
                     audioPlayer.pausePlayback();
                 } else if (audioPlayer.isPaused()) {
-                    playPauseButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
+                    setPauseButtonOnUI();
                     audioPlayer.resumePlayback();
                 } else {
-                    playPauseButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
+                    setPauseButtonOnUI();
                     audioPlayer.play();
                 }
             } else {
                 // A new track has been selected.
-                playPauseButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
+                setPlayButtonOnUI();
                 currentTrack = nextTrack;
                 updateTrackPropertiesOnUI();
                 audioPlayer.stopPlayback();
@@ -150,10 +164,10 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
                         // Sleep until the playback thread has stopped.
                         Thread.sleep(50);
                     } catch (InterruptedException e) {
-
+                        Log.e(TAG, "Interrupted while waiting for playback thread to stop.");
                     }
                 }
-                playPauseButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
+                setPauseButtonOnUI();
                 audioPlayer.play();
             }
         }
@@ -172,15 +186,38 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     }
 
     private void updateTrackPropertiesOnUI() {
-        int duration = Integer.parseInt(currentTrack.getDuration());
-        seekBar.setMax(duration);
-        endTime.setText(DateUtils.formatElapsedTime(duration / 1000));
-        updateSeekBarProgress();
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int duration = Integer.parseInt(currentTrack.getDuration());
+                seekBar.setMax(duration);
+                endTime.setText(DateUtils.formatElapsedTime(duration / 1000));
+                updateSeekBarProgress();
+            }
+        });
     }
 
     private void updateSeekBarProgress() {
         //seekBar.setProgress(playerPresenter.getCurrentPosition());
         seekHandler.postDelayed(updateProgressTask, PROGRESS_UPDATE_INTERNAL);
+    }
+
+    private void setPauseButtonOnUI() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                playPauseButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
+            }
+        });
+    }
+
+    private void setPlayButtonOnUI() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                playPauseButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
+            }
+        });
     }
 
 }

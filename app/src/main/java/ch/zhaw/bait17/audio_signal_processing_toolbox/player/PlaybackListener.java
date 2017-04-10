@@ -10,8 +10,4 @@ public interface PlaybackListener {
 
     void onCompletion();
 
-    void onPreFilterAudioDataReceived(short[] samples);
-
-    void onPostFilterAudioDataReceived(short[] samples);
-
 }

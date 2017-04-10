@@ -9,7 +9,6 @@ import android.widget.Toast;
 import org.greenrobot.eventbus.EventBus;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Arrays;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
@@ -28,20 +27,20 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
  *
  * @author georgrem, stockan1
  */
-public class AudioPlayer {
+public final class AudioPlayer {
 
     private static final String TAG = AudioPlayer.class.getSimpleName();
     private static final AudioPlayer INSTANCE = new AudioPlayer();
     private static final int BUFFER_LENGTH_PER_CHANNEL_IN_SECONDS = 3;
 
     private static short[] decodedSamples;
-    private static short[] frames;
-    private static short[] filteredSamples;
-    private static MP3Decoder mp3Decoder;
-    private static WaveDecoder waveDecoder;
+    private static float[] filteredSamples;
+    private static AudioDecoder mp3Decoder;
+    private static AudioDecoder waveDecoder;
     private static AudioTrack audioTrack;
     private static Filter filter;
     private static EventBus eventBus;
+    private PlaybackListener listener;
     private Track currentTrack;
     private volatile boolean keepPlaying = false;
     private volatile boolean paused = false;
@@ -58,6 +57,7 @@ public class AudioPlayer {
 
     /**
      * Returns the singleton instance of the PlayerPresenter.
+     *
      * @return
      */
     public static AudioPlayer getInstance() {
@@ -67,7 +67,17 @@ public class AudioPlayer {
     }
 
     /**
+     * Sets the {@code PlaybackListener}.
+     *
+     * @param listener
+     */
+    public void setOnPlaybackListener(PlaybackListener listener) {
+        this.listener = listener;
+    }
+
+    /**
      * Selects the {@code Track} to be played.
+     *
      * @param track
      */
     public void selectTrack(@NonNull Track track) {
@@ -138,6 +148,7 @@ public class AudioPlayer {
 
     /**
      * Positions the playback head to the new position.
+     *
      * @param msec
      */
     public void seekToPosition(int msec) {
@@ -146,6 +157,7 @@ public class AudioPlayer {
 
     /**
      * Returns true if the AudioTrack play state is PlAYSTATE_PLAYING.
+     *
      * @return
      */
     public boolean isPlaying() {
@@ -160,6 +172,7 @@ public class AudioPlayer {
 
     /**
      * Returns true if the AudioTrack play state is PlAYSTATE_PLAYING.
+     *
      * @return
      */
     public boolean isStopped() {
@@ -174,6 +187,7 @@ public class AudioPlayer {
 
     /**
      * Returns true if the AudioTrack play state is PLAYSTATE_PAUSED.
+     *
      * @return
      */
     public boolean isPaused() {
@@ -188,6 +202,7 @@ public class AudioPlayer {
 
     /**
      * Returns the sample rate of the currently playing track.
+     *
      * @return
      */
     public int getSampleRate() {
@@ -196,6 +211,7 @@ public class AudioPlayer {
 
     /**
      * Returns the number of channels of the currently playing track.
+     *
      * @return
      */
     public int getChannels() {
@@ -204,6 +220,7 @@ public class AudioPlayer {
 
     /**
      * Returns the current head position of the playback.
+     *
      * @return
      */
     public int getCurrentPosition() {
@@ -212,6 +229,7 @@ public class AudioPlayer {
 
     /**
      * Sets the filter.
+     *
      * @param filter
      */
     public void setFilter(Filter filter) {
@@ -220,6 +238,7 @@ public class AudioPlayer {
 
     /**
      * Initialises the decoder.
+     *
      * @param uri
      */
     private void initialiseDecoder(@NonNull final String uri) {
@@ -265,6 +284,7 @@ public class AudioPlayer {
                 public void run() {
                     Log.d(TAG, "Playback thread '" + Thread.currentThread().getName() + "' start");
                     Log.d(TAG, "Playback start");
+                    long currentFrameTime = 0;
                     while (keepPlaying) {
                         if (paused) {
                             try {
@@ -275,23 +295,33 @@ public class AudioPlayer {
                         } else {
                             decodedSamples = mp3Decoder.getNextSampleBlock();
                             if (decodedSamples != null) {
-                                frames = Arrays.copyOf(decodedSamples, decodedSamples.length);
-                                filteredSamples = applyFilter(frames);
-                                if (audioTrack.write(filteredSamples, 0, filteredSamples.length)
-                                        < filteredSamples.length) {
+                                currentFrameTime += decodedSamples.length;
+                                filteredSamples = filter(PCMUtil.short2FloatArray(decodedSamples));
+                                if (audioTrack.write(PCMUtil.float2ShortArray(filteredSamples),
+                                        0, filteredSamples.length) < filteredSamples.length) {
                                     Log.d(TAG, "Dropped samples.");
                                 }
                                 // Broadcast pre filter sample block using event bus
-                                eventBus.post(new PreFilterSampleBlock(frames, sampleRate));
+                                eventBus.post(new PreFilterSampleBlock(decodedSamples, sampleRate));
                                 // Broadcast post filter sample block using event bus
-                                eventBus.post(new PostFilterSampleBlock(filteredSamples, sampleRate));
+                                eventBus.post(new PostFilterSampleBlock(
+                                        PCMUtil.float2ShortArray(filteredSamples), sampleRate));
                             } else {
-                                // No more frames to decode, we reached the end of the InputStream. --> quit
+                                // No more frames to decode, we reached the end of the InputStream.
+                                // --> quit
                                 keepPlaying = false;
                             }
                         }
                     }
                     Log.d(TAG, "Finished decoding");
+                    // Wait until all frames are written
+                    while (currentFrameTime < audioTrack.getPlaybackHeadPosition()) {
+                        try {
+                            Thread.sleep(50);
+                        } catch (InterruptedException e) {
+                            Log.e(TAG, "Interrupted while waiting that playback finishes.");
+                        }
+                    }
                     audioTrack.pause();
                     audioTrack.stop();
                     audioTrack.flush();
@@ -299,16 +329,23 @@ public class AudioPlayer {
                     Log.d(TAG, "AudioTrack pause/stop/flush/release.");
                     Log.d(TAG, "Playback stop");
                     Log.d(TAG, "Playback thread '" + Thread.currentThread().getName() + "' stop");
+                    listener.onCompletion();
                 }
             }).start();
         }
     }
 
-    private short[] applyFilter(short[] input) {
+    /**
+     * Apply the filter to the supplied audio samples block.
+     *
+     * @param input
+     * @return
+     */
+    private float[] filter(float[] input) {
         if (filter == null) {
             return input;
         }
-        return PCMUtil.float2ShortArray(filter.apply(PCMUtil.short2FloatArray(input)));
+        return filter.apply(input);
     }
 
     /**
@@ -329,6 +366,7 @@ public class AudioPlayer {
 
     /**
      * Computes and returns the optimal buffers size for the {@code AudioTrack} object.
+     *
      * @return
      */
     private int getOptimalBufferSize() {
@@ -337,6 +375,7 @@ public class AudioPlayer {
 
     /**
      * Returns true if the AudioTrack object is initialised.
+     *
      * @return
      */
     private boolean isAudioTrackInitialised() {
