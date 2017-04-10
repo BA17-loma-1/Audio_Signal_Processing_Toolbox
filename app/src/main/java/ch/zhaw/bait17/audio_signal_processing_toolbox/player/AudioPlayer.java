@@ -41,12 +41,17 @@ public final class AudioPlayer {
     private static EventBus eventBus;
     private PlaybackListener listener;
     private Track currentTrack;
+    private volatile PlayState playState = PlayState.STOP;
     private volatile boolean keepPlaying = false;
     private volatile boolean paused = false;
     private int sampleRate;
     private int channels;
     private boolean sampleRateHasChanged = false;
     private boolean channelsHasChanged = false;
+
+    private enum PlayState {
+        PLAY,STOP,PAUSE;
+    }
 
     private AudioPlayer() {
         sampleRate = Constants.DEFAULT_SAMPLE_RATE;
@@ -131,12 +136,8 @@ public final class AudioPlayer {
      * Stops the audio playback.
      */
     public void stopPlayback() {
-        if (isAudioTrackInitialised()) {
-            if (isPlaying() || isPaused()) {
-                Log.d(TAG, "Stop playback.");
-                keepPlaying = false;
-            }
-        }
+        Log.d(TAG, "Stop playback.");
+        keepPlaying = false;
     }
 
     /**
@@ -149,7 +150,8 @@ public final class AudioPlayer {
     }
 
     /**
-     * Returns true if the AudioTrack play state is PlAYSTATE_PLAYING.
+     * Returns true if the player is running.
+     * Do not use {@code audioTrack.getPlayState()}.
      *
      * @return
      */
@@ -160,11 +162,12 @@ public final class AudioPlayer {
             Log.d(TAG, String.format("isPlaying ? --> %s",
                     audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING));
         }
-        return audioTrack != null && audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING;
+        return playState == PlayState.PLAY;
     }
 
     /**
-     * Returns true if the AudioTrack play state is PlAYSTATE_PLAYING.
+     * Returns true if the player is stopped.
+     * Do not use {@code audioTrack.getPlayState()}.
      *
      * @return
      */
@@ -175,13 +178,12 @@ public final class AudioPlayer {
             Log.d(TAG, String.format("isStopped ? --> %s",
                     audioTrack.getPlayState() == AudioTrack.PLAYSTATE_STOPPED));
         }
-        return (audioTrack != null && audioTrack.getPlayState() == AudioTrack.PLAYSTATE_STOPPED)
-                || audioTrack == null
-                || (audioTrack != null && audioTrack.getState() == AudioTrack.STATE_UNINITIALIZED);
+        return playState == PlayState.STOP;
     }
 
     /**
-     * Returns true if the AudioTrack play state is PLAYSTATE_PAUSED.
+     * Returns true if the player is paused.
+     * Do not use {@code audioTrack.getPlayState()}.
      *
      * @return
      */
@@ -192,7 +194,7 @@ public final class AudioPlayer {
             Log.d(TAG, String.format("isPaused ? --> %s",
                     audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED));
         }
-        return audioTrack != null && audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED;
+        return playState == PlayState.PAUSE;
     }
 
     /**
@@ -283,18 +285,19 @@ public final class AudioPlayer {
                 public void run() {
                     Log.d(TAG, "Playback thread '" + Thread.currentThread().getName() + "' start");
                     Log.d(TAG, "Playback start");
-                    long currentFrameTime = 0;
+                    listener.onStartPlayback();
                     while (keepPlaying) {
                         if (paused) {
+                            playState = PlayState.PAUSE;
                             try {
                                 Thread.sleep(10);
                             } catch (InterruptedException e) {
                                 Log.e(TAG, "Interrupted while paused.");
                             }
                         } else {
+                            playState = PlayState.PLAY;
                             decodedSamples = decoder.getNextSampleBlock();
                             if (decodedSamples != null) {
-                                currentFrameTime += (decodedSamples.length)/2;
                                 filteredSamples = filter(PCMUtil.short2FloatArray(decodedSamples));
                                 if (audioTrack.write(PCMUtil.float2ShortArray(filteredSamples),
                                         0, filteredSamples.length) < filteredSamples.length) {
@@ -314,24 +317,24 @@ public final class AudioPlayer {
                     }
                     Log.d(TAG, "Finished decoding");
                     // Wait until all frames are written
-                    while (audioTrack.getPlaybackHeadPosition() < currentFrameTime) {
-                        try {
-                            Thread.sleep(50);
-                        } catch (InterruptedException e) {
-                            Log.e(TAG, "Interrupted while waiting that playback finishes.");
-                        }
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        Log.e(TAG, "Interrupted while waiting that playback finishes.");
                     }
+                    listener.onCompletion();
                     audioTrack.pause();
                     audioTrack.stop();
                     audioTrack.flush();
+                    playState = PlayState.STOP;
                     Log.d(TAG, "AudioTrack pause/stop/flush.");
                     Log.d(TAG, "Playback stop");
                     Log.d(TAG, "Playback thread '" + Thread.currentThread().getName() + "' stop");
-                    listener.onCompletion();
                 }
             }).start();
         } else {
             // Some error occurred, AudioPlayer is unable to play source.
+            playState = PlayState.STOP;
             listener.onCompletion();
         }
     }

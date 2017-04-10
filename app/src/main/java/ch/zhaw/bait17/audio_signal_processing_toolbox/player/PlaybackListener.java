@@ -8,6 +8,8 @@ public interface PlaybackListener {
 
     void onProgress(int progress);
 
+    void onStartPlayback();
+
     void onCompletion();
 
 }

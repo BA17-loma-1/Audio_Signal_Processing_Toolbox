@@ -13,9 +13,7 @@ import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.List;
-
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
@@ -89,7 +87,12 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         audioPlayer.setOnPlaybackListener(new PlaybackListener() {
             @Override
             public void onProgress(int progress) {
+                // Use to update the SeekBar position.
+            }
 
+            @Override
+            public void onStartPlayback() {
+                setPauseButtonOnUI();
             }
 
             @Override
@@ -148,20 +151,20 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             if (currentTrack == nextTrack) {
                 // No change in track selection.
                 if (audioPlayer.isPlaying()) {
+                    // Pause
                     setPlayButtonOnUI();
                     audioPlayer.pausePlayback();
                 } else if (audioPlayer.isPaused()) {
+                    // Resume playback
                     setPauseButtonOnUI();
                     audioPlayer.resumePlayback();
                 } else {
-                    setPauseButtonOnUI();
+                    // Start playback
                     audioPlayer.play();
                 }
             } else {
                 // A new track has been selected.
-                setPlayButtonOnUI();
                 currentTrack = nextTrack;
-                updateTrackPropertiesOnUI();
                 audioPlayer.stopPlayback();
                 while (!audioPlayer.isStopped()) {
                     try {
@@ -171,10 +174,11 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
                         Log.e(TAG, "Interrupted while waiting for playback thread to stop.");
                     }
                 }
-                setPauseButtonOnUI();
+                updateTrackPropertiesOnUI();
                 audioPlayer.play();
             }
         } else {
+            setPlayButtonOnUI();
             Toast.makeText(ApplicationContext.getAppContext(), "No track selected.",
                     Toast.LENGTH_SHORT).show();
         }
