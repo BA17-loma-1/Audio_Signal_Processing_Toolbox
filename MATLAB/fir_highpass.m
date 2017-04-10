@@ -22,8 +22,8 @@ fprintf('DC gain\t\t\t\t\t\t\t: %d\n', sum(b_fir))
 
 % Write filter spec and coefficients to text file
 fd = fopen('output/b_fir_highpass.txt', 'w+');
-fprintf(fd, 'highpass,fstop1 %5.3d,Astop1 %3.0d,fpass1 %5.3d,Apass1 %1.3f\n', ...
-    fstop, Astop, fpass, Apass);
+fprintf(fd, 'highpass,order %d,fstop1 %5.3d,Astop1 %3.0d,fpass1 %5.3d,Apass1 %1.3f\n', ...
+    length(b_fir)-1, fstop, Astop, fpass, Apass);
 fclose(fd);
 dlmwrite('output/b_fir_highpass.txt', b_fir, '-append', 'delimiter', ',', ...
     'precision', '%1.12f');
