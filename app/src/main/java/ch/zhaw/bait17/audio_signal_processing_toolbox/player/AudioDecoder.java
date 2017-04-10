@@ -41,4 +41,11 @@ public interface AudioDecoder {
      */
     void setSource(@NonNull InputStream is);
 
+    /**
+     * Returns true if the decoder is ready.
+     *
+     * @return
+     */
+    boolean isInitialised();
+
 }

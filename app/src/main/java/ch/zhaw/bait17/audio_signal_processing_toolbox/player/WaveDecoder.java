@@ -124,6 +124,11 @@ public class WaveDecoder implements AudioDecoder {
         return 0;
     }
 
+    @Override
+    public boolean isInitialised() {
+        return false;
+    }
+
     private static void readHeader() {
 
     }

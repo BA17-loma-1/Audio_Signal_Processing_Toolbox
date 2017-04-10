@@ -98,6 +98,12 @@ public final class MP3Decoder implements AudioDecoder {
         return channels;
     }
 
+    @Override
+    public boolean isInitialised() {
+        return is != null && decoder != null && bitstream != null
+                && sampleRate != 0 && channels != 0;
+    }
+
     private void init() {
         extractFrameHeaderInfo(bitstream);
         shortSamplesRead = 0;

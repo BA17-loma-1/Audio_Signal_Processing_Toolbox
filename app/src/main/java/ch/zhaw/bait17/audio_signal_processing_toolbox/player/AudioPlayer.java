@@ -35,8 +35,7 @@ public final class AudioPlayer {
 
     private static short[] decodedSamples;
     private static float[] filteredSamples;
-    private static AudioDecoder mp3Decoder;
-    private static AudioDecoder waveDecoder;
+    private static AudioDecoder decoder;
     private static AudioTrack audioTrack;
     private static Filter filter;
     private static EventBus eventBus;
@@ -61,8 +60,6 @@ public final class AudioPlayer {
      * @return
      */
     public static AudioPlayer getInstance() {
-        mp3Decoder = MP3Decoder.getInstance();
-        waveDecoder = WaveDecoder.getInstance();
         return INSTANCE;
     }
 
@@ -89,20 +86,16 @@ public final class AudioPlayer {
      * Works only if a {@code Track} has been selected {@link #selectTrack(Track)}.
      */
     public void play() {
-        if (!isPaused() && !isPlaying()) {
-            if (currentTrack != null) {
-                initialiseDecoder(currentTrack.getUri());
-                if (!isAudioTrackInitialised() || sampleRateHasChanged || channelsHasChanged) {
-                    // Change AudioTrack buffer size requires API Level 24.
-                    // audioTrack.setBufferSizeInFrames(getOptimalBufferSize());
-                    audioTrack = null;
-                    createAudioTrack();
-                }
-                startPlayback();
-            } else {
-                Toast.makeText(ApplicationContext.getAppContext(), "No track selected.",
-                        Toast.LENGTH_SHORT).show();
+        if (!isPaused() && !isPlaying() && currentTrack != null) {
+            initialiseDecoder(currentTrack.getUri());
+            if (isDecoderInitialised()
+                    && (!isAudioTrackInitialised() || sampleRateHasChanged || channelsHasChanged)) {
+                // Change AudioTrack buffer size requires API Level 24.
+                // audioTrack.setBufferSizeInFrames(getOptimalBufferSize());
+                audioTrack = null;
+                createAudioTrack();
             }
+            startPlayback();
         }
     }
 
@@ -182,7 +175,9 @@ public final class AudioPlayer {
             Log.d(TAG, String.format("isStopped ? --> %s",
                     audioTrack.getPlayState() == AudioTrack.PLAYSTATE_STOPPED));
         }
-        return audioTrack != null && audioTrack.getPlayState() == AudioTrack.PLAYSTATE_STOPPED;
+        return (audioTrack != null && audioTrack.getPlayState() == AudioTrack.PLAYSTATE_STOPPED)
+                || audioTrack == null
+                || (audioTrack != null && audioTrack.getState() == AudioTrack.STATE_UNINITIALIZED);
     }
 
     /**
@@ -245,28 +240,32 @@ public final class AudioPlayer {
         try {
             InputStream is = Util.getInputStreamFromURI(uri);
             if (uri.endsWith(".mp3")) {
-                mp3Decoder.setSource(is);
-                int newSampleRate = mp3Decoder.getSampleRate();
+                decoder = MP3Decoder.getInstance();
+            } else if (uri.endsWith(".wav")) {
+                decoder = WaveDecoder.getInstance();
+            }
+            if (decoder != null) {
+                decoder.setSource(is);
+                int newSampleRate = decoder.getSampleRate();
                 if (newSampleRate != sampleRate) {
                     sampleRateHasChanged = true;
                     sampleRate = newSampleRate;
                 } else {
                     sampleRateHasChanged = false;
                 }
-                int newChannels = mp3Decoder.getChannels();
+                int newChannels = decoder.getChannels();
                 if (newChannels != channels) {
                     channelsHasChanged = true;
                     channels = newChannels;
                 } else {
                     channelsHasChanged = false;
                 }
-            } else if (uri.endsWith(".wav")) {
-                waveDecoder.setSource(is);
             } else {
                 throw new DecoderException("Unsupported audio format.");
             }
         } catch (FileNotFoundException | DecoderException e) {
-            Toast.makeText(ApplicationContext.getAppContext(), "", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ApplicationContext.getAppContext(), e.getMessage(),
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -275,7 +274,7 @@ public final class AudioPlayer {
      */
     private void startPlayback() {
         // Sometimes AudioTrack initialisation fails - we need to check if AudioTrack is ready.
-        if (isAudioTrackInitialised()) {
+        if (isAudioTrackInitialised() && isDecoderInitialised()) {
             keepPlaying = true;
             paused = false;
             audioTrack.play();
@@ -293,9 +292,9 @@ public final class AudioPlayer {
                                 Log.e(TAG, "Interrupted while paused.");
                             }
                         } else {
-                            decodedSamples = mp3Decoder.getNextSampleBlock();
+                            decodedSamples = decoder.getNextSampleBlock();
                             if (decodedSamples != null) {
-                                currentFrameTime += decodedSamples.length;
+                                currentFrameTime += (decodedSamples.length)/2;
                                 filteredSamples = filter(PCMUtil.short2FloatArray(decodedSamples));
                                 if (audioTrack.write(PCMUtil.float2ShortArray(filteredSamples),
                                         0, filteredSamples.length) < filteredSamples.length) {
@@ -315,7 +314,7 @@ public final class AudioPlayer {
                     }
                     Log.d(TAG, "Finished decoding");
                     // Wait until all frames are written
-                    while (currentFrameTime < audioTrack.getPlaybackHeadPosition()) {
+                    while (audioTrack.getPlaybackHeadPosition() < currentFrameTime) {
                         try {
                             Thread.sleep(50);
                         } catch (InterruptedException e) {
@@ -325,13 +324,15 @@ public final class AudioPlayer {
                     audioTrack.pause();
                     audioTrack.stop();
                     audioTrack.flush();
-                    audioTrack.release();
-                    Log.d(TAG, "AudioTrack pause/stop/flush/release.");
+                    Log.d(TAG, "AudioTrack pause/stop/flush.");
                     Log.d(TAG, "Playback stop");
                     Log.d(TAG, "Playback thread '" + Thread.currentThread().getName() + "' stop");
                     listener.onCompletion();
                 }
             }).start();
+        } else {
+            // Some error occurred, AudioPlayer is unable to play source.
+            listener.onCompletion();
         }
     }
 
@@ -362,6 +363,9 @@ public final class AudioPlayer {
         audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate,
                 channels == 1 ? AudioFormat.CHANNEL_OUT_MONO : AudioFormat.CHANNEL_OUT_STEREO,
                 AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
+        if (audioTrack.getState() == AudioTrack.STATE_INITIALIZED) {
+            Log.d(TAG, "AudioTrack created and initialised.");
+        }
     }
 
     /**
@@ -374,12 +378,21 @@ public final class AudioPlayer {
     }
 
     /**
-     * Returns true if the AudioTrack object is initialised.
+     * Returns true if the AudioTrack object is ready.
      *
      * @return
      */
     private boolean isAudioTrackInitialised() {
         return audioTrack != null && audioTrack.getState() == AudioTrack.STATE_INITIALIZED;
+    }
+
+    /**
+     * Returns true if the {@code AudioDecoder} is ready.
+     *
+     * @return
+     */
+    private boolean isDecoderInitialised() {
+        return decoder != null && decoder.isInitialised();
     }
 
     /**

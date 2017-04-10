@@ -12,7 +12,11 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.util.List;
+
+import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
@@ -170,6 +174,9 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
                 setPauseButtonOnUI();
                 audioPlayer.play();
             }
+        } else {
+            Toast.makeText(ApplicationContext.getAppContext(), "No track selected.",
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
