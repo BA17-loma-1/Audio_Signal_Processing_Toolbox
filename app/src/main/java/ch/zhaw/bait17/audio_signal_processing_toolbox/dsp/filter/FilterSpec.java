@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 public class FilterSpec implements Parcelable {
 
     private FilterType filterType;
+    private int order;
     private float fpass1;
     private float fpass2;
     private float Apass1;
@@ -23,6 +24,7 @@ public class FilterSpec implements Parcelable {
 
     private FilterSpec(Builder builder) {
         filterType = builder.filterType;
+        order = builder.order;
         fpass1 = builder.fpass1;
         fpass2 = builder.fpass2;
         Apass1 = builder.Apass1;
@@ -79,20 +81,20 @@ public class FilterSpec implements Parcelable {
         String output = "";
         switch (filterType) {
             case LOWPASS:
-                output = String.format("fpass %5.0f Hz, Apass %3.0f dB, fstop %5.0f Hz, Astop %3.0f dB",
-                        fpass1, Apass1, fstop1, Astop1);
+                output = String.format("FIR, order %d, fpass %5.0f Hz, Apass %.2f dB, fstop %5.0f Hz, Astop %3.0f dB",
+                        order, fpass1, Apass1, fstop1, Astop1);
                 break;
             case HIGHPASS:
-                output = String.format("fpass %5.0f Hz, Apass %3.0f dB, fstop %5.0f Hz, Astop %3.0f dB",
-                        fstop1, Astop1, fpass1, Apass1);
+                output = String.format("FIR, order %d, fstop %5.0f Hz, Astop %3.0f dB, fpass %5.0f Hz, Apass %.2f dB",
+                        order, fstop1, Astop1, fpass1, Apass1);
                 break;
             case BANDPASS:
-                output = String.format("fstop1 %5.0f Hz, Astop1 %3.0f dB, fpass1 %5.0f Hz, Apass %.2f dB, fpass2 %5.0f Hz, fstop2 %5.0f Hz, Astop2 %3.0f dB",
-                        fstop1, Astop1, fpass1, Apass1, fpass2, fstop2, Astop2);
+                output = String.format("FIR, order %d, fstop1 %5.0f Hz, Astop1 %3.0f dB, fpass1 %5.0f Hz, Apass %.2f dB, fpass2 %5.0f Hz, fstop2 %5.0f Hz, Astop2 %3.0f dB",
+                        order, fstop1, Astop1, fpass1, Apass1, fpass2, fstop2, Astop2);
                 break;
             case BANDSTOP:
-                output = String.format("fpass1 %5.0f Hz, Apass1 %.2f dB, fstop1 %5.0f Hz, Astop %3.0f dB, fstop2 %5.0f Hz, fpass2 %5.0f Hz, Apass2 %.2f dB",
-                        fpass1, Apass1, fstop1, Astop1, fstop2, fpass2, Apass2);
+                output = String.format("FIR, order %d, fpass1 %5.0f Hz, Apass1 %.2f dB, fstop1 %5.0f Hz, Astop %3.0f dB, fstop2 %5.0f Hz, fpass2 %5.0f Hz, Apass2 %.2f dB",
+                        order, fpass1, Apass1, fstop1, Astop1, fstop2, fpass2, Apass2);
                 break;
             default:
                 break;
@@ -114,8 +116,9 @@ public class FilterSpec implements Parcelable {
     public static class Builder {
         // Required parameters
         private final FilterType filterType;
+        private int order;
 
-        // Optional (not really ...)
+        // Optional parameters (not really ...)
         private float fpass1;
         private float fpass2;
         private float Apass1;
@@ -127,14 +130,17 @@ public class FilterSpec implements Parcelable {
 
         /**
          * Constructs a builder objects with the required parameters.
+         *
          * @param filterType the filter type
          */
-        public Builder(@NonNull FilterType filterType) {
+        public Builder(@NonNull FilterType filterType, int order) {
             this.filterType = filterType;
+            this.order = order;
         }
 
         /**
          * Frequency at the start of the pass band specified in Hertz [Hz].
+         *
          * @param fpass1
          * @return
          */
@@ -145,6 +151,7 @@ public class FilterSpec implements Parcelable {
 
         /**
          * Frequency at the end of the pass band specified in Hertz [Hz].
+         *
          * @param fpass2
          * @return
          */
@@ -155,6 +162,7 @@ public class FilterSpec implements Parcelable {
 
         /**
          * Amount of ripple allowed in the pass band specified in decibels [dB].
+         *
          * @param Apass1
          * @return
          */
@@ -165,6 +173,7 @@ public class FilterSpec implements Parcelable {
 
         /**
          * Amount of ripple allowed in the pass band specified in decibels [dB].
+         *
          * @param Apass2
          * @return
          */
@@ -175,6 +184,7 @@ public class FilterSpec implements Parcelable {
 
         /**
          * Frequency at the edge of the start of the first stop band specified in Hertz [Hz].
+         *
          * @param fstop1
          * @return
          */
@@ -185,6 +195,7 @@ public class FilterSpec implements Parcelable {
 
         /**
          * Frequency at the edge of the start of the second stop band specified in Hertz [Hz].
+         *
          * @param fstop2
          * @return
          */
@@ -195,6 +206,7 @@ public class FilterSpec implements Parcelable {
 
         /**
          * Attenuation in the first stop band specified in decibels [dB].
+         *
          * @param Astop1
          * @return
          */
@@ -205,6 +217,7 @@ public class FilterSpec implements Parcelable {
 
         /**
          * Attenuation in the second stop band specified in decibels [dB].
+         *
          * @param Astop2
          * @return
          */
@@ -219,6 +232,7 @@ public class FilterSpec implements Parcelable {
          *     Optional parameters for the FilterSpec object must be set via the builder's
          *     setter methods prior to call the build method.
          * </p>
+         *
          * @return
          */
         public FilterSpec build() {
@@ -235,6 +249,7 @@ public class FilterSpec implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(this.filterType == null ? -1 : this.filterType.ordinal());
+        dest.writeInt(this.order);
         dest.writeFloat(this.fpass1);
         dest.writeFloat(this.fpass2);
         dest.writeFloat(this.Apass1);
@@ -248,6 +263,7 @@ public class FilterSpec implements Parcelable {
     protected FilterSpec(Parcel in) {
         int tmpFilterType = in.readInt();
         this.filterType = tmpFilterType == -1 ? null : FilterType.values()[tmpFilterType];
+        this.order = in.readInt();
         this.fpass1 = in.readFloat();
         this.fpass2 = in.readFloat();
         this.Apass1 = in.readFloat();

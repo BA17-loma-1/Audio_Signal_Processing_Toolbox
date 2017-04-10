@@ -16,8 +16,6 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FilterType;
 
 public class FilterFragment extends Fragment {
 
-
-
     /*
         In certain cases, your fragment may want to accept certain arguments.
         A common pattern is to create a static newInstance method for creating a Fragment with arguments.

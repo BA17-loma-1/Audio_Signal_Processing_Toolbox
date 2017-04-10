@@ -1,5 +1,6 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
@@ -47,20 +48,22 @@ public class FilterUtil {
 
     private static float[] getParsedCoefficients(String[] coeffs) {
         List<Float> coefficients = new ArrayList<>();
-            for (String s : coeffs) {
-                try {
-                    coefficients.add(Float.parseFloat(s));
-                } catch(NumberFormatException | NullPointerException e) {
-                    Log.e(TAG, "Parsing of coefficients failed.\n" + e.getMessage());
-                }
+        for (String s : coeffs) {
+            try {
+                coefficients.add(Float.parseFloat(s));
+            } catch(NumberFormatException | NullPointerException e) {
+                Log.e(TAG, "Parsing of coefficients failed.\n" + e.getMessage());
             }
+        }
         return Floats.toArray(coefficients);
     }
 
     @Nullable
-    private static FilterSpec getFilterSpec(String[] specTokens) {
+    private static FilterSpec getFilterSpec(@NonNull String[] specTokens) {
+        final String orderToken = "order";
         FilterSpec filterSpec = null;
         FilterType filterType = null;
+        int order = 0;
         Map<String, Float> specMap = new HashMap<>();
         for (String s : specTokens) {
             try {
@@ -72,6 +75,8 @@ public class FilterUtil {
                             break;
                         }
                     }
+                } else if (item[0].equals(orderToken)) {
+                    order = Integer.parseInt(item[1].trim());
                 } else if (item.length == 2) {
                     specMap.put(item[0].trim(), Float.parseFloat(item[1].trim()));
                 }
@@ -83,7 +88,7 @@ public class FilterUtil {
         if (filterType == null) {
             Log.e(TAG, "Unknown filter type.");
         } else {
-            FilterSpec.Builder builder = new FilterSpec.Builder(filterType);
+            FilterSpec.Builder builder = new FilterSpec.Builder(filterType, order);
             for (Map.Entry<String, Float> entry : specMap.entrySet()) {
                 switch (entry.getKey()) {
                     case Constants.FREQUENCY_PASS_1:
