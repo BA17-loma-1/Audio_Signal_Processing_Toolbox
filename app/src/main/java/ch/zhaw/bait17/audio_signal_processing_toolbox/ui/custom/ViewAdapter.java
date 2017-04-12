@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
@@ -16,12 +15,10 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 
 public class ViewAdapter extends BaseAdapter {
 
-    private int images[];
     private String[] viewNames;
     private LayoutInflater inflater;
 
-    public ViewAdapter(int[] images, String[] viewNames) {
-        this.images = images;
+    public ViewAdapter(String[] viewNames) {
         this.viewNames = viewNames;
         inflater = LayoutInflater.from(ApplicationContext.getAppContext());
     }
@@ -44,9 +41,7 @@ public class ViewAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         view = inflater.inflate(R.layout.view_spinner_items, null);
-        ImageView icon = (ImageView) view.findViewById(R.id.imageView);
-        TextView names = (TextView) view.findViewById(R.id.textView);
-        icon.setImageResource(images[position]);
+        TextView names = (TextView) view.findViewById(R.id.textView_name);
         names.setText(viewNames[position]);
         return view;
     }

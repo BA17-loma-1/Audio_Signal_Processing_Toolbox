@@ -11,6 +11,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.List;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
@@ -23,9 +24,9 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
 
 /**
  * <p>
- *    A versatile yet easy to use player facade.
- *    It hides the complexity of decoding the audio source, filtering and feeding the PCM samples
- *    to the audio sink and controlling the audio playback.
+ * A versatile yet easy to use player facade.
+ * It hides the complexity of decoding the audio source, filtering and feeding the PCM samples
+ * to the audio sink and controlling the audio playback.
  * </p>
  *
  * @author georgrem, stockan1
@@ -40,7 +41,7 @@ public final class AudioPlayer {
     private static float[] filteredSamples;
     private static AudioDecoder decoder;
     private static AudioTrack audioTrack;
-    private static Filter[] filters;
+    private static List<Filter> filters;
     private static EventBus eventBus;
     private PlaybackListener listener;
     private Track currentTrack;
@@ -53,7 +54,7 @@ public final class AudioPlayer {
     private boolean channelsHasChanged = false;
 
     private enum PlayState {
-        PLAY,STOP,PAUSE;
+        PLAY, STOP, PAUSE;
     }
 
     private AudioPlayer() {
@@ -232,7 +233,7 @@ public final class AudioPlayer {
      *
      * @param filters
      */
-    public void setFilter(Filter[] filters) {
+    public void setFilter(List<Filter> filters) {
         this.filters = filters;
     }
 
@@ -354,10 +355,8 @@ public final class AudioPlayer {
         }
         float[] output = input;
         for (Filter filter : filters) {
-            if(filter != null) {
-                output = filter.apply(input);
-                input = output;
-            }
+            output = filter.apply(input);
+            input = output;
         }
         return output;
     }

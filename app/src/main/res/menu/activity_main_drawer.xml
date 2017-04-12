@@ -11,9 +11,9 @@
             android:icon="@drawable/filter"
             android:title="Visualisation" />
         <item
-            android:id="@+id/nav_visualisation_configuration"
-            android:icon="@drawable/ic_build_black_18dp"
-            android:title="Visualisation Configuration" />
+            android:id="@+id/nav_view"
+            android:icon="@drawable/ic_view_black_18dp"
+            android:title="View" />
         <item
             android:id="@+id/nav_filter"
             android:icon="@android:drawable/star_big_on"

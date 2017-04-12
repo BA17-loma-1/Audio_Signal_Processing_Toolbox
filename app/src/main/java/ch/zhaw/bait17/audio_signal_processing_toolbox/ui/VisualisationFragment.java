@@ -14,8 +14,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
@@ -38,15 +40,15 @@ public class VisualisationFragment extends Fragment {
 
     private int fftResolution;
     private CircularFifoQueue<short[]> trunkBuffer;
-    private AudioView[] views;
+    private List<AudioView> views;
 
 
     // Creates a new fragment given a array
     // VisualisationFragment.newInstance(views);
-    public static VisualisationFragment newInstance(AudioView[] views) {
+    public static VisualisationFragment newInstance(List<AudioView> views) {
         VisualisationFragment fragment = new VisualisationFragment();
         Bundle arguments = new Bundle();
-        arguments.putSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS, views);
+        arguments.putSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS, (ArrayList<AudioView>) views);
         fragment.setArguments(arguments);
         return fragment;
     }
@@ -57,7 +59,7 @@ public class VisualisationFragment extends Fragment {
         // Get back arguments
         Bundle arguments = this.getArguments();
         if (arguments.getSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS) != null)
-            views = (AudioView[]) arguments.getSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS);
+            views = (List<AudioView>) arguments.getSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS);
     }
 
     // The onCreateView method is called when Fragment should create its View object hierarchy,
@@ -75,19 +77,21 @@ public class VisualisationFragment extends Fragment {
             public void onGlobalLayout() {
                 rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-                LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.content_visualisation);
-                int viewWidth = linearLayout.getWidth();
-                int viewHeight = linearLayout.getHeight() / 2;
-                int margin = (int) (0.015 * viewHeight);
-                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                        viewWidth - 2 * margin, viewHeight - 2 * margin);
-                layoutParams.setMargins(margin, margin, margin, margin);
+                if (views != null) {
+                    LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.content_visualisation);
+                    int viewWidth = linearLayout.getWidth();
+                    int viewHeight = linearLayout.getHeight() / views.size();
+                    int margin = (int) (0.015 * viewHeight);
+                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                            viewWidth - 2 * margin, viewHeight - 2 * margin);
+                    layoutParams.setMargins(margin, margin, margin, margin);
 
-                for (AudioView view : views) {
-                    // replace identical instances
-                    if (view.getParent() != null)
-                        ((ViewGroup) view.getParent()).removeView(view);
-                    linearLayout.addView(view, layoutParams);
+                    for (AudioView view : views) {
+                        // replace identical instances
+                        if (view.getParent() != null)
+                            ((ViewGroup) view.getParent()).removeView(view);
+                        linearLayout.addView(view, layoutParams);
+                    }
                 }
 
             }
@@ -111,9 +115,11 @@ public class VisualisationFragment extends Fragment {
         // Register for event bus
         EventBus.getDefault().register(this);
 
-        for (AudioView view : views) {
-            if (view instanceof SpectrogramView) {
-                ((SpectrogramView) view).setFFTWindowSize(fftResolution);
+        if (views != null) {
+            for (AudioView view : views) {
+                if (view instanceof SpectrogramView) {
+                    ((SpectrogramView) view).setFFTWindowSize(fftResolution);
+                }
             }
         }
     }
@@ -127,7 +133,7 @@ public class VisualisationFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onPreFilterSampleBlockReceived(PreFilterSampleBlock sampleBlock) {
-        if (sampleBlock != null) {
+        if (sampleBlock != null && views != null) {
             for (AudioView view : views) {
                 if (view.isPreFilterView()) {
                     setViewParameters(view, sampleBlock);
@@ -138,7 +144,7 @@ public class VisualisationFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onPostFilterSampleBlockReceived(PostFilterSampleBlock sampleBlock) {
-        if (sampleBlock != null) {
+        if (sampleBlock != null && views != null) {
             for (AudioView view : views) {
                 if (!view.isPreFilterView()) {
                     setViewParameters(view, sampleBlock);
@@ -230,7 +236,7 @@ public class VisualisationFragment extends Fragment {
         return new PowerSpectrum(samples);
     }
 
-    public void setViews(AudioView[] views) {
+    public void setViews(List<AudioView> views) {
         this.views = views;
     }
 }

@@ -1,22 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:padding="5dp"
-        android:src="@drawable/waveform" />
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/end_spinner_item_padding">
 
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="fill_parent"
+        android:id="@+id/textView_name"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:padding="@dimen/activity_horizontal_margin"
-        android:text="Demo"
-        android:textColor="#000" />
+        android:text="Name"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/primary_text" />
+
 </LinearLayout>

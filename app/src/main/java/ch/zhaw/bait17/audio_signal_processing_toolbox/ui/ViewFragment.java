@@ -10,8 +10,10 @@ import android.widget.AdapterView;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,10 +30,10 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView
  * @author georgrem, stockan1
  */
 
-public class VisualisationConfigurationFragment extends Fragment implements
+public class ViewFragment extends Fragment implements
         AdapterView.OnItemSelectedListener, RadioGroup.OnCheckedChangeListener {
 
-    private static final String TAG = VisualisationConfigurationFragment.class.getSimpleName();
+    private static final String TAG = ViewFragment.class.getSimpleName();
 
     private static Map<String, AudioView> views = new HashMap<>();
 
@@ -39,13 +41,12 @@ public class VisualisationConfigurationFragment extends Fragment implements
     private RadioGroup radioGroupBottom;
     private Spinner spinnerTop;
     private Spinner spinnerBottom;
-    private AudioView[] activeViews = {
-            new SpectrogramView(ApplicationContext.getAppContext()),
-            new SpectrogramView(ApplicationContext.getAppContext())};
-    private int images[] = {R.drawable.line_spectrum, R.drawable.spectrogram,
-            R.drawable.spectrum, R.drawable.waveform};
+    private List<AudioView> activeViews;
+    private boolean isPreFilterViewTop;
+    private boolean isPreFilterViewBottom;
 
     static {
+        views.put("No view", null);
         views.put("Line Spectrum", new LineSpectrumView(ApplicationContext.getAppContext()));
         views.put("Spectrogram", new SpectrogramView(ApplicationContext.getAppContext()));
         views.put("Spectrum", new SpectrumView(ApplicationContext.getAppContext()));
@@ -56,25 +57,27 @@ public class VisualisationConfigurationFragment extends Fragment implements
     // either dynamically or via XML layout inflation.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.visualisation_configuration_view, container, false);
+        View view = inflater.inflate(R.layout.view_view, container, false);
 
         Set<String> keys = views.keySet();
         String[] viewNames = keys.toArray(new String[keys.size()]);
         Arrays.sort(viewNames);
-        ViewAdapter viewAdapter = new ViewAdapter(images, viewNames);
+        ViewAdapter viewAdapter = new ViewAdapter(viewNames);
 
-        spinnerTop = (Spinner) view.findViewById(R.id.top_spinner);
+        spinnerTop = (Spinner) view.findViewById(R.id.spinner_first_view);
         spinnerTop.setAdapter(viewAdapter);
+        spinnerTop.setSelection(2);
         spinnerTop.setOnItemSelectedListener(this);
 
-        spinnerBottom = (Spinner) view.findViewById(R.id.bottom_spinner);
+        spinnerBottom = (Spinner) view.findViewById(R.id.spinner_second_view);
         spinnerBottom.setAdapter(viewAdapter);
+        spinnerBottom.setSelection(1);
         spinnerBottom.setOnItemSelectedListener(this);
 
-        radioGroupTop = (RadioGroup) view.findViewById(R.id.radioGroup_top);
+        radioGroupTop = (RadioGroup) view.findViewById(R.id.radioGroup_first_view);
         radioGroupTop.setOnCheckedChangeListener(this);
 
-        radioGroupBottom = (RadioGroup) view.findViewById(R.id.radioGroup_bottom);
+        radioGroupBottom = (RadioGroup) view.findViewById(R.id.radioGroup_second_view);
         radioGroupBottom.setOnCheckedChangeListener(this);
 
         return view;
@@ -85,30 +88,31 @@ public class VisualisationConfigurationFragment extends Fragment implements
         super.onCreate(savedInstanceState);
     }
 
-    public AudioView[] getActiveViews() {
+    public List<AudioView> getActiveViews() {
         return activeViews;
     }
 
+    // to dynamically add the same view to a wrapper layout we have to use the inflate of this views
+    // because the inflate makes the view unique in the ViewGroup then the view object self is not unique
+    //  From: {@link http://androblip.huiges.nl/2010/05/14/add-a-view-to-a-wrapper-multiple-times-with-inflate/}
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        AudioView audioView = views.get(parent.getItemAtPosition(position));
-        // to dynamically add the same view to a wrapper layout we have to use the inflate of this views
-        // because the inflate makes the view unique in the ViewGroup then the view object self is not unique
-        //  From: {@link http://androblip.huiges.nl/2010/05/14/add-a-view-to-a-wrapper-multiple-times-with-inflate/}
-        audioView = audioView.getInflatedView();
-        switch (parent.getId()) {
-            case R.id.top_spinner:
-                boolean isPreFilterViewTop = radioGroupTop.getCheckedRadioButtonId() == R.id.radio_preFilter_top;
-                audioView.setPreFilterView(isPreFilterViewTop);
-                activeViews[0] = audioView;
-                break;
-            case R.id.bottom_spinner:
-                boolean isPreFilterViewBottom = radioGroupBottom.getCheckedRadioButtonId() == R.id.radio_preFilter_bottom;
-                audioView.setPreFilterView(isPreFilterViewBottom);
-                activeViews[1] = audioView;
-                break;
-            default:
-                break;
+        activeViews = new ArrayList<>();
+
+        AudioView audioView = views.get(spinnerTop.getSelectedItem());
+        if (audioView != null) {
+            audioView = audioView.getInflatedView();
+            isPreFilterViewTop = radioGroupTop.getCheckedRadioButtonId() == R.id.radioButton_preFilter_first_view;
+            audioView.setPreFilterView(isPreFilterViewTop);
+            activeViews.add(audioView);
+        }
+
+        audioView = views.get(spinnerBottom.getSelectedItem());
+        if (audioView != null) {
+            audioView = audioView.getInflatedView();
+            isPreFilterViewBottom = radioGroupBottom.getCheckedRadioButtonId() == R.id.radioButton_preFilter_second_view;
+            audioView.setPreFilterView(isPreFilterViewBottom);
+            activeViews.add(audioView);
         }
     }
 
@@ -120,17 +124,17 @@ public class VisualisationConfigurationFragment extends Fragment implements
     @Override
     public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
         switch (checkedId) {
-            case R.id.radio_preFilter_top:
-                activeViews[0].setPreFilterView(true);
+            case R.id.radioButton_preFilter_first_view:
+                isPreFilterViewTop = true;
                 break;
-            case R.id.radio_postFilter_top:
-                activeViews[0].setPreFilterView(false);
+            case R.id.radioButton_postFilter_first_view:
+                isPreFilterViewTop = false;
                 break;
-            case R.id.radio_preFilter_bottom:
-                activeViews[1].setPreFilterView(true);
+            case R.id.radioButton_preFilter_second_view:
+                isPreFilterViewBottom = true;
                 break;
-            case R.id.radio_postFilter_bottom:
-                activeViews[1].setPreFilterView(false);
+            case R.id.radioButton_postFilter_second_view:
+                isPreFilterViewBottom = false;
                 break;
             default:
                 break;

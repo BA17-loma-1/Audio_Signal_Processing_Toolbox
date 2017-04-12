@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.Spinner;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
@@ -27,8 +28,12 @@ public class FilterFragment extends Fragment implements AdapterView.OnItemSelect
 
     private static final String BUNDLE_ARGUMENT_FILTERS = FilterFragment.class.getSimpleName() + ".FILTERS";
 
+    private Spinner spinnerFirstFilter;
+    private Spinner spinnerSecondFilter;
+    private Spinner spinnerThirdFilter;
+    private Spinner spinnerFourthFilter;
     private List<Filter> filters;
-    private Filter[] activeFilters;
+    private List<Filter> activeFilters;
 
 
     // listener of the interface type
@@ -36,7 +41,7 @@ public class FilterFragment extends Fragment implements AdapterView.OnItemSelect
 
     // the event that the fragment will use to communicate
     public interface OnItemSelectedListener {
-        void onFilterItemSelected(Filter[] filter);
+        void onFilterItemSelected(List<Filter> filter);
     }
 
     /*
@@ -104,24 +109,25 @@ public class FilterFragment extends Fragment implements AdapterView.OnItemSelect
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.filter_view, container, false);
 
-        activeFilters = new Filter[4];
         FilterAdapter filterAdapter = new FilterAdapter(filters);
 
-        Spinner spinnerFirstFilter = (Spinner) view.findViewById(R.id.spinner_first_filter);
+        spinnerFirstFilter = (Spinner) view.findViewById(R.id.spinner_first_filter);
         spinnerFirstFilter.setAdapter(filterAdapter);
         spinnerFirstFilter.setOnItemSelectedListener(this);
 
-        Spinner spinnerSecondFilter = (Spinner) view.findViewById(R.id.spinner_second_filter);
+        spinnerSecondFilter = (Spinner) view.findViewById(R.id.spinner_second_filter);
         spinnerSecondFilter.setAdapter(filterAdapter);
         spinnerSecondFilter.setOnItemSelectedListener(this);
 
-        Spinner spinnerThirdFilter = (Spinner) view.findViewById(R.id.spinner_third_filter);
+        spinnerThirdFilter = (Spinner) view.findViewById(R.id.spinner_third_filter);
         spinnerThirdFilter.setAdapter(filterAdapter);
         spinnerThirdFilter.setOnItemSelectedListener(this);
 
-        Spinner spinnerFourthFilter = (Spinner) view.findViewById(R.id.spinner_fourth_filter);
+        spinnerFourthFilter = (Spinner) view.findViewById(R.id.spinner_fourth_filter);
         spinnerFourthFilter.setAdapter(filterAdapter);
         spinnerFourthFilter.setOnItemSelectedListener(this);
+
+        spinnerFirstFilter.getSelectedItem();
 
         return view;
     }
@@ -129,23 +135,24 @@ public class FilterFragment extends Fragment implements AdapterView.OnItemSelect
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        Filter filter = (Filter) parent.getItemAtPosition(position);
-        switch (parent.getId()) {
-            case R.id.spinner_first_filter:
-                activeFilters[0] = filter;
-                break;
-            case R.id.spinner_second_filter:
-                activeFilters[1] = filter;
-                break;
-            case R.id.spinner_third_filter:
-                activeFilters[2] = filter;
-                break;
-            case R.id.spinner_fourth_filter:
-                activeFilters[3] = filter;
-                break;
-            default:
-                break;
-        }
+        activeFilters = new ArrayList<>();
+
+        Filter filter = (Filter) spinnerFirstFilter.getSelectedItem();
+        if (filter != null)
+            activeFilters.add(filter);
+
+        filter = (Filter) spinnerSecondFilter.getSelectedItem();
+        if (filter != null)
+            activeFilters.add(filter);
+
+        filter = (Filter) spinnerThirdFilter.getSelectedItem();
+        if (filter != null)
+            activeFilters.add(filter);
+
+        filter = (Filter) spinnerFourthFilter.getSelectedItem();
+        if (filter != null)
+            activeFilters.add(filter);
+
         // fire the event
         if (listener != null)
             listener.onFilterItemSelected(activeFilters);

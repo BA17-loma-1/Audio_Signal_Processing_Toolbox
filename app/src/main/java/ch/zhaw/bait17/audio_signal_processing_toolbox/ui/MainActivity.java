@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements
 
     // when the fragment event fires
     @Override
-    public void onFilterItemSelected(Filter[] filters) {
+    public void onFilterItemSelected(List<Filter> filters) {
         AudioPlayerFragment apf = getAudioPlayerFragment();
         if (apf != null) {
             apf.setFilters(filters);
@@ -143,8 +143,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void initFragments() {
-        Fragment visualisationConfigurationFragment = new VisualisationConfigurationFragment();
-        AudioView[] activeViews = ((VisualisationConfigurationFragment) visualisationConfigurationFragment).getActiveViews();
+        Fragment visualisationConfigurationFragment = new ViewFragment();
+        List<AudioView> activeViews = ((ViewFragment) visualisationConfigurationFragment).getActiveViews();
 
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.content_frame, FilterFragment.newInstance(filters),
@@ -192,15 +192,15 @@ public class MainActivity extends AppCompatActivity implements
                 break;
             case R.id.nav_visualisation:
                 Fragment vcf = getFragmentByTag(TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
-                AudioView[] activeViews = ((VisualisationConfigurationFragment) vcf).getActiveViews();
+                List<AudioView> activeViews = ((ViewFragment) vcf).getActiveViews();
                 fragment = getFragmentByTag(TAG_VISUALISATION_FRAGMENT);
                 ((VisualisationFragment) fragment).setViews(activeViews);
                 title = "Visualisation";
                 tag_fragmentName = TAG_VISUALISATION_FRAGMENT;
                 break;
-            case R.id.nav_visualisation_configuration:
+            case R.id.nav_view:
                 fragment = getFragmentByTag(TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
-                title = "Visualisation Configuration";
+                title = "View";
                 tag_fragmentName = TAG_VISUALISATION_CONFIGURATION_FRAGMENT;
                 break;
             case R.id.nav_filter:

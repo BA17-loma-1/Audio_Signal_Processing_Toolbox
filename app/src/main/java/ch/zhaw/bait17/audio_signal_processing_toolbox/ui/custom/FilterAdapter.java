@@ -45,8 +45,8 @@ public class FilterAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         view = inflater.inflate(R.layout.filter_spinner_items, null);
-        TextView name = (TextView) view.findViewById(R.id.textview_name);
-        TextView description = (TextView) view.findViewById(R.id.textview_description);
+        TextView name = (TextView) view.findViewById(R.id.textView_name);
+        TextView description = (TextView) view.findViewById(R.id.textView_description);
         Filter filter = filters.get(position);
         if (filter != null) {
             FilterType filterType = filter.getFilterSpec().getFilterType();

@@ -103,7 +103,7 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         });
         Bundle args = getArguments();
         if (args != null) {
-            Filter[] filters = (Filter[]) args.getParcelableArray(BUNDLE_ARGUMENT_FILTER);
+            List<Filter> filters = (List<Filter>) args.getSerializable(BUNDLE_ARGUMENT_FILTER);
             audioPlayer.setFilter(filters);
         }
     }
@@ -123,7 +123,7 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         audioPlayer.seekToPosition(seekBar.getProgress());
     }
 
-    public void setFilters(Filter[] filters) {
+    public void setFilters(List<Filter> filters) {
         audioPlayer.setFilter(filters);
     }
 
