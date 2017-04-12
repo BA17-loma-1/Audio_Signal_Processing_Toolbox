@@ -15,15 +15,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.RadioButton;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FilterType;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FilterUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
@@ -34,7 +31,8 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
 
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
-        MediaListFragment.OnTrackSelectedListener {
+        MediaListFragment.OnTrackSelectedListener,
+        FilterFragment.OnItemSelectedListener {
 
     private static final String TAG_AUDIO_PLAYER_FRAGMENT = "AUDIO_PLAYER";
     private static final String TAG_FILTER_FRAGMENT = "FILTER";
@@ -44,7 +42,8 @@ public class MainActivity extends AppCompatActivity implements
 
     private Toolbar toolbar;
     private ActionBarDrawerToggle actionBarDrawerToggle;
-    private Map<FilterType, Filter> filters;
+    private List<Filter> filters;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         actionBarDrawerToggle.syncState();
+        setTrackList();
     }
 
     @Override
@@ -119,58 +119,26 @@ public class MainActivity extends AppCompatActivity implements
 
     // Layout: onClick event
     public void onClickPreviousTrack(View view) {
-        /*
         AudioPlayerFragment apf = getAudioPlayerFragment();
         if (apf != null) {
             apf.playPreviousTrack();
         }
-        */
     }
 
     // Layout: onClick event
     public void onClickNextTrack(View view) {
-        /*
         AudioPlayerFragment apf = getAudioPlayerFragment();
         if (apf != null) {
             apf.playNextTrack();
         }
-        */
     }
 
-    public void onRadioButtonClicked(View view) {
-        boolean checked = ((RadioButton) view).isChecked();
-        Filter filter = null;
-        switch (view.getId()) {
-            case R.id.radio_low_pass_filter:
-                if (checked) {
-                    filter = filters.get(FilterType.LOWPASS);
-                }
-                break;
-            case R.id.radio_high_pass_filter:
-                if (checked) {
-                    filter = filters.get(FilterType.HIGHPASS);
-                }
-                break;
-            case R.id.radio_band_pass_filter:
-                if (checked) {
-                    filter = filters.get(FilterType.BANDPASS);
-                }
-                break;
-            case R.id.radio_band_stop_filter:
-                if (checked) {
-                    filter = filters.get(FilterType.BANDSTOP);
-                }
-                break;
-            case R.id.radio_no_filter:
-                if (checked) {
-                    filter = null;
-                }
-                break;
-            default:
-        }
+    // when the fragment event fires
+    @Override
+    public void onFilterItemSelected(Filter[] filters) {
         AudioPlayerFragment apf = getAudioPlayerFragment();
         if (apf != null) {
-            apf.setFilter(filter);
+            apf.setFilters(filters);
         }
     }
 
@@ -179,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements
         AudioView[] activeViews = ((VisualisationConfigurationFragment) visualisationConfigurationFragment).getActiveViews();
 
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(R.id.content_frame, FilterFragment.newInstance(filters.values().toArray(new Filter[filters.size()])),
+        ft.replace(R.id.content_frame, FilterFragment.newInstance(filters),
                 TAG_FILTER_FRAGMENT);
         ft.replace(R.id.content_frame, visualisationConfigurationFragment,
                 TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
@@ -284,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements
         // Send track to audio player fragment
         Fragment fragment = getFragmentManager().findFragmentById(R.id.audio_player_fragment);
         if (fragment instanceof AudioPlayerFragment) {
-            ((AudioPlayerFragment) fragment).setTrack(tracks.get(trackPos));
+            ((AudioPlayerFragment) fragment).setTrack(trackPos);
         }
     }
 
@@ -297,11 +265,19 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void initFilters() {
-        filters = new HashMap<>();
-        filters.put(FilterType.LOWPASS, getLowPassFilter());
-        filters.put(FilterType.HIGHPASS, getHighPassFilter());
-        filters.put(FilterType.BANDPASS, getBandPassFilter());
-        filters.put(FilterType.BANDSTOP, getBandStopFilter());
+        filters = new ArrayList<>();
+        filters.add(null);
+        filters.add(getLowPassFilter());
+        filters.add(getHighPassFilter());
+        filters.add(getBandPassFilter());
+        filters.add(getBandStopFilter());
+    }
+
+    private void setTrackList() {
+        Fragment mlf = getFragmentByTag(TAG_MEDIA_LIST_FRAGMENT);
+        List<Track> tracks = ((MediaListFragment) mlf).getTracks();
+        AudioPlayerFragment apf = getAudioPlayerFragment();
+        apf.setTracks(tracks);
     }
 
 }
