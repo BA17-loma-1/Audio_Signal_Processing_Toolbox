@@ -24,15 +24,17 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.TrackAdapter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.SupportedAudioFormat;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.ui.custom.TrackAdapter;
 
 /**
  * @author georgrem, stockan1
@@ -48,6 +50,7 @@ public class MediaListFragment extends Fragment {
     private View rootView;
     private Context context;
     private OnTrackSelectedListener listener;
+    private List<Track> tracks;
 
     public interface OnTrackSelectedListener {
         void onTrackSelected(List<Track> tracks, int trackPos);
@@ -58,6 +61,7 @@ public class MediaListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.media_list_view, container, false);
+        tracks = new ArrayList<>();
         return rootView;
     }
 
@@ -138,7 +142,7 @@ public class MediaListFragment extends Fragment {
     private void loadTrackList() {
         if (ContextCompat.checkSelfPermission(context,
                 Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            final List<Track> tracks = getAllTracks();
+            addAllTracks();
             Collections.sort(tracks);
 
             final ListView listView = (ListView) rootView.findViewById(R.id.media_list);
@@ -160,11 +164,9 @@ public class MediaListFragment extends Fragment {
         }
     }
 
-    private List<Track> getAllTracks() {
-        List<Track> allTracks = new ArrayList<>();
-        allTracks.addAll(getTracksFromRawFolder());
-        allTracks.addAll(getTracksFromDevice());
-        return allTracks;
+    private void addAllTracks() {
+        tracks.addAll(getTracksFromRawFolder());
+        tracks.addAll(getTracksFromDevice());
     }
 
     private List<Track> getTracksFromRawFolder() {
@@ -258,4 +260,7 @@ public class MediaListFragment extends Fragment {
         }
     }
 
+    public List<Track> getTracks() {
+        return tracks;
+    }
 }

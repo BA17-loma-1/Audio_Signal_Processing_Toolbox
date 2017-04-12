@@ -6,9 +6,12 @@ import android.media.AudioTrack;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
+
 import org.greenrobot.eventbus.EventBus;
+
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
@@ -37,7 +40,7 @@ public final class AudioPlayer {
     private static float[] filteredSamples;
     private static AudioDecoder decoder;
     private static AudioTrack audioTrack;
-    private static Filter filter;
+    private static Filter[] filters;
     private static EventBus eventBus;
     private PlaybackListener listener;
     private Track currentTrack;
@@ -227,10 +230,10 @@ public final class AudioPlayer {
     /**
      * Sets the filter.
      *
-     * @param filter
+     * @param filters
      */
-    public void setFilter(Filter filter) {
-        this.filter = filter;
+    public void setFilter(Filter[] filters) {
+        this.filters = filters;
     }
 
     /**
@@ -346,10 +349,17 @@ public final class AudioPlayer {
      * @return
      */
     private float[] filter(float[] input) {
-        if (filter == null) {
+        if (filters == null) {
             return input;
         }
-        return filter.apply(input);
+        float[] output = input;
+        for (Filter filter : filters) {
+            if(filter != null) {
+                output = filter.apply(input);
+                input = output;
+            }
+        }
+        return output;
     }
 
     /**

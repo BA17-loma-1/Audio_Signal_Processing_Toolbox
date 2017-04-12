@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.CustomSpinnerAdapter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.ui.custom.ViewAdapter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.LineSpectrumView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView;
@@ -61,14 +61,14 @@ public class VisualisationConfigurationFragment extends Fragment implements
         Set<String> keys = views.keySet();
         String[] viewNames = keys.toArray(new String[keys.size()]);
         Arrays.sort(viewNames);
-        CustomSpinnerAdapter customSpinnerAdapter = new CustomSpinnerAdapter(ApplicationContext.getAppContext(), images, viewNames);
+        ViewAdapter viewAdapter = new ViewAdapter(images, viewNames);
 
         spinnerTop = (Spinner) view.findViewById(R.id.top_spinner);
-        spinnerTop.setAdapter(customSpinnerAdapter);
+        spinnerTop.setAdapter(viewAdapter);
         spinnerTop.setOnItemSelectedListener(this);
 
         spinnerBottom = (Spinner) view.findViewById(R.id.bottom_spinner);
-        spinnerBottom.setAdapter(customSpinnerAdapter);
+        spinnerBottom.setAdapter(viewAdapter);
         spinnerBottom.setOnItemSelectedListener(this);
 
         radioGroupTop = (RadioGroup) view.findViewById(R.id.radioGroup_top);

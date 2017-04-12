@@ -6,82 +6,51 @@
     android:background="?attr/colorAccent"
     android:orientation="vertical">
 
-    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:text="Filter 1"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <RadioButton
-            android:id="@+id/radio_low_pass_filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:button="@drawable/radio_selector"
-            android:onClick="onRadioButtonClicked"
-            android:text="@string/low_pass_filter"></RadioButton>
+    <Spinner
+        android:id="@+id/spinner_first_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/textview_low_pass_filter_spec"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="3sp"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="14sp"></TextView>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:text="Filter 2"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <RadioButton
-            android:id="@+id/radio_high_pass_filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:button="@drawable/radio_selector"
-            android:onClick="onRadioButtonClicked"
-            android:text="@string/high_pass_filter"></RadioButton>
+    <Spinner
+        android:id="@+id/spinner_second_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/textview_high_pass_filter_spec"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="3sp"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="14sp"></TextView>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:text="Filter 3"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <RadioButton
-            android:id="@+id/radio_band_pass_filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:button="@drawable/radio_selector"
-            android:onClick="onRadioButtonClicked"
-            android:text="@string/band_pass_filter"></RadioButton>
+    <Spinner
+        android:id="@+id/spinner_third_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/textview_band_pass_filter_spec"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="3sp"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="14sp"></TextView>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:text="Filter 4"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <RadioButton
-            android:id="@+id/radio_band_stop_filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:button="@drawable/radio_selector"
-            android:onClick="onRadioButtonClicked"
-            android:text="@string/band_stop_filter"></RadioButton>
+    <Spinner
+        android:id="@+id/spinner_fourth_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/textview_band_stop_filter_spec"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="3sp"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="14sp"></TextView>
-
-        <RadioButton
-            android:id="@+id/radio_no_filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:button="@drawable/radio_selector"
-            android:checked="true"
-            android:onClick="onRadioButtonClicked"
-            android:text="@string/no_filter"></RadioButton>
-    </RadioGroup>
 </LinearLayout>

@@ -1,8 +1,5 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
-import java.util.Arrays;
-import java.util.Iterator;
-
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,6 +13,9 @@ import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.Arrays;
+import java.util.Iterator;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
@@ -34,7 +34,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView
 public class VisualisationFragment extends Fragment {
 
     private static final String TAG = VisualisationFragment.class.getSimpleName();
-    private static final String KEY_AUDIOVIEWS = VisualisationFragment.class.getSimpleName() + ".AUDIOVIEWS";
+    private static final String BUNDLE_ARGUMENT_AUDIOVIEWS = VisualisationFragment.class.getSimpleName() + ".AUDIOVIEWS";
 
     private int fftResolution;
     private CircularFifoQueue<short[]> trunkBuffer;
@@ -45,9 +45,9 @@ public class VisualisationFragment extends Fragment {
     // VisualisationFragment.newInstance(views);
     public static VisualisationFragment newInstance(AudioView[] views) {
         VisualisationFragment fragment = new VisualisationFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(KEY_AUDIOVIEWS, views);
-        fragment.setArguments(args);
+        Bundle arguments = new Bundle();
+        arguments.putSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS, views);
+        fragment.setArguments(arguments);
         return fragment;
     }
 
@@ -55,9 +55,9 @@ public class VisualisationFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Get back arguments
-        Bundle args = this.getArguments();
-        if (args.getSerializable(KEY_AUDIOVIEWS) != null)
-            views = (AudioView[]) args.getSerializable(KEY_AUDIOVIEWS);
+        Bundle arguments = this.getArguments();
+        if (arguments.getSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS) != null)
+            views = (AudioView[]) arguments.getSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS);
     }
 
     // The onCreateView method is called when Fragment should create its View object hierarchy,
@@ -76,9 +76,12 @@ public class VisualisationFragment extends Fragment {
                 rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                 LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.content_visualisation);
+                int viewWidth = linearLayout.getWidth();
                 int viewHeight = linearLayout.getHeight() / 2;
+                int margin = (int) (0.015 * viewHeight);
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT, viewHeight);
+                        viewWidth - 2 * margin, viewHeight - 2 * margin);
+                layoutParams.setMargins(margin, margin, margin, margin);
 
                 for (AudioView view : views) {
                     // replace identical instances

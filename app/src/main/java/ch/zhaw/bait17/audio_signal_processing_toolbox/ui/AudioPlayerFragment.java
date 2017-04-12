@@ -3,7 +3,6 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,7 +12,9 @@ import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.util.List;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
@@ -102,8 +103,8 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         });
         Bundle args = getArguments();
         if (args != null) {
-            Filter filter = args.getParcelable(BUNDLE_ARGUMENT_FILTER);
-            audioPlayer.setFilter(filter);
+            Filter[] filters = (Filter[]) args.getParcelableArray(BUNDLE_ARGUMENT_FILTER);
+            audioPlayer.setFilter(filters);
         }
     }
 
@@ -122,19 +123,17 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         audioPlayer.seekToPosition(seekBar.getProgress());
     }
 
-    public void setFilter(Filter filter) {
-        audioPlayer.setFilter(filter);
+    public void setFilters(Filter[] filters) {
+        audioPlayer.setFilter(filters);
     }
 
     public void setTracks(List<Track> tracks) {
         this.tracks = tracks;
     }
 
-    public void setTrackPosNr(int trackPosNr) {
+    public void setTrack(int trackPosNr) {
         this.trackPosNr = trackPosNr;
-    }
-
-    public void setTrack(@NonNull Track track) {
+        Track track = tracks.get(trackPosNr);
         if (currentTrack == null) {
             // First time a track is selected.
             currentTrack = track;

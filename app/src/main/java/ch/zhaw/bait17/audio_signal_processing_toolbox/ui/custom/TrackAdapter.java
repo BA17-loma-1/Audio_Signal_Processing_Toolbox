@@ -1,11 +1,15 @@
-package ch.zhaw.bait17.audio_signal_processing_toolbox;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.ui.custom;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
 import java.util.List;
+
+import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 
 public class TrackAdapter extends BaseAdapter {

@@ -31,7 +31,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/media_list_title" />
+            android:textColor="@color/primary_text" />
 
         <TextView
             android:id="@+id/track_artist"
@@ -40,7 +40,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/media_list_artist" />
+            android:textColor="@color/secondary_text" />
 
     </LinearLayout>
 
