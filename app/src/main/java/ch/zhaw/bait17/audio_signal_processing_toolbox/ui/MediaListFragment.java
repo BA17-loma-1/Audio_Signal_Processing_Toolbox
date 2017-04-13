@@ -53,7 +53,7 @@ public class MediaListFragment extends Fragment {
     private List<Track> tracks;
 
     public interface OnTrackSelectedListener {
-        void onTrackSelected(List<Track> tracks, int trackPos);
+        void onTrackSelected(List<Track> tracks, int trackPos, View mediaListItemView);
     }
 
     // The onCreateView method is called when Fragment should create its View object hierarchy,
@@ -155,7 +155,7 @@ public class MediaListFragment extends Fragment {
                     if (listener != null) {
                         Track track = (Track) adapterView.getItemAtPosition(i);
                         int trackPosNr = tracks.indexOf(track);
-                        listener.onTrackSelected(tracks, trackPosNr);
+                        listener.onTrackSelected(tracks, trackPosNr, view);
                     }
                 }
             });

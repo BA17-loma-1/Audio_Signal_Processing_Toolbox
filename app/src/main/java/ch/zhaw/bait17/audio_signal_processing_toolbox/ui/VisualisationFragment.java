@@ -77,7 +77,7 @@ public class VisualisationFragment extends Fragment {
             public void onGlobalLayout() {
                 rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-                if (views != null) {
+                if (views != null && views.size() > 0) {
                     LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.content_visualisation);
                     int viewWidth = linearLayout.getWidth();
                     int viewHeight = linearLayout.getHeight() / views.size();

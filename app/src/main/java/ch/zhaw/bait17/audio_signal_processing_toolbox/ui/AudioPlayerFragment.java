@@ -1,14 +1,18 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
 import android.app.Fragment;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,6 +52,8 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     private TextView endTime;
     private SeekBar seekBar;
     private ImageButton playPauseButton;
+    private View currentMediaListItemView;
+    private View previousMediaListItemView;
 
     /*
         In certain cases, your fragment may want to accept certain arguments.
@@ -217,6 +223,24 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             @Override
             public void run() {
                 playPauseButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
+
+                if (previousMediaListItemView != null) {
+                    Drawable pauseDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
+                            R.drawable.ic_play_arrow_black_36dp);
+                    ImageView equalizerImage = (ImageView) previousMediaListItemView.findViewById(R.id.play_eq);
+                    equalizerImage.setImageDrawable(pauseDrawable);
+                    TextView titleTextView = (TextView) previousMediaListItemView.findViewById(R.id.track_title);
+                    titleTextView.setTextColor(ContextCompat.getColor(ApplicationContext.getAppContext(), R.color.primary_text));
+                }
+
+                AnimationDrawable animation = (AnimationDrawable)
+                        ContextCompat.getDrawable(ApplicationContext.getAppContext(), R.drawable.ic_equalizer_white_36dp);
+                animation.start();
+                ImageView equalizerImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_eq);
+                equalizerImage.setImageDrawable(animation);
+                TextView titleTextView = (TextView) currentMediaListItemView.findViewById(R.id.track_title);
+                titleTextView.setTextColor(ContextCompat.getColor(ApplicationContext.getAppContext(), R.color.media_item_icon_playing));
+                previousMediaListItemView = currentMediaListItemView;
             }
         });
     }
@@ -226,8 +250,17 @@ public class AudioPlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             @Override
             public void run() {
                 playPauseButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
+
+                Drawable playDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
+                        R.drawable.ic_equalizer1_white_36dp);
+                ImageView equalizerImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_eq);
+                equalizerImage.setImageDrawable(playDrawable);
             }
         });
+    }
+
+    public void setCurrentMediaListItemView(View currentMediaListItemView) {
+        this.currentMediaListItemView = currentMediaListItemView;
     }
 
 }

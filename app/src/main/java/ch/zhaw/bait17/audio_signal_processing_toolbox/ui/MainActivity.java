@@ -248,11 +248,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onTrackSelected(List<Track> tracks, int trackPos) {
+    public void onTrackSelected(List<Track> tracks, int trackPos,  View mediaListItemView) {
         // Send track to audio player fragment
         Fragment fragment = getFragmentManager().findFragmentById(R.id.audio_player_fragment);
         if (fragment instanceof AudioPlayerFragment) {
             ((AudioPlayerFragment) fragment).setTrack(trackPos);
+            ((AudioPlayerFragment) fragment).setCurrentMediaListItemView(mediaListItemView);
         }
     }
 

@@ -14,7 +14,7 @@
         android:layout_marginStart="@dimen/media_item_icon_margin_start"
         android:contentDescription="@string/play_item"
         android:src="@drawable/ic_play_arrow_black_36dp"
-        android:tint="@color/media_item_icon_not_playing" />
+        android:tint="@color/media_item_icon_playing" />
 
     <LinearLayout
         android:orientation="vertical"

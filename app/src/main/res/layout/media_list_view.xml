@@ -10,7 +10,6 @@
     <ListView
         android:id="@+id/media_list"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:listSelector="@drawable/list_selector"></ListView>
+        android:layout_height="wrap_content"></ListView>
 
 </LinearLayout>
