@@ -10,8 +10,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Filter 1"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text="@string/effect_slot1"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Spinner
         android:id="@+id/spinner_first_filter"
@@ -23,8 +23,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Filter 2"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text="@string/effect_slot2"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Spinner
         android:id="@+id/spinner_second_filter"
@@ -36,8 +36,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Filter 3"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text="@string/effect_slot3"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Spinner
         android:id="@+id/spinner_third_filter"
@@ -49,8 +49,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Filter 4"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text="@string/effect_slot4"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Spinner
         android:id="@+id/spinner_fourth_filter"

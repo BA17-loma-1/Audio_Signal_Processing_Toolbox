@@ -24,7 +24,11 @@
     <string name="navigation_header_faculty">ZHAW School of Engineering</string>
     <string name="navigation_header_institute">Zentrum für Signalverarbeitung und Nachrichtentechnik (ZSN)</string>
 
-    <!-- Filter -->
+    <!-- FX section -->
+    <string name="effect_slot1">Insert audio effect 1</string>
+    <string name="effect_slot2">Insert audio effect 2</string>
+    <string name="effect_slot3">Insert audio effect 3</string>
+    <string name="effect_slot4">Insert audio effect 4</string>
     <string name="low_pass_filter">Low pass filter</string>
     <string name="high_pass_filter">High pass filter</string>
     <string name="band_pass_filter">Band pass filter</string>
