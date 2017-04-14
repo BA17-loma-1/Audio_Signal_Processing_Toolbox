@@ -28,9 +28,7 @@ android {
 
 repositories {
     mavenCentral()
-    maven {
-        url "https://repository-achartengine.forge.cloudbees.com/snapshot/"
-    }
+    jcenter()
 }
 
 dependencies {
