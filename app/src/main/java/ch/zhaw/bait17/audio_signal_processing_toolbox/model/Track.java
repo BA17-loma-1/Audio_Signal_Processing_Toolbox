@@ -122,8 +122,16 @@ public class Track implements Comparable<Track>, Parcelable {
             .append("', uri='" + uri)
             .append("', audioFormat='" + audioFormat)
             .append("'}");
-        String s = sb.toString();
         return sb.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + artist.hashCode();
+        result = 31 * result + title.hashCode();
+        result = 31 * result + album.hashCode();
+        return result;
     }
 
     @Override
