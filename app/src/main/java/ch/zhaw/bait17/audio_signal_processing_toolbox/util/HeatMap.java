@@ -1,9 +1,14 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.util;
 
 /**
+ * <p>
+ *     Helper class containing predefined heat maps in the form of colour gradients.
+ *     These heat maps can be used to plot magnitudes in a spectrogram.
+ * </p>
+ *
  * @author georgrem, stockan1
  */
-public class HeatMap {
+public final class HeatMap {
 
     private static final int NUMBER_OF_STEPS = 256;
     private static final int ALPHA_FULL_TRANSPARENCY = 0;
@@ -18,7 +23,6 @@ public class HeatMap {
     private static final Colour BLACK  = new Colour(0x00, 0x00, 0x00, ALPHA_NO_TRANSPARENCY);
     private static final Colour WHITE  = new Colour(0xff, 0xff, 0xff, ALPHA_NO_TRANSPARENCY);
 
-    // Predefined heat maps
     public static final Colour[] GREY_SCALE = Gradient.createGradient(WHITE, BLACK, NUMBER_OF_STEPS);
 
     public static final Colour[] YELLOW_ORANGE_BLUE = Gradient.createMultiGradient(
@@ -34,7 +38,11 @@ public class HeatMap {
     public static final Colour[] BLUE_WHITE_RED = Gradient.createMultiGradient(
             new Colour[]{BLUE, WHITE, RED}, NUMBER_OF_STEPS);
 
-    public final static Colour[] RAINBOW = Gradient.createMultiGradient(
+    /**
+     * The classic rainbow gradient.
+     *
+     */
+    public final static Colour[] LSD = Gradient.createMultiGradient(
             new Colour[]{BLACK, LILA, BLUE, GREEN, YELLOW, ORANGE, RED}, 2 * NUMBER_OF_STEPS);
 
 }

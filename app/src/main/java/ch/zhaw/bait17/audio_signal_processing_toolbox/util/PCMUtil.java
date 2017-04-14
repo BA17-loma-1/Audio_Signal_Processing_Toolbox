@@ -7,19 +7,20 @@ import java.nio.ByteOrder;
 /**
  * <h3>PCM Utility class</h3>
  * <p>
- *     Important:</br>
+ *     <b>Important:</b> </br>
  *     These conversions will introduce distortion. The errors when converting from one data type
  *     to another are correlated with the input signal sample. For absolute pristine conversion
  *     dithering is required.
- *     See {@link http://stackoverflow.com/questions/15087668/how-to-convert-pcm-samples-in-byte-array-as-floating-point-numbers-in-the-range#15094612}
+ *     See <a href="http://stackoverflow.com/questions/15087668/how-to-convert-pcm-samples-in-byte-array-as-floating-point-numbers-in-the-range#15094612">stackoverflow.com</a>
  * </p>
+ *
  * @author georgrem, stockan1
  */
 public class PCMUtil {
 
     private static final String TAG = PCMUtil.class.getSimpleName();
     public static final int BIAS_8_BIT = 128;
-    public static final int BIAS_16_BIT = 32768;
+    public static final float BIAS_16_BIT = 32768.0f;
 
     /**
      * <p>
@@ -29,16 +30,16 @@ public class PCMUtil {
      * <p>
      *     16-bit PCM samples are stored as 2's-complement signed integers, ranging from -32768 to 32767.
      * </p>
-     * @param sample a 16-bit short value
-     * @return the 32-bit float value
+     *
+     * @param sample    a 16-bit {@code short}
+     * @return          a 32-bit {@code float}
      */
     public static float shortByte2Float(short sample) {
-        float f = ((float) sample) / (float) BIAS_16_BIT;
+        //float f = ((float) sample) / (float) BIAS_16_BIT;
+        float f = ((float) sample) * (1.0f / BIAS_16_BIT);
         if (f > 1) {
-            f = 1;
             Log.d(TAG, "Hard clipping float > 1");
         } else if (f < -1) {
-            f = -1;
             Log.d(TAG, "Hard clipping float < -1");
         }
         return f;
@@ -46,16 +47,20 @@ public class PCMUtil {
 
     /**
      * <p>
-     *     Converts an array of shorts into an array of floats.
-     *     The float values are guaranteed to lie in the range [-1,1].
+     *     Converts an array of {@code short} (signed, 16 bit) into an array
+     *     of signed 32-bit {@code float}.
+     *     The float values are normalised and guaranteed to lie in the range [-1,1].
+     *     16-bit PCM samples are stored as 2's-complement signed integers,
+     *     ranging from -32768 to 32767.
      * </p>
-     * @param samples an array of short values
-     * @return an array of float values
+     *
+     * @param samples   an array of {@code short}
+     * @return          an array of {@code float}
      */
     public static float[] short2FloatArray(short[] samples) {
         float[] output = new float[samples.length];
         for (int i = 0; i < output.length; i++) {
-            output[i] = shortByte2Float(samples[i]);
+            output[i] = ((float) samples[i]) * (1.0f / BIAS_16_BIT);
         }
         return output;
     }
@@ -65,32 +70,40 @@ public class PCMUtil {
      *     Converts a float value into a 16-bit short value.
      *     The float value must lie in the range [-1,1].
      * </p>
-     * @param sample a 32-bit float value
-     * @return the 16-bit short value
+     *
+     * @param sample    a 32-bit {@code float}
+     * @return          a 16-bit {@code short}
      */
     public static short float2Short(float sample) {
         float f = sample * BIAS_16_BIT;
         if (f > BIAS_16_BIT - 1) {
             f = BIAS_16_BIT - 1;
-            Log.d(TAG, "Hard clipping short > " + (BIAS_16_BIT - 1));
+            //Log.d(TAG, "Hard clipping short > " + (BIAS_16_BIT - 1));
         } else if (f < -BIAS_16_BIT) {
             f = -BIAS_16_BIT;
-            Log.d(TAG, "Hard clipping short < -" + BIAS_16_BIT);
+            //Log.d(TAG, "Hard clipping short < -" + BIAS_16_BIT);
         }
         return (short) f;
     }
 
     /**
      * <p>
-     *     Converts an array of floats into an array of shorts.
+     *     Converts an array of {@code float} into an array of signed 16-bit {@code short}.
      * </p>
-     * @param samples an array of floats
-     * @return an array of shorts
+     *
+     * @param samples   an array of {@code float}
+     * @return          an array of {@code short}
      */
     public static short[] float2ShortArray(float[] samples) {
         short[] output = new short[samples.length];
         for (int i = 0; i < output.length; i++) {
-            output[i] = float2Short(samples[i]);
+            double out =  samples[i] * BIAS_16_BIT;
+            if (out < Short.MIN_VALUE) {
+                out = Short.MIN_VALUE;
+            } else if (out > Short.MAX_VALUE) {
+                out = Short.MAX_VALUE;
+            }
+            output[i] = (short) out;
         }
         return output;
     }
@@ -102,20 +115,21 @@ public class PCMUtil {
      * </p>
      * <p>
      *     !!! Caution !!! <br>
-     *     For some reason, WAV files don't support signed 8-bit format, so when reading and writing
-     *     WAV files, be aware that 8-bits means unsigned, ranging from 0 to 255.
+     *     For some reason, WAV files encode 8-bit values as a unsigned bytes.
+      *    Therefore, when reading and writing WAV files, be aware that 8-bit ranges from 0 to 255.
      * </p>
-     * @param sample
-     * @return the 32-bit float value
+      *
+     * @param sample    a 8-bit {@code byte}
+     * @return          a 32-bit {@code float}
      */
     public static float byte2Float(byte sample) {
         float f = ((float) (sample - BIAS_8_BIT)) / (float) BIAS_8_BIT;
         if (f > 1) {
             f = 1;
-            Log.d(TAG, "Hard clipping float > 1");
+            //Log.d(TAG, "Hard clipping float > 1");
         } else if (f < -1) {
             f = -1;
-            Log.d(TAG, "Hard clipping float < -1");
+            //Log.d(TAG, "Hard clipping float < -1");
         }
         return f;
     }
@@ -125,8 +139,9 @@ public class PCMUtil {
      *     Converts an array of bytes into an array of floats.
      *     The float values are guaranteed to lie in the range [-1,1].
      * </p>
-     * @param samples
-     * @return an array of float values
+     *
+     * @param samples   an array of {@code byte}
+     * @return          an array of {@code float}
      */
     public static float[] byte2FloatArray(byte[] samples) {
         float[] output = new float[samples.length];
@@ -141,8 +156,9 @@ public class PCMUtil {
      *     Converts a array of floats into an array of PCM bytes.
      *     The byte order is little endian.
      * </p>
-     * @param samples An array of floats
-     * @return an array of byte values
+     *
+     * @param samples   an array of {@code float}
+     * @return          an array of {@code byte}
      */
     public static byte[] float8Bit2ByteArray(float[] samples) {
         ByteBuffer buffer = ByteBuffer.allocate(samples.length);
@@ -163,8 +179,9 @@ public class PCMUtil {
      *     Converts an array of floats into an array of PCM bytes.
      *     The byte order is little endian.
      * </p>
-     * @param samples an array of float values
-     * @return an array of byte values
+     *
+     * @param samples   an array of {@code float}
+     * @return          an array of {@code byte}
      */
     public static byte[] float16Bit2ByteArray(float[] samples) {
         ByteBuffer buffer = ByteBuffer.allocate(samples.length * 4);

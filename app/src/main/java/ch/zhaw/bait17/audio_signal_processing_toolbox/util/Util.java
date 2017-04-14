@@ -11,6 +11,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
  * <p>
  *     A general utility class.
  * </p>
+ *
  * @author georgrem, stockan1
  */
 
@@ -18,9 +19,10 @@ public class Util {
 
     /**
      * Returns an InputStream of the resource specified in the parameter.
-     * @param uri The resource you want to read from.
-     * @return An InputStream.
-     * @throws FileNotFoundException Throws an exception if the file cannot be found.
+     *
+     * @param uri                       the resource you want to read from
+     * @return                          an InputStream
+     * @throws FileNotFoundException    Throws an exception if the file cannot be found
      */
     public static InputStream getInputStreamFromURI(@NonNull String uri)
             throws FileNotFoundException {
@@ -29,18 +31,20 @@ public class Util {
 
     /**
      * Returns a ByteArrayInputStream containing the passed byte array as its internal buffer.
-     * @param data A byte array.
-     * @return InputStream
+     *
+     * @param data  a byte array
+     * @return      InputStream
      */
     public static InputStream getInputStreamFromByteArray(@NonNull byte[] data) {
         return new ByteArrayInputStream(data);
     }
 
     /**
-     * Computes and returns the greatest common divisor of two 32 bit integer numbers.
-     * @param n
-     * @param m
-     * @return
+     * Computes and returns the greatest common divisor (gcd) of two 32-bit integers.
+     *
+     * @param n     first integer
+     * @param m     second integer
+     * @return      gcd of n and m
      */
     public static int gcd(int n, int m) {
         if (n == 0) {

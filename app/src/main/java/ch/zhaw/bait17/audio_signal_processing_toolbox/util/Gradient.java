@@ -3,21 +3,27 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.util;
 import android.support.annotation.NonNull;
 
 /**
- * From: https://github.com/matthewbeckler/HeatMap/blob/master/Gradient.java
+ * This class provides static methods to compute colour gradients.
+ *
+ * From: <a href="https://github.com/matthewbeckler/HeatMap/blob/master/Gradient.java">GitHub of Mattthew Beckler</a>
  */
 
 public class Gradient {
 
     /**
-     * <p>Creates an array of Colour objects for use as a gradient, using a linear
-     * interpolation between the two specified colors.</p>
-     * @param firstColor Colour used for the bottom of the gradient.
-     * @param secondColor Colour used for the top of the gradient.
-     * @param numSteps The number of steps in the gradient.
-     * @return An array of Colour objects.
-     * @throws IllegalArgumentException numSteps must be greater than 0.
+     * <p>
+     *     Creates an array of Colour objects for use as a gradient, using a linear
+     *     interpolation between the two specified colors.
+     * </p>
+     *
+     * @param firstColor    colour used for the bottom of the gradient
+     * @param secondColor   colour used for the top of the gradient
+     * @param numSteps      the number of steps in the gradient (resolution)
+     * @return              an array of {@code Colour} objects
+     * @throws IllegalArgumentException numSteps must be greater than 0
      */
-    public static Colour[] createGradient(final Colour firstColor, final Colour secondColor, final int numSteps)
+    public static Colour[] createGradient(final Colour firstColor, final Colour secondColor,
+                                          final int numSteps)
             throws IllegalArgumentException {
         if (numSteps <= 0) {
             throw new IllegalArgumentException("Number of steps must be greater than 0.");
@@ -51,14 +57,20 @@ public class Gradient {
     }
 
     /**
-     * <p>Creates an array of Colour objects for use as a gradient, using an array of Colour objects.
-     * It uses a linear interpolation between each pair of points.
-     * The parameter numSteps defines the total number of colours in the returned array,
-     * not the number of colours per segment.</p>
-     * @param colours An array of Colour objects used for the gradient. The Colour at index 0 will be the lowest colour.
-     * @param numSteps
-     * @return An array of Colour objects.
-     * @throws IllegalArgumentException numSteps must be greater than 0 and Colour[] must contain at least tow colours.
+     * <p>
+     *     Creates an array of Colour objects for use as a gradient,
+     *     using an array of Colour objects.
+     *     It uses a linear interpolation between each pair of points.
+     *     The parameter numSteps defines the total number of colours in the returned array,
+     *     not the number of colours per segment.
+     * </p>
+     *
+     * @param colours       an array of Colour objects used for the gradient.
+     *                      The Colour at index 0 will be the lowest colour
+     * @param numSteps      the number of steps in the gradient (resolution)
+     * @return              an array of {@code Colour} objects
+     * @throws IllegalArgumentException numSteps must be greater than 0
+     *                                  and Colour[] must contain at least tow colours.
      */
     public static Colour[] createMultiGradient(@NonNull Colour[] colours, int numSteps)
             throws IllegalArgumentException {
