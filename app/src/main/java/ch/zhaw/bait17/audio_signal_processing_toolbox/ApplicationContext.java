@@ -10,7 +10,7 @@ import android.content.Context;
  * @author georgrem, stockan1
  */
 
-public class ApplicationContext extends Application {
+public final class ApplicationContext extends Application {
 
     private static Context context;
 
@@ -21,8 +21,9 @@ public class ApplicationContext extends Application {
     }
 
     /**
-     * Return the application context.
-     * @return
+     * Returns the application context.
+     *
+     * @return context
      */
     public static Context getAppContext() {
         return ApplicationContext.context;
