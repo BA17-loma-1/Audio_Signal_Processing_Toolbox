@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements
     private static final String TAG_VISUALISATION_CONFIGURATION_FRAGMENT = "VISUALISATION_CONFIGURATION";
     private static final String TAG_VISUALISATION_FRAGMENT = "VISUALISATION";
 
-    private Toolbar toolbar;
+    private AudioPlayerFragment audioPlayerFragment;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private List<Filter> filters;
 
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -78,7 +78,15 @@ public class MainActivity extends AppCompatActivity implements
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            // Problem: AudioPlayerFragment disappears when back button is pushed.
+            // Needs a more elegant solution.
+            /*
+            if (getFragmentManager().getBackStackEntryCount() > 0) {
+                getFragmentManager().popBackStack();
+            } else {
+                super.onBackPressed();
+            }
+            */
         }
     }
 
@@ -109,41 +117,65 @@ public class MainActivity extends AppCompatActivity implements
         return selectMenuItem(item);
     }
 
+    /**
+     * Sends the {@code Track} id to the {@code AudioPlayerFragment}
+     */
+    @Override
+    public void onTrackSelected(int trackPos,  View mediaListItemView) {
+        if (audioPlayerFragment != null) {
+            audioPlayerFragment.setTrack(trackPos);
+            audioPlayerFragment.setCurrentMediaListItemView(mediaListItemView);
+        }
+    }
+
+    /**
+     * Sets the title in the AppBar.
+     *
+     * @param title the title to be set
+     */
+    @Override
+    public void setTitle(CharSequence title) {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            getSupportActionBar().setTitle(title);
+        }
+    }
+
+    // When the fragment event fires
+    @Override
+    public void onFilterItemSelected(List<Filter> filters) {
+        if (audioPlayerFragment != null) {
+            audioPlayerFragment.setFilters(filters);
+        }
+    }
+
     // Layout: onClick event
     public void onClickPlayPauseTrack(View view) {
-        AudioPlayerFragment apf = getAudioPlayerFragment();
-        if (apf != null) {
-            apf.playPauseTrack();
+        if (audioPlayerFragment != null) {
+            audioPlayerFragment.playPauseTrack();
         }
     }
 
     // Layout: onClick event
     public void onClickPreviousTrack(View view) {
-        AudioPlayerFragment apf = getAudioPlayerFragment();
-        if (apf != null) {
-            apf.playPreviousTrack();
+        if (audioPlayerFragment != null) {
+            audioPlayerFragment.playPreviousTrack();
         }
     }
 
     // Layout: onClick event
     public void onClickNextTrack(View view) {
-        AudioPlayerFragment apf = getAudioPlayerFragment();
-        if (apf != null) {
-            apf.playNextTrack();
+        if (audioPlayerFragment != null) {
+            audioPlayerFragment.playNextTrack();
         }
     }
 
-    // when the fragment event fires
-    @Override
-    public void onFilterItemSelected(List<Filter> filters) {
-        AudioPlayerFragment apf = getAudioPlayerFragment();
-        if (apf != null) {
-            apf.setFilters(filters);
-        }
-    }
-
+    /**
+     * Loads all fragments into the {@code FrameLayout} placeholders.
+     */
     private void initFragments() {
         Fragment visualisationConfigurationFragment = new ViewFragment();
+        audioPlayerFragment = new AudioPlayerFragment();
         List<AudioView> activeViews = ((ViewFragment) visualisationConfigurationFragment).getActiveViews();
 
         FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -154,23 +186,13 @@ public class MainActivity extends AppCompatActivity implements
         ft.replace(R.id.content_frame, VisualisationFragment.newInstance(activeViews),
                 TAG_VISUALISATION_FRAGMENT);
         ft.replace(R.id.content_frame, new MediaListFragment(), TAG_MEDIA_LIST_FRAGMENT);
-        ft.replace(R.id.audio_player_fragment, new AudioPlayerFragment());
+        ft.replace(R.id.audio_player_fragment, audioPlayerFragment, TAG_AUDIO_PLAYER_FRAGMENT);
         ft.addToBackStack(null);
         ft.commit();
     }
 
-    @Nullable
-    private AudioPlayerFragment getAudioPlayerFragment() {
-        Fragment fragment = getFragmentManager().findFragmentById(R.id.audio_player_fragment);
-        if (fragment instanceof AudioPlayerFragment) {
-            return (AudioPlayerFragment) fragment;
-        } else {
-            return null;
-        }
-    }
-
-    private Fragment getFragmentByTag(String tag_fragmentName) {
-        return getFragmentManager().findFragmentByTag(tag_fragmentName);
+    private Fragment getFragmentByTag(String tagFragmentName) {
+        return getFragmentManager().findFragmentByTag(tagFragmentName);
     }
 
     /*
@@ -182,13 +204,13 @@ public class MainActivity extends AppCompatActivity implements
         // Store containerViewId and associated Fragment
         Fragment fragment = null;
         String title = "";
-        String tag_fragmentName = "";
+        String tagFragmentName= "";
 
         switch (item.getItemId()) {
             case R.id.nav_media_list:
                 fragment = getFragmentByTag(TAG_MEDIA_LIST_FRAGMENT);
                 title = "My Music";
-                tag_fragmentName = TAG_MEDIA_LIST_FRAGMENT;
+                tagFragmentName = TAG_MEDIA_LIST_FRAGMENT;
                 break;
             case R.id.nav_visualisation:
                 Fragment vcf = getFragmentByTag(TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
@@ -196,17 +218,17 @@ public class MainActivity extends AppCompatActivity implements
                 fragment = getFragmentByTag(TAG_VISUALISATION_FRAGMENT);
                 ((VisualisationFragment) fragment).setViews(activeViews);
                 title = "Visualisation";
-                tag_fragmentName = TAG_VISUALISATION_FRAGMENT;
+                tagFragmentName = TAG_VISUALISATION_FRAGMENT;
                 break;
             case R.id.nav_view:
                 fragment = getFragmentByTag(TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
                 title = "View";
-                tag_fragmentName = TAG_VISUALISATION_CONFIGURATION_FRAGMENT;
+                tagFragmentName = TAG_VISUALISATION_CONFIGURATION_FRAGMENT;
                 break;
             case R.id.nav_filter:
                 fragment = getFragmentByTag(TAG_FILTER_FRAGMENT);
                 title = "Filter";
-                tag_fragmentName = TAG_FILTER_FRAGMENT;
+                tagFragmentName = TAG_FILTER_FRAGMENT;
                 break;
             case R.id.nav_about:
                 title = "About the app";
@@ -216,9 +238,9 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         if (fragment != null) {
-            ft.replace(R.id.content_frame, fragment, tag_fragmentName);
+            ft.replace(R.id.content_frame, fragment, tagFragmentName);
+            ft.addToBackStack(null);
         }
-        ft.addToBackStack(null);
         ft.commit();
 
         setTitle(title);
@@ -247,24 +269,6 @@ public class MainActivity extends AppCompatActivity implements
         return FilterUtil.getFilter(getResources().openRawResource(R.raw.b_fir_bandstop));
     }
 
-    @Override
-    public void onTrackSelected(List<Track> tracks, int trackPos,  View mediaListItemView) {
-        // Send track to audio player fragment
-        Fragment fragment = getFragmentManager().findFragmentById(R.id.audio_player_fragment);
-        if (fragment instanceof AudioPlayerFragment) {
-            ((AudioPlayerFragment) fragment).setTrack(trackPos);
-            ((AudioPlayerFragment) fragment).setCurrentMediaListItemView(mediaListItemView);
-        }
-    }
-
-    @Override
-    public void setTitle(CharSequence title) {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            getSupportActionBar().setTitle(title);
-        }
-    }
-
     private void initFilters() {
         filters = new ArrayList<>();
         filters.add(null);
@@ -277,8 +281,9 @@ public class MainActivity extends AppCompatActivity implements
     private void setTrackList() {
         Fragment mlf = getFragmentByTag(TAG_MEDIA_LIST_FRAGMENT);
         List<Track> tracks = ((MediaListFragment) mlf).getTracks();
-        AudioPlayerFragment apf = getAudioPlayerFragment();
-        apf.setTracks(tracks);
+        if (audioPlayerFragment != null) {
+            audioPlayerFragment.setTracks(tracks);
+        }
     }
 
 }

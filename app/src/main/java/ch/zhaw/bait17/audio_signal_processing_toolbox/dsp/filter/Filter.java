@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 /**
  * <p>
- *     Interface representing a filter.
+ *     An interface representing a digital filter.
  * </p>
  * @author georgrem, stockan1
  */
@@ -14,13 +14,20 @@ public interface Filter extends Parcelable {
 
     /**
      * <p>
-     *     Apply the filter to a block of PCM samples.
+     *     Applies the filter to a block of PCM samples.
+     *     Input and output sample arrays must have the same length.
      * </p>
-     * @param input
+     *
+     * @param input     array of {@code float} input samples
+     * @param output    arary of {@code float} output samples must be of same length as input array
+     */
+    void apply(@NonNull float[] input, @NonNull float[] output);
+
+    /**
+     * Returns the filter specification.
+     *
      * @return
      */
-    float[] apply(@NonNull float[] input);
-
     FilterSpec getFilterSpec();
 
 }

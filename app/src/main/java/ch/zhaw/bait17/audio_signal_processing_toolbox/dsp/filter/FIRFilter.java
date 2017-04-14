@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
  * <p>
  *     A class representing a Nth-order discrete-time FIR filter.
  * </p>
+ *
  * @author georgrem, stockan1
  */
 
@@ -53,24 +54,24 @@ public class FIRFilter implements Filter {
      *     Process a block of PCM samples with discrete convolution.
      *     Calculates the full convolution and takes advantage of symmetry of FIR filters
      *     to reduce multiplications.
+     *     Input and output sample arrays must have the same length.
      * </p>
      * <p>
      *     See The Scientist and Engineer's Guide to Digital Signal Processing for detailed
      *     information about convolution. {@Link http://www.dspguide.com/ch6/4.htm}
      * </p>
      *
-     * @param input a {@code short} array of input samples
-     * @return a {@code short} array of filtered samples
+     * @param input {@code float} array of filter input samples
+     * @param output {@code float} array of filter output samples
      */
-    public float[] apply(@NonNull float[] input) {
-        if (input.length == 0 || getOrder() <= 0) {
-            return  input;
+    public void apply(@NonNull float[] input, @NonNull float[] output) {
+        if (input.length != output.length || input.length == 0 || getOrder() <= 0) {
+            return;
+        } else {
+            float[] fullConvolution = new float[input.length + getOrder()];
+            convolveInputSide(input, fullConvolution, input.length);
+            System.arraycopy(fullConvolution, 0, output, 0, output.length);
         }
-        float[] fullConvolution = new float[input.length + getOrder()];
-        convolveInputSide(input, fullConvolution, input.length);
-        float[] output = new float[input.length];
-        System.arraycopy(fullConvolution, 0, output, 0, output.length);
-        return output;
     }
 
     /**

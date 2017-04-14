@@ -6,13 +6,10 @@ import android.media.AudioTrack;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
-
 import org.greenrobot.eventbus.EventBus;
-
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
-
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
@@ -38,7 +35,6 @@ public final class AudioPlayer {
     private static final int BUFFER_LENGTH_PER_CHANNEL_IN_SECONDS = 3;
 
     private static short[] decodedSamples;
-    private static float[] filteredSamples;
     private static AudioDecoder decoder;
     private static AudioTrack audioTrack;
     private static List<Filter> filters;
@@ -92,15 +88,17 @@ public final class AudioPlayer {
 
     /**
      * Plays back the currently selected {@code Track}.
-     * Works only if a {@code Track} has been selected {@link #selectTrack(Track)}.
+     * A {@code Track} must be select first {@link #selectTrack(Track)}.
+     * Changing the {@code AudioTrack} buffer size on the fly requires API Level 24.
+     * Therefore if the sample rate or the channel count has changed, a new {@code AudioTrack}
+     * must be created.
+     *
      */
     public void play() {
         if (!isPaused() && !isPlaying() && currentTrack != null) {
             initialiseDecoder(currentTrack.getUri());
             if (isDecoderInitialised()
                     && (!isAudioTrackInitialised() || sampleRateHasChanged || channelsHasChanged)) {
-                // Change AudioTrack buffer size requires API Level 24.
-                // audioTrack.setBufferSizeInFrames(getOptimalBufferSize());
                 audioTrack = null;
                 createAudioTrack();
             }
@@ -220,18 +218,18 @@ public final class AudioPlayer {
     }
 
     /**
-     * Returns the current head position of the playback.
+     * Returns the current playback position expressed in frames.
      *
-     * @return
+     * @return {@code AudioPlayer} playback position
      */
-    public int getCurrentPosition() {
-        return 0;
+    public int getPlaybackPosition() {
+        return isAudioTrackInitialised() ? audioTrack.getPlaybackHeadPosition() : 0;
     }
 
     /**
-     * Sets the filter.
+     * Sets the filters.
      *
-     * @param filters
+     * @param filters list of filters
      */
     public void setFilter(List<Filter> filters) {
         this.filters = filters;
@@ -302,7 +300,10 @@ public final class AudioPlayer {
                             playState = PlayState.PLAY;
                             decodedSamples = decoder.getNextSampleBlock();
                             if (decodedSamples != null) {
-                                filteredSamples = filter(PCMUtil.short2FloatArray(decodedSamples));
+                                float[] filteredSamples = PCMUtil.short2FloatArray(decodedSamples);
+                                if (filters != null) {
+                                    filter(PCMUtil.short2FloatArray(decodedSamples), filteredSamples);
+                                }
                                 if (audioTrack.write(PCMUtil.float2ShortArray(filteredSamples),
                                         0, filteredSamples.length) < filteredSamples.length) {
                                     Log.d(TAG, "Dropped samples.");
@@ -320,11 +321,14 @@ public final class AudioPlayer {
                         }
                     }
                     Log.d(TAG, "Finished decoding");
-                    // Wait until all frames are written
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        Log.e(TAG, "Interrupted while waiting that playback finishes.");
+                    // Wait some time and let AudioTrack output the frames in its buffer.
+                    long then = System.nanoTime();
+                    while (System.nanoTime() < then + 1e9) {
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            Log.e(TAG, "Interrupted while waiting that playback finishes.");
+                        }
                     }
                     listener.onCompletion();
                     audioTrack.pause();
@@ -338,27 +342,29 @@ public final class AudioPlayer {
             }).start();
         } else {
             // Some error occurred, AudioPlayer is unable to play source.
+            Toast.makeText(ApplicationContext.getAppContext(), "Unsupported audio format.",
+                    Toast.LENGTH_SHORT).show();
             playState = PlayState.STOP;
             listener.onCompletion();
         }
     }
 
     /**
-     * Apply the filter to the supplied audio samples block.
+     * Apply the filter(s) to the supplied audio samples block.
+     * Input and output array must have the same length.
      *
      * @param input
-     * @return
+     * @param output
      */
-    private float[] filter(float[] input) {
-        if (filters == null) {
-            return input;
+    private void filter(@NonNull float[] input, @NonNull float[] output) {
+        if (filters != null && input.length == output.length) {
+            for (Filter filter : filters) {
+                if (filter != null) {
+                    filter.apply(input, output);
+                    input = output;
+                }
+            }
         }
-        float[] output = input;
-        for (Filter filter : filters) {
-            output = filter.apply(input);
-            input = output;
-        }
-        return output;
     }
 
     /**
@@ -390,7 +396,7 @@ public final class AudioPlayer {
     }
 
     /**
-     * Returns true if the AudioTrack object is ready.
+     * Returns true if {@code AudioTrack} object is ready.
      *
      * @return
      */
@@ -409,6 +415,7 @@ public final class AudioPlayer {
 
     /**
      * Initialises the EventBus.
+     * EventBus is used to send sample blocks to different views.
      */
     private void buildEventBus() {
         eventBus = EventBus.builder()

@@ -32,7 +32,9 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramV
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrumView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView;
 
-
+/**
+ * @author georgrem, stockan1
+ */
 public class VisualisationFragment extends Fragment {
 
     private static final String TAG = VisualisationFragment.class.getSimpleName();
@@ -118,7 +120,7 @@ public class VisualisationFragment extends Fragment {
         if (views != null) {
             for (AudioView view : views) {
                 if (view instanceof SpectrogramView) {
-                    ((SpectrogramView) view).setFFTWindowSize(fftResolution);
+                    ((SpectrogramView) view).setFFTResolution(fftResolution);
                 }
             }
         }
@@ -151,6 +153,15 @@ public class VisualisationFragment extends Fragment {
                 }
             }
         }
+    }
+
+    /**
+     * Sets the views to be displayed in the fragment.
+     *
+     * @param views
+     */
+    public void setViews(List<AudioView> views) {
+        this.views = views;
     }
 
     private void setViewParameters(AudioView view, PCMSampleBlock sampleBlock) {
@@ -236,7 +247,4 @@ public class VisualisationFragment extends Fragment {
         return new PowerSpectrum(samples);
     }
 
-    public void setViews(List<AudioView> views) {
-        this.views = views;
-    }
 }

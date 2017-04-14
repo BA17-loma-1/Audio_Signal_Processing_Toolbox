@@ -82,8 +82,12 @@ public final class MP3Decoder implements AudioDecoder {
                 return null;
             }
             bitstream.closeFrame();
-        } catch (BitstreamException | DecoderException ex) {
+        } catch (BitstreamException | DecoderException | ArrayIndexOutOfBoundsException ex) {
+            /*
+                ArrayIndexOutOfBoundsException: weird error happens sometimes with MP3Decoder
+             */
             Log.e(TAG, ex.getMessage(), ex);
+            sampleBlock = null;
         }
         return sampleBlock;
     }
