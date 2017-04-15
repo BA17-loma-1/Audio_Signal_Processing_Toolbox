@@ -1,28 +1,60 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion;
 
+import android.os.Parcel;
 import android.support.annotation.NonNull;
+
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 
 /**
  * Quantizer / decimator with smooth control. By David Lowenfels, MusicDSP forum (www.musicdsp.com)
  *
  */
 
-public class Bitcrusher extends Distortion {
+public class Bitcrusher implements AudioEffect {
+
+    private static final String LABEL = "Bitcrusher";
+    private static final String DESCRIPTION = "";
+    private float normFrequency;
+    private int bits;
+
+    /**
+     *
+     * @param normFrequency     frequency / sampleRate, a value in the range [0,1]
+     * @param bits              the number of bits in the range [1,16]
+     */
+    public Bitcrusher(float normFrequency, int bits) {
+        this.normFrequency = normFrequency;
+        this.bits = bits;
+    }
+
+    /**
+     *
+     * @param normFrequency     frequency / sampleRate, a value in the range [0,1]
+     */
+    public void setNormFrequency(float normFrequency) {
+        this.normFrequency = normFrequency;
+    }
+
+    /**
+     *
+     * @param bits  the number of bits in the range [1,16]
+     */
+    public void setBits(int bits) {
+        this.bits = bits;
+    }
 
     /**
      * @param input     an array of {@code float} containing the input samples
      * @param output    an array of {@code float} of same length as the input samples array
-     * @param normFreq  frequency / sampleRate, a value in the range [0,1]
-     * @param bits      the number of bits in the range [1,16]
      */
-    public static void apply(@NonNull float[] input, @NonNull float[] output,
-                                  float normFreq, int bits) {
+    @Override
+    public void apply(@NonNull float[] input, @NonNull float[] output) {
         if (input.length == output.length) {
             double step = Math.pow(0.5, bits);
             double phasor = 0;
             double last = 0;
             for (int i = 0; i < input.length; i++) {
-                phasor += normFreq;
+                phasor += normFrequency;
                 if (phasor >= 1) {
                     phasor -= 1;
                     // Quantize
@@ -33,5 +65,41 @@ public class Bitcrusher extends Distortion {
             }
         }
     }
+
+    @Override
+    public String getLabel() {
+        return LABEL;
+    }
+
+    @Override
+    public String getDescription() { return DESCRIPTION; }
+
+    @Override
+    public int describeContents() {
+        return hashCode();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeFloat(this.normFrequency);
+        dest.writeInt(this.bits);
+    }
+
+    protected Bitcrusher(Parcel in) {
+        this.normFrequency = in.readFloat();
+        this.bits = in.readInt();
+    }
+
+    public static final Creator<Bitcrusher> CREATOR = new Creator<Bitcrusher>() {
+        @Override
+        public Bitcrusher createFromParcel(Parcel source) {
+            return new Bitcrusher(source);
+        }
+
+        @Override
+        public Bitcrusher[] newArray(int size) {
+            return new Bitcrusher[size];
+        }
+    };
 
 }

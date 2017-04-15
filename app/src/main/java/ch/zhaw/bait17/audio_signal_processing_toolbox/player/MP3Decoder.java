@@ -4,8 +4,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
+
 import java.io.IOException;
 import java.io.InputStream;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import javazoom.jl.decoder.Bitstream;
 import javazoom.jl.decoder.BitstreamException;
@@ -17,12 +19,14 @@ import javazoom.jl.decoder.SampleBuffer;
 /**
  * <p>
  *     Implementation of a MP3 decoder based on Java Zoom JLayer.
+ *     See <a href="http://www.javazoom.net/javalayer/javalayer.html">JLayer website</a> </br>
  *     PCM sample blocks can be read one by one with {@link #getNextSampleBlock()}.
  * </p>
+ *
  * @author georgrem, stockan1
  */
 
-public final class MP3Decoder implements AudioDecoder {
+public class MP3Decoder implements AudioDecoder {
 
     private static final String TAG = MP3Decoder.class.getSimpleName();
     private static final MP3Decoder INSTANCE = new MP3Decoder();
@@ -41,9 +45,9 @@ public final class MP3Decoder implements AudioDecoder {
     }
 
     /**
-     * Returns the singleton instance of the MP3 decoder.
+     * Returns the singleton instance of the {@code MP3Decoder}.
      *
-     * @return
+     * @return the {@code MP3Decoder} instance
      */
     public static MP3Decoder getInstance() {
         return INSTANCE;
@@ -52,8 +56,9 @@ public final class MP3Decoder implements AudioDecoder {
     /**
      * Sets the audio source.
      *
-     * @param inputStream
+     * @param inputStream   the {@code InputStream} to read from
      */
+    @Override
     public void setSource(@NonNull InputStream inputStream) {
         if (is != null) {
             try {
@@ -114,7 +119,7 @@ public final class MP3Decoder implements AudioDecoder {
         position = 0;
     }
 
-    private void extractFrameHeaderInfo(Bitstream bitstream) {
+    private void extractFrameHeaderInfo(@NonNull Bitstream bitstream) {
         try {
             Header frameHeader = bitstream.readFrame();
             SampleBuffer samples = (SampleBuffer) decoder.decodeFrame(frameHeader, bitstream);

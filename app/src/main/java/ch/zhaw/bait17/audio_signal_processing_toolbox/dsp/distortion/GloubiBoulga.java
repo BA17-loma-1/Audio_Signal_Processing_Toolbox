@@ -16,7 +16,7 @@ public class GloubiBoulga {
      *                  {@code float} values must be normalised in the range [-1,1]
      * @param output    an array of {@code float} of same length as the input samples array
      */
-    public static void apply(@NonNull float[] input, @NonNull float[] output) {
+    public void apply(@NonNull float[] input, @NonNull float[] output) {
         if (input.length == output.length) {
             for (int i = 0; i < input.length; i++) {
                 double x = input[i] * GLOUBI_BOULGA_CONST;

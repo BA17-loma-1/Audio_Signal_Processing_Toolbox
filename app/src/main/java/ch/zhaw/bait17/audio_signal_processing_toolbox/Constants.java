@@ -22,4 +22,11 @@ public class Constants {
     public static final String ATTENUATION_STOP_1 = "Astop1";
     public static final String ATTENUATION_STOP_2 = "Astop2";
 
+    // Bitcrusher
+    public static final float BITCRUSHER_DEFAULT_NORM_FREQUENCY = 0.1f;
+    public static final int BITCRUSHER_DEFAULT_BITS = 8;
+
+    // SoftClipper
+    public static final float SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR = 200f;
+
 }

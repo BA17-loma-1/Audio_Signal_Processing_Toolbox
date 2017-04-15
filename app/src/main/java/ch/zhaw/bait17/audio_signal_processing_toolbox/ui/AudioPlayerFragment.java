@@ -5,7 +5,6 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -17,13 +16,16 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.player.AudioPlayer;
@@ -35,7 +37,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.player.PlaybackListener;
 public class AudioPlayerFragment extends Fragment {
 
     private static final String TAG = AudioPlayerFragment.class.getSimpleName();
-    private static final String BUNDLE_ARGUMENT_FILTER = "filter_view";
+    private static final String BUNDLE_ARGUMENT_AUDIOEFFECTS = "audio_effect_view";
     private static final long PROGRESS_UPDATE_INTERNAL = 1000;
     private static final long PROGRESS_UPDATE_INITIAL_INTERVAL = 100;
     private final Handler seekBarHandler = new Handler();
@@ -71,7 +73,7 @@ public class AudioPlayerFragment extends Fragment {
     public static AudioPlayerFragment newInstance(Filter filter) {
         AudioPlayerFragment fragment = new AudioPlayerFragment();
         Bundle bundle = new Bundle();
-        bundle.putParcelable(BUNDLE_ARGUMENT_FILTER, filter);
+        bundle.putParcelable(BUNDLE_ARGUMENT_AUDIOEFFECTS, filter);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -137,18 +139,19 @@ public class AudioPlayerFragment extends Fragment {
         });
         Bundle args = getArguments();
         if (args != null) {
-            List<Filter> filters = (List<Filter>) args.getSerializable(BUNDLE_ARGUMENT_FILTER);
-            audioPlayer.setFilter(filters);
+            List<AudioEffect> audioEffects =
+                    args.getParcelableArrayList(BUNDLE_ARGUMENT_AUDIOEFFECTS);
+            audioPlayer.setAudioEffects(audioEffects);
         }
     }
 
     /**
-     * Sets the filter list.
+     * Sets the list of {@code AudioEffect}s.
      *
-     * @param filters list of {@code Filter}
+     * @param audioEffects list of {@code AudioEffect}s
      */
-    public void setFilters(List<Filter> filters) {
-        audioPlayer.setFilter(filters);
+    public void setAudioEffects(List<AudioEffect> audioEffects) {
+        audioPlayer.setAudioEffects(audioEffects);
     }
 
     /**

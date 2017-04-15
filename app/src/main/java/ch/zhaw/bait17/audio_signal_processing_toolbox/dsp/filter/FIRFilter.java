@@ -45,8 +45,19 @@ public class FIRFilter implements Filter {
      * Returns the filter order.
      * @return
      */
+    @Override
     public int getOrder() {
         return ORDER;
+    }
+
+    @Override
+    public String getLabel() {
+        return filterSpec.getFilterType().getLabel();
+    }
+
+    @Override
+    public String getDescription() {
+        return filterSpec.getDescription();
     }
 
     /**
@@ -58,7 +69,8 @@ public class FIRFilter implements Filter {
      * </p>
      * <p>
      *     See The Scientist and Engineer's Guide to Digital Signal Processing for detailed
-     *     information about convolution. {@Link http://www.dspguide.com/ch6/4.htm}
+     *     information about convolution. </br>
+     *     <a href="http://www.dspguide.com/ch6/4.htm">www.dspguide.com</a>
      * </p>
      *
      * @param input {@code float} array of filter input samples

@@ -4,7 +4,6 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -12,14 +11,21 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Bitcrusher;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.SoftClipper;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FilterUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
@@ -32,7 +38,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         MediaListFragment.OnTrackSelectedListener,
-        FilterFragment.OnItemSelectedListener {
+        AudioEffectFragment.OnItemSelectedListener {
 
     private static final String TAG_AUDIO_PLAYER_FRAGMENT = "AUDIO_PLAYER";
     private static final String TAG_FILTER_FRAGMENT = "FILTER";
@@ -42,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private AudioPlayerFragment audioPlayerFragment;
     private ActionBarDrawerToggle actionBarDrawerToggle;
-    private List<Filter> filters;
+    private ArrayList<AudioEffect> audioEffects;
 
 
     @Override
@@ -61,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        initFilters();
+        initAudioEffects();
         initFragments();
     }
 
@@ -143,9 +149,9 @@ public class MainActivity extends AppCompatActivity implements
 
     // When the fragment event fires
     @Override
-    public void onFilterItemSelected(List<Filter> filters) {
+    public void onFilterItemSelected(List<AudioEffect> audioEffects) {
         if (audioPlayerFragment != null) {
-            audioPlayerFragment.setFilters(filters);
+            audioPlayerFragment.setAudioEffects(audioEffects);
         }
     }
 
@@ -179,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements
         List<AudioView> activeViews = ((ViewFragment) visualisationConfigurationFragment).getActiveViews();
 
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(R.id.content_frame, FilterFragment.newInstance(filters),
+        ft.replace(R.id.content_frame, AudioEffectFragment.newInstance(audioEffects),
                 TAG_FILTER_FRAGMENT);
         ft.replace(R.id.content_frame, visualisationConfigurationFragment,
                 TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
@@ -249,33 +255,37 @@ public class MainActivity extends AppCompatActivity implements
         return true;
     }
 
-    @Nullable
-    private Filter getLowPassFilter() {
-        return FilterUtil.getFilter(getResources().openRawResource(R.raw.b_fir_lowpass));
+    /**
+     * Finds all filter spec files in the raw resources folder and returns a list of {@code Filter}.
+     *
+     * @return
+     */
+    private List<Filter> getAllFilters() {
+        List<Filter> filters = new ArrayList<>();
+        Field[] fields = R.raw.class.getFields();
+        for (Field field : fields) {
+            int rawId = getResources().getIdentifier(field.getName(), "raw",
+                    ApplicationContext.getAppContext().getPackageName());
+            if (rawId != 0) {
+                TypedValue value = new TypedValue();
+                getResources().getValue(rawId, value, true);
+                String[] s = value.string.toString().split("/");
+                String filename = s[s.length - 1];
+                if (filename.startsWith("b_fir")) {
+                    filters.add(FilterUtil.getFilter(getResources().openRawResource(rawId)));
+                }
+            }
+        }
+        return filters;
     }
 
-    @Nullable
-    private Filter getHighPassFilter() {
-        return FilterUtil.getFilter(getResources().openRawResource(R.raw.b_fir_highpass));
-    }
-
-    @Nullable
-    private Filter getBandPassFilter() {
-        return FilterUtil.getFilter(getResources().openRawResource(R.raw.b_fir_bandpass));
-    }
-
-    @Nullable
-    private Filter getBandStopFilter() {
-        return FilterUtil.getFilter(getResources().openRawResource(R.raw.b_fir_bandstop));
-    }
-
-    private void initFilters() {
-        filters = new ArrayList<>();
-        filters.add(null);
-        filters.add(getLowPassFilter());
-        filters.add(getHighPassFilter());
-        filters.add(getBandPassFilter());
-        filters.add(getBandStopFilter());
+    private void initAudioEffects() {
+        audioEffects = new ArrayList<>();
+        audioEffects.add(null);          // No filter
+        audioEffects.addAll(getAllFilters());
+        audioEffects.add(new Bitcrusher(Constants.BITCRUSHER_DEFAULT_NORM_FREQUENCY,
+                Constants.BITCRUSHER_DEFAULT_BITS));
+        audioEffects.add(new SoftClipper(Constants.SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR));
     }
 
     private void setTrackList() {

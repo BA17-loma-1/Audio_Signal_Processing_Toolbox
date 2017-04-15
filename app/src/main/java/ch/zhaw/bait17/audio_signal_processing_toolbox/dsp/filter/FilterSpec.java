@@ -73,11 +73,11 @@ public class FilterSpec implements Parcelable {
 
     @Override
     public String toString() {
-        return getOutput();
+        return getDescription();
     }
 
     @SuppressLint("DefaultLocale")
-    private String getOutput() {
+    public String getDescription() {
         String output = "";
         switch (filterType) {
             case LOWPASS:

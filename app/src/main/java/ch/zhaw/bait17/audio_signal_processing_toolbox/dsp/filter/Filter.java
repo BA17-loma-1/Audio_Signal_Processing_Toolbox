@@ -1,7 +1,6 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter;
 
-import android.os.Parcelable;
-import android.support.annotation.NonNull;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 
 /**
  * <p>
@@ -10,18 +9,14 @@ import android.support.annotation.NonNull;
  * @author georgrem, stockan1
  */
 
-public interface Filter extends Parcelable {
+public interface Filter extends AudioEffect {
 
     /**
-     * <p>
-     *     Applies the filter to a block of PCM samples.
-     *     Input and output sample arrays must have the same length.
-     * </p>
+     * Returns the order of the filter.
      *
-     * @param input     array of {@code float} input samples
-     * @param output    arary of {@code float} output samples must be of same length as input array
+     * @return filter order
      */
-    void apply(@NonNull float[] input, @NonNull float[] output);
+    int getOrder();
 
     /**
      * Returns the filter specification.

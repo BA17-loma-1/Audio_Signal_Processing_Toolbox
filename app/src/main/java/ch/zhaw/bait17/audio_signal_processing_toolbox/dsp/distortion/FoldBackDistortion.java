@@ -14,8 +14,7 @@ public class FoldBackDistortion {
      * @param output            an array of {@code float} of same length as the input samples array
      * @param threshold         value > 0
      */
-    public static void apply(@NonNull float[] input, @NonNull float[] output,
-                                          float threshold) {
+    public void apply(@NonNull float[] input, @NonNull float[] output, float threshold) {
         if (input.length == output.length) {
             for (int i = 0; i < input.length; i++) {
                 if (input[i] > threshold || input[i] < -threshold) {

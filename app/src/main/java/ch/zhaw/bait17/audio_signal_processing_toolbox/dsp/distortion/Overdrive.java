@@ -16,7 +16,7 @@ public class Overdrive {
      * @param input     an array of {@code float} containing the input samples
      * @param output    an array of {@code float} of same length as the input samples array
      */
-    public static void apply(@NonNull float[] input, @NonNull float[] output) {
+    public void apply(@NonNull float[] input, @NonNull float[] output) {
         if (input.length == output.length) {
             for (int i = 0; i < input.length; i++) {
                 if (input[i] >= 0 && input[i] <= ONE_THIRD) {

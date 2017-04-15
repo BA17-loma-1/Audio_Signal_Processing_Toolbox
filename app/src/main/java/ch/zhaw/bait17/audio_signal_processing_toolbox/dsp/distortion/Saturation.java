@@ -16,7 +16,7 @@ public class Saturation extends Distortion {
      * @param output        an array of {@code float} of same length as the input samples array
      * @param threshold     value > 1.0
      */
-    public static void saturate(@NonNull float[] input, @NonNull float[] output,  float threshold) {
+    public void saturate(@NonNull float[] input, @NonNull float[] output,  float threshold) {
         if (input.length == output.length) {
             for (int i = 0; i < input.length; i++) {
                 if (Math.abs(input[i]) >= threshold) {

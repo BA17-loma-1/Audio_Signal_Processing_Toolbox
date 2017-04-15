@@ -8,7 +8,7 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter;
 
 public enum FilterType {
 
-    LOWPASS("lowpass"), HIGHPASS("highpass"), BANDPASS("bandpass"), BANDSTOP("bandstop"), UNKNOWN("unknown");
+    LOWPASS("lowpass"), HIGHPASS("highpass"), BANDPASS("bandpass"), BANDSTOP("bandstop");
 
     private String type;
 
@@ -20,9 +20,17 @@ public enum FilterType {
         return type;
     }
 
-    public static String getLabel(FilterType type) {
+    public String getLabel() {
         String label;
-        switch (type) {
+        FilterType ft = null;
+
+        for (FilterType filterType : FilterType.values()) {
+            if (filterType.type.equalsIgnoreCase(this.type)) {
+                ft = filterType;
+            }
+        }
+
+        switch (ft) {
             case LOWPASS:
                 label = "Low pass filter";
                 break;

@@ -2,6 +2,7 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.player;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
 import java.io.InputStream;
 
 /**
@@ -15,7 +16,7 @@ public interface AudioDecoder {
     /**
      * Returns the next PCM sample block or null if end of stream is reached.
      *
-     * @return
+     * @return a block of PCM samples
      */
     @Nullable
     short[] getNextSampleBlock();
@@ -23,26 +24,26 @@ public interface AudioDecoder {
     /**
      * Returns the sample rate.
      *
-     * @return
+     * @return the sample rate
      */
     int getSampleRate();
 
     /**
      * Returns the number of channels.
      *
-     * @return
+     * @return the number of channels
      */
     int getChannels();
 
     /**
      * Sets the audio source to decode.
      *
-     * @param is
+     * @param is    an {@code InputStream}
      */
     void setSource(@NonNull InputStream is);
 
     /**
-     * Returns true if the decoder is ready.
+     * Returns true if the decoder is ready for decoding.
      *
      * @return
      */

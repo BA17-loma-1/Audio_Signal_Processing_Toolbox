@@ -12,48 +12,47 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.ui.custom.FilterAdapter;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.ui.custom.AudioEffectAdapter;
 
 /**
  * @author georgrem, stockan1
  */
 
-public class FilterFragment extends Fragment implements AdapterView.OnItemSelectedListener {
+public class AudioEffectFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
-    private static final String BUNDLE_ARGUMENT_FILTERS = FilterFragment.class.getSimpleName() + ".FILTERS";
+    private static final String BUNDLE_ARGUMENT_FILTERS =
+            AudioEffectFragment.class.getSimpleName() + ".AUDIOEFFECT";
 
     private Spinner spinnerFirstFilter;
     private Spinner spinnerSecondFilter;
     private Spinner spinnerThirdFilter;
     private Spinner spinnerFourthFilter;
-    private List<Filter> filters;
-    private List<Filter> activeFilters;
-
+    private List<AudioEffect> audioEffects;
+    private List<AudioEffect> activeEffects;
 
     // listener of the interface type
     private OnItemSelectedListener listener;
 
     // the event that the fragment will use to communicate
     public interface OnItemSelectedListener {
-        void onFilterItemSelected(List<Filter> filter);
+        void onFilterItemSelected(List<AudioEffect> audioEffect);
     }
 
     /*
         In certain cases, your fragment may want to accept certain arguments.
         A common pattern is to create a static newInstance method for creating a Fragment with arguments.
         This is because a Fragment must have only a constructor with no arguments.
-        From: {@link https://guides.codepath.com/android/Creating-and-Using-Fragments#communicating-with-fragments}
+        From: <a href="https://guides.codepath.com/android/Creating-and-Using-Fragments#communicating-with-fragments">codepath.com</a>
     */
-    public static FilterFragment newInstance(List<Filter> filters) {
-        FilterFragment fragment = new FilterFragment();
+    public static AudioEffectFragment newInstance(ArrayList<AudioEffect> audioEffects) {
+        AudioEffectFragment fragment = new AudioEffectFragment();
         Bundle arguments = new Bundle();
-        arguments.putSerializable(BUNDLE_ARGUMENT_FILTERS, (Serializable) filters);
+        arguments.putParcelableArrayList(BUNDLE_ARGUMENT_FILTERS, audioEffects);
         fragment.setArguments(arguments);
         return fragment;
     }
@@ -99,32 +98,32 @@ public class FilterFragment extends Fragment implements AdapterView.OnItemSelect
         super.onCreate(savedInstanceState);
         // Get back arguments
         Bundle arguments = this.getArguments();
-        if (arguments.getSerializable(BUNDLE_ARGUMENT_FILTERS) != null)
-            filters = (List<Filter>) arguments.getSerializable(BUNDLE_ARGUMENT_FILTERS);
+        if (arguments.getParcelableArrayList(BUNDLE_ARGUMENT_FILTERS) != null)
+            audioEffects = arguments.getParcelableArrayList(BUNDLE_ARGUMENT_FILTERS);
     }
 
     // The onCreateView method is called when Fragment should create its View object hierarchy,
     // either dynamically or via XML layout inflation.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.filter_view, container, false);
+        View view = inflater.inflate(R.layout.audio_effect_view, container, false);
 
-        FilterAdapter filterAdapter = new FilterAdapter(filters);
+        AudioEffectAdapter audioEffectAdapter = new AudioEffectAdapter(audioEffects);
 
         spinnerFirstFilter = (Spinner) view.findViewById(R.id.spinner_first_filter);
-        spinnerFirstFilter.setAdapter(filterAdapter);
+        spinnerFirstFilter.setAdapter(audioEffectAdapter);
         spinnerFirstFilter.setOnItemSelectedListener(this);
 
         spinnerSecondFilter = (Spinner) view.findViewById(R.id.spinner_second_filter);
-        spinnerSecondFilter.setAdapter(filterAdapter);
+        spinnerSecondFilter.setAdapter(audioEffectAdapter);
         spinnerSecondFilter.setOnItemSelectedListener(this);
 
         spinnerThirdFilter = (Spinner) view.findViewById(R.id.spinner_third_filter);
-        spinnerThirdFilter.setAdapter(filterAdapter);
+        spinnerThirdFilter.setAdapter(audioEffectAdapter);
         spinnerThirdFilter.setOnItemSelectedListener(this);
 
         spinnerFourthFilter = (Spinner) view.findViewById(R.id.spinner_fourth_filter);
-        spinnerFourthFilter.setAdapter(filterAdapter);
+        spinnerFourthFilter.setAdapter(audioEffectAdapter);
         spinnerFourthFilter.setOnItemSelectedListener(this);
 
         spinnerFirstFilter.getSelectedItem();
@@ -135,27 +134,27 @@ public class FilterFragment extends Fragment implements AdapterView.OnItemSelect
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        activeFilters = new ArrayList<>();
+        activeEffects = new ArrayList<>();
 
-        Filter filter = (Filter) spinnerFirstFilter.getSelectedItem();
-        if (filter != null)
-            activeFilters.add(filter);
+        AudioEffect audioEffect = (AudioEffect) spinnerFirstFilter.getSelectedItem();
+        if (audioEffect != null)
+            activeEffects.add(audioEffect);
 
-        filter = (Filter) spinnerSecondFilter.getSelectedItem();
-        if (filter != null)
-            activeFilters.add(filter);
+        audioEffect = (AudioEffect) spinnerSecondFilter.getSelectedItem();
+        if (audioEffect != null)
+            activeEffects.add(audioEffect);
 
-        filter = (Filter) spinnerThirdFilter.getSelectedItem();
-        if (filter != null)
-            activeFilters.add(filter);
+        audioEffect = (AudioEffect) spinnerThirdFilter.getSelectedItem();
+        if (audioEffect != null)
+            activeEffects.add(audioEffect);
 
-        filter = (Filter) spinnerFourthFilter.getSelectedItem();
-        if (filter != null)
-            activeFilters.add(filter);
+        audioEffect = (AudioEffect) spinnerFourthFilter.getSelectedItem();
+        if (audioEffect != null)
+            activeEffects.add(audioEffect);
 
         // fire the event
         if (listener != null)
-            listener.onFilterItemSelected(activeFilters);
+            listener.onFilterItemSelected(activeEffects);
     }
 
     @Override

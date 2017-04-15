@@ -6,13 +6,16 @@ import android.media.AudioTrack;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
+
 import org.greenrobot.eventbus.EventBus;
+
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PostFilterSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PreFilterSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
@@ -37,7 +40,7 @@ public final class AudioPlayer {
     private static short[] decodedSamples;
     private static AudioDecoder decoder;
     private static AudioTrack audioTrack;
-    private static List<Filter> filters;
+    private static List<AudioEffect> audioEffects;
     private static EventBus eventBus;
     private PlaybackListener listener;
     private Track currentTrack;
@@ -227,12 +230,12 @@ public final class AudioPlayer {
     }
 
     /**
-     * Sets the filters.
+     * Sets the {@code AudioEffect}s
      *
-     * @param filters list of filters
+     * @param audioEffects list of {@code AudioEffect}s
      */
-    public void setFilter(List<Filter> filters) {
-        this.filters = filters;
+    public void setAudioEffects(List<AudioEffect> audioEffects) {
+        this.audioEffects = audioEffects;
     }
 
     /**
@@ -301,16 +304,16 @@ public final class AudioPlayer {
                             decodedSamples = decoder.getNextSampleBlock();
                             if (decodedSamples != null) {
                                 float[] filteredSamples = PCMUtil.short2FloatArray(decodedSamples);
-                                if (filters != null) {
-                                    filter(PCMUtil.short2FloatArray(decodedSamples), filteredSamples);
+                                if (audioEffects != null) {
+                                    applyAudioEffect(PCMUtil.short2FloatArray(decodedSamples), filteredSamples);
                                 }
                                 if (audioTrack.write(PCMUtil.float2ShortArray(filteredSamples),
                                         0, filteredSamples.length) < filteredSamples.length) {
                                     Log.d(TAG, "Dropped samples.");
                                 }
-                                // Broadcast pre filter sample block using event bus
+                                // Broadcast pre applyAudioEffect sample block using event bus
                                 eventBus.post(new PreFilterSampleBlock(decodedSamples, sampleRate));
-                                // Broadcast post filter sample block using event bus
+                                // Broadcast post applyAudioEffect sample block using event bus
                                 eventBus.post(new PostFilterSampleBlock(
                                         PCMUtil.float2ShortArray(filteredSamples), sampleRate));
                             } else {
@@ -350,17 +353,17 @@ public final class AudioPlayer {
     }
 
     /**
-     * Apply the filter(s) to the supplied audio samples block.
-     * Input and output array must have the same length.
+     * Applies the {@code AudioEffect}(s) to the supplied audio samples block.
+     * Input and output arrays must have the same length.
      *
-     * @param input
-     * @param output
+     * @param input     an array of {@code float}
+     * @param output    an array of {@code float}
      */
-    private void filter(@NonNull float[] input, @NonNull float[] output) {
-        if (filters != null && input.length == output.length) {
-            for (Filter filter : filters) {
-                if (filter != null) {
-                    filter.apply(input, output);
+    private void applyAudioEffect(@NonNull float[] input, @NonNull float[] output) {
+        if (audioEffects != null && input.length == output.length) {
+            for (AudioEffect fx : audioEffects) {
+                if (fx != null) {
+                    fx.apply(input, output);
                     input = output;
                 }
             }
