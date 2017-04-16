@@ -18,6 +18,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PostFilterSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PreFilterSampleBlock;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.SupportedAudioFormat;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.PCMUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
@@ -99,7 +100,7 @@ public final class AudioPlayer {
      */
     public void play() {
         if (!isPaused() && !isPlaying() && currentTrack != null) {
-            initialiseDecoder(currentTrack.getUri());
+            initialiseDecoder(currentTrack);
             if (isDecoderInitialised()
                     && (!isAudioTrackInitialised() || sampleRateHasChanged || channelsHasChanged)) {
                 audioTrack = null;
@@ -241,15 +242,17 @@ public final class AudioPlayer {
     /**
      * Initialises the decoder.
      *
-     * @param uri    audio source URI
+     * @param track    a {@code Track}
      */
-    private void initialiseDecoder(@NonNull final String uri) {
+    private void initialiseDecoder(@NonNull Track track) {
         try {
-            InputStream is = Util.getInputStreamFromURI(uri);
-            if (uri.endsWith(".mp3")) {
+            InputStream is = Util.getInputStreamFromURI(track.getUri());
+            if (track.getAudioFormat() == SupportedAudioFormat.MP3) {
                 decoder = MP3Decoder.getInstance();
-            } else if (uri.endsWith(".wav")) {
+            } else if (track.getAudioFormat() == SupportedAudioFormat.WAVE) {
                 decoder = WaveDecoder.getInstance();
+            } else {
+                decoder = null;
             }
             if (decoder != null) {
                 decoder.setSource(is);
@@ -268,7 +271,7 @@ public final class AudioPlayer {
                     channelsHasChanged = false;
                 }
             } else {
-                throw new DecoderException("Audio decoder is not initialised.");
+                throw new DecoderException("Audio decoder is not initialised");
             }
         } catch (FileNotFoundException | DecoderException e) {
             Toast.makeText(ApplicationContext.getAppContext(), e.getMessage(),
@@ -346,7 +349,7 @@ public final class AudioPlayer {
             }).start();
         } else {
             // Some error occurred, AudioPlayer is unable to play source.
-            Toast.makeText(ApplicationContext.getAppContext(), "Playback failed.",
+            Toast.makeText(ApplicationContext.getAppContext(), "Playback failed",
                     Toast.LENGTH_SHORT).show();
             playState = PlayState.STOP;
             listener.onCompletion();
@@ -386,7 +389,7 @@ public final class AudioPlayer {
                 channels == 1 ? AudioFormat.CHANNEL_OUT_MONO : AudioFormat.CHANNEL_OUT_STEREO,
                 AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
         if (audioTrack.getState() == AudioTrack.STATE_INITIALIZED) {
-            Log.d(TAG, "AudioTrack created and initialised.");
+            Log.d(TAG, "AudioTrack created and initialised");
         }
     }
 

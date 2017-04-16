@@ -87,8 +87,8 @@ public class Track implements Comparable<Track>, Parcelable {
         }
     };
 
-    public String getAudioFormat() {
-        return audioFormat.toString();
+    public SupportedAudioFormat getAudioFormat() {
+        return audioFormat;
     }
 
     public String getTitle() {
@@ -144,7 +144,7 @@ public class Track implements Comparable<Track>, Parcelable {
         }
         Track track = (Track) o;
         return track.artist.equalsIgnoreCase(artist) && track.title.equalsIgnoreCase(title)
-                && track.album.equalsIgnoreCase(album) && track.audioFormat== audioFormat;
+                && track.album.equalsIgnoreCase(album) && track.audioFormat == audioFormat;
     }
 
     @Override

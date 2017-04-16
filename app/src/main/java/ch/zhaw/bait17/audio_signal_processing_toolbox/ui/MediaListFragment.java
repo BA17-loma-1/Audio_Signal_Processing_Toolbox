@@ -179,8 +179,8 @@ public class MediaListFragment extends Fragment {
                 getResources().getValue(rawId, value, true);
                 String[] s = value.string.toString().split("/");
                 String filename = s[s.length - 1];
-                if (filename.endsWith(SupportedAudioFormat.WAVE.toString())
-                        || filename.endsWith(SupportedAudioFormat.MP3.toString())) {
+                if (filename.endsWith(SupportedAudioFormat.WAVE.getFileExtension())
+                        || filename.endsWith(SupportedAudioFormat.MP3.getFileExtension())) {
                     Log.i("filename", filename);
                     filename = filename.split("\\.")[0];
                     tracksInRaw.add(getTrack(rawId, filename));
@@ -231,7 +231,7 @@ public class MediaListFragment extends Fragment {
                 String file = "file:///" + musicCursor.getString(nameColumn);
                 String mimeType = musicCursor.getString(mimeTypeColumn);
                 SupportedAudioFormat audioFormat = SupportedAudioFormat.getSupportedAudioFormat(mimeType);
-                if (audioFormat != SupportedAudioFormat.unknown)
+                if (audioFormat != SupportedAudioFormat.UNKNOWN)
                     tracksOnDevice.add(new Track(title, artist, album, duration, file, audioFormat));
             }
             while (musicCursor.moveToNext());
