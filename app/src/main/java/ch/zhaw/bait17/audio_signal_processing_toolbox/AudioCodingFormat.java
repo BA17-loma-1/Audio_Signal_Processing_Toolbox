@@ -11,7 +11,7 @@ public enum AudioCodingFormat {
     private String stringValue = "";
     private int intValue = 0;
 
-    private AudioCodingFormat(int value) {
+    AudioCodingFormat(int value) {
         intValue = value;
         if (value == 1) {
             stringValue = "LPCM";

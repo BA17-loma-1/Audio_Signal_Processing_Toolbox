@@ -40,7 +40,7 @@ public final class AudioPlayer {
     private static short[] decodedSamples;
     private static AudioDecoder decoder;
     private static AudioTrack audioTrack;
-    private static List<AudioEffect> audioEffects;
+    private List<AudioEffect> audioEffects;
     private static EventBus eventBus;
     private PlaybackListener listener;
     private Track currentTrack;
@@ -63,9 +63,9 @@ public final class AudioPlayer {
     }
 
     /**
-     * Returns the singleton instance of the PlayerPresenter.
+     * Returns the singleton instance of the {@code AudioPlayer}.
      *
-     * @return
+     * @return  the instance of {@code AudioPlayer}
      */
     public static AudioPlayer getInstance() {
         return INSTANCE;
@@ -148,7 +148,7 @@ public final class AudioPlayer {
     /**
      * Positions the playback head to the new position.
      *
-     * @param msec
+     * @param msec position in milliseconds
      */
     public void seekToPosition(int msec) {
 
@@ -158,11 +158,11 @@ public final class AudioPlayer {
      * Returns true if the player is running.
      * Do not use {@code audioTrack.getPlayState()}.
      *
-     * @return
+     * @return  true if playing
      */
     public boolean isPlaying() {
         if (!isAudioTrackInitialised()) {
-            Log.d(TAG, String.format("isPlaying ? --> AudioTrack is null"));
+            Log.d(TAG, "isPlaying ? --> AudioTrack is null");
         } else {
             Log.d(TAG, String.format("isPlaying ? --> %s",
                     audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING));
@@ -174,11 +174,11 @@ public final class AudioPlayer {
      * Returns true if the player is stopped.
      * Do not use {@code audioTrack.getPlayState()}.
      *
-     * @return
+     * @return  true if stopped
      */
     public boolean isStopped() {
         if (!isAudioTrackInitialised()) {
-            Log.d(TAG, String.format("isStopped ? --> AudioTrack is null"));
+            Log.d(TAG, "isStopped ? --> AudioTrack is null");
         } else {
             Log.d(TAG, String.format("isStopped ? --> %s",
                     audioTrack.getPlayState() == AudioTrack.PLAYSTATE_STOPPED));
@@ -190,11 +190,11 @@ public final class AudioPlayer {
      * Returns true if the player is paused.
      * Do not use {@code audioTrack.getPlayState()}.
      *
-     * @return
+     * @return  true if paused
      */
     public boolean isPaused() {
         if (!isAudioTrackInitialised()) {
-            Log.d(TAG, String.format("isPaused ? --> AudioTrack is null"));
+            Log.d(TAG, "isPaused ? --> AudioTrack is null");
         } else {
             Log.d(TAG, String.format("isPaused ? --> %s",
                     audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PAUSED));
@@ -205,7 +205,7 @@ public final class AudioPlayer {
     /**
      * Returns the sample rate of the currently playing track.
      *
-     * @return
+     * @return  sample rate
      */
     public int getSampleRate() {
         return sampleRate;
@@ -214,7 +214,7 @@ public final class AudioPlayer {
     /**
      * Returns the number of channels of the currently playing track.
      *
-     * @return
+     * @return  number of channels
      */
     public int getChannels() {
         return channels;
@@ -241,7 +241,7 @@ public final class AudioPlayer {
     /**
      * Initialises the decoder.
      *
-     * @param uri
+     * @param uri    audio source URI
      */
     private void initialiseDecoder(@NonNull final String uri) {
         try {
@@ -268,7 +268,7 @@ public final class AudioPlayer {
                     channelsHasChanged = false;
                 }
             } else {
-                throw new DecoderException("Unsupported audio format.");
+                throw new DecoderException("Audio decoder is not initialised.");
             }
         } catch (FileNotFoundException | DecoderException e) {
             Toast.makeText(ApplicationContext.getAppContext(), e.getMessage(),
@@ -305,7 +305,8 @@ public final class AudioPlayer {
                             if (decodedSamples != null) {
                                 float[] filteredSamples = PCMUtil.short2FloatArray(decodedSamples);
                                 if (audioEffects != null) {
-                                    applyAudioEffect(PCMUtil.short2FloatArray(decodedSamples), filteredSamples);
+                                    applyAudioEffect(PCMUtil.short2FloatArray(decodedSamples),
+                                            filteredSamples);
                                 }
                                 if (audioTrack.write(PCMUtil.float2ShortArray(filteredSamples),
                                         0, filteredSamples.length) < filteredSamples.length) {
@@ -345,7 +346,7 @@ public final class AudioPlayer {
             }).start();
         } else {
             // Some error occurred, AudioPlayer is unable to play source.
-            Toast.makeText(ApplicationContext.getAppContext(), "Unsupported audio format.",
+            Toast.makeText(ApplicationContext.getAppContext(), "Playback failed.",
                     Toast.LENGTH_SHORT).show();
             playState = PlayState.STOP;
             listener.onCompletion();
@@ -392,7 +393,8 @@ public final class AudioPlayer {
     /**
      * Computes and returns the optimal buffers size for the {@code AudioTrack} object.
      *
-     * @return
+     * @return  the optimal buffer size for {@code AudioTrack}
+     * }
      */
     private int getOptimalBufferSize() {
         return sampleRate * channels * BUFFER_LENGTH_PER_CHANNEL_IN_SECONDS;
@@ -419,6 +421,7 @@ public final class AudioPlayer {
     /**
      * Initialises the EventBus.
      * EventBus is used to send sample blocks to different views.
+     * Avoid spamming the log when no subscribers are registered.
      */
     private void buildEventBus() {
         eventBus = EventBus.builder()
