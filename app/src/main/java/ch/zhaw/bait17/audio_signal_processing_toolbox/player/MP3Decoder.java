@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
@@ -60,11 +59,13 @@ public class MP3Decoder implements AudioDecoder {
      */
     @Override
     public void setSource(@NonNull InputStream inputStream) {
-        if (is != null) {
+        if (bitstream != null) {
             try {
-                is.close();
-            } catch (IOException e) {
-
+                // Close existing InputStream before reading from new InputStream.
+                bitstream.close();
+                Log.d(TAG, "MP3 BitStream closed.");
+            } catch (BitstreamException e) {
+                Log.e(TAG, "Failed to close BitStream.");
             }
         }
         is = inputStream;
@@ -84,6 +85,9 @@ public class MP3Decoder implements AudioDecoder {
                 sampleBlock = samples.getBuffer();
                 shortSamplesRead += sampleBlock.length;
             } else {
+                // EOF reached - close the BitStream
+                bitstream.close();
+                Log.d(TAG, "MP3 BitStream closed.");
                 return null;
             }
             bitstream.closeFrame();
