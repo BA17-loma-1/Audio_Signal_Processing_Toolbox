@@ -67,14 +67,14 @@ public abstract class AudioView extends View {
     /**
      * Configures the view to show visualisation prior to filtering.
      *
-     * @param preFilterView true defines the view as a pre-filter_view view
+     * @param preFilterView true defines the view as a pre-audio_effect_view view
      */
     public void setPreFilterView(boolean preFilterView) {
         this.preFilterView = preFilterView;
     }
 
     /**
-     * Returns true if the view is defined as a pre-filter_view view.
+     * Returns true if the view is defined as a pre-audio_effect_view view.
      *
      * @return
      */

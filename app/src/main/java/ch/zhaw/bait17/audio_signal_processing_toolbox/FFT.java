@@ -1,9 +1,8 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
-import org.jtransforms.fft.FloatFFT_1D;
-
 import android.support.annotation.NonNull;
-import android.util.Log;
+
+import org.jtransforms.fft.FloatFFT_1D;
 
 /**
  * <p>
@@ -22,43 +21,56 @@ public class FFT {
     private static final String TAG = FFT.class.getSimpleName();
     private static final WindowType DEFAULT_WINDOW_TYPE = WindowType.HAMMING;
     private Window win;
-    private int fftWindowSize = Constants.DEFAULT_FFT_RESOLUTION;
+    private int fftResolution = Constants.DEFAULT_FFT_RESOLUTION;
 
     /**
-     * Creates an instance of FFT with a Hamming window.
+     * Creates an instance of {@code FFT} with a Hamming window by default.
      */
     public FFT() {
         win = new Window(DEFAULT_WINDOW_TYPE);
     }
 
     /**
-     * Creates an instance of FFT with the specified windows size.
-     * @param fftWindowSize
+     * Creates an instance of {@code FFT} with the specified resolution.
+     * <p>
+     *     Although the FFT resolution can be any size it is usually a power of 2. </br>
+     *     A window size (resolution) in the range [2^11, 2^15] is recommended.
+     * </p>
+     *
+     * @param fftResolution                 the FFT resolution a.k.a the window size
+     * @throws IllegalArgumentException     if fftResolution is <= 0
      */
-    public FFT(int fftWindowSize) {
+    public FFT(int fftResolution) {
         this();
-        this.fftWindowSize = fftWindowSize;
+        if (fftResolution <= 0) {
+            throw new IllegalArgumentException("FFT resolution must be greater than 0.");
+        }
+        this.fftResolution = fftResolution;
     }
 
     /**
-     * Creates an instance of FFT with the specified window and size.
-     * @throws IllegalArgumentException
-     * @param type The window type used to weight the samples
+     * * Creates an instance of {@code FFT} with the specified window.
+     *
+     * @param type      the window type used to weigh the samples
      */
     public FFT(@NonNull WindowType type) {
-        if (type == null)
-            throw new IllegalArgumentException("Invalid window type.");
         win = new Window(type);
     }
 
     /**
-     * Creates an instance of FFT with the specified window.
-     * @param fftWindowSize
-     * @param type
+     * Creates an instance of {@code FFT} with the specified window type and resolution.
+     * <p>
+     *     Although the FFT resolution can be any size it is usually a power of 2. </br>
+     *     A window size (resolution) in the range [2^11, 2^15] is recommended.
+     * </p>
+     *
+     * @param fftResolution                 the FFT resolution a.k.a the window size
+     * @param type                          the window type
+     * @throws IllegalArgumentException     if fftResolution is <= 0
      */
-    public FFT(int fftWindowSize, @NonNull WindowType type) {
-        this(type);
-        this.fftWindowSize = fftWindowSize;
+    public FFT(int fftResolution, @NonNull WindowType type) {
+        this(fftResolution);
+        win = new Window(type);
     }
 
     /**
@@ -69,11 +81,10 @@ public class FFT {
      *     Returns only first half of DFT spectrum, second half is ignored because of symmetry.
      * </p>
      *
-     * @param samples The data to transform
-     * @return The transformed data as a float array
+     * @param samples   the sample block to transform
+     * @return          the transformed data
      */
     public float[] getForwardTransform(float[] samples) {
-        //Log.d(TAG, "Sample block size: " + samples.length);
         float[] weightedSamples = applyWindowToSamples(samples);
         int paddingLength = getPaddingLength(weightedSamples.length);
         // Zero-padding if necessary
@@ -82,7 +93,6 @@ public class FFT {
         }
         FloatFFT_1D fft = new FloatFFT_1D(weightedSamples.length);
         fft.realForward(weightedSamples);
-        //Log.d(TAG, "FFT window size: " + weightedSamples.length);
         return weightedSamples;
     }
 
@@ -94,8 +104,8 @@ public class FFT {
      *     Returns the full DFT spectrum.
      * </p>
      *
-     * @param samples A float array
-     * @return The transformed data as a float array
+     * @param samples   an array of {@code float}
+     * @return          the transformed data in an array of {@code float}
      */
     public float[] getForwardTransformFull(float[] samples) {
         float[] weightedSamples = applyWindowToSamples(samples);
@@ -111,11 +121,12 @@ public class FFT {
 
     /**
      * <p>
-     *     Computes the inverse FFT of real input data and returns the result in a float array.
+     *     Computes the inverse FFT of real input data and returns the result in a {@code float} array.
      * </p>
-     * @param spectrum An array containing the data to transform
-     * @param scale If true scaling is performed
-     * @return The transformed data as a float array
+     *
+     * @param spectrum  an array containing the data to transform
+     * @param scale     if true scaling is performed
+     * @return          the transformed data in an array of {@code float}
      */
     public float[] getBackwardTransform(float[] spectrum, boolean scale) {
         FloatFFT_1D ifft = new FloatFFT_1D(spectrum.length);
@@ -124,8 +135,9 @@ public class FFT {
     }
 
     /**
+     * Returns the window type used by this instance of {@code FFT}.
      *
-     * @return String value of the window type used in this instance of FFT.
+     * @return  the window type
      */
     public String getWindowType() {
         return win.toString();
@@ -133,29 +145,33 @@ public class FFT {
 
     /**
      * Computes and returns the necessary padding length.
-     * @param sampleLength
-     * @return the padding length to be applied to the input samples prior to transformation
-     * @throws IllegalArgumentException if sample length is less than 0
+     *
+     * @param sampleLength  the length of the sample block
+     * @return              the padding length to be applied to the input samples
+     *                      prior to transformation
+     * @throws IllegalArgumentException     if sampleLength is less than 0
      */
     private int getPaddingLength(int sampleLength) throws IllegalArgumentException {
         if (sampleLength < 0) {
             throw new IllegalArgumentException("Illegal sample length: " + sampleLength);
         }
-        //int exponent = (int) Math.ceil(Math.log(sampleLength) / Math.log(2));
+        int exponent = (int) Math.ceil(Math.log(sampleLength) / Math.log(2));
+        /*
         if (sampleLength >= fftWindowSize) {
             return sampleLength;
         }
-        //return ((int) Math.pow(2, exponent)) - sampleLength;
-        return fftWindowSize - sampleLength;
+        */
+        return ((int) Math.pow(2, exponent)) - sampleLength;
+        //return fftWindowSize - sampleLength;
     }
 
     /**
-     * Adds zero padding of specified length to samples.
-     * @throws IllegalArgumentException
-     * @param samples The samples input
-     * @param paddingLength The padding length
-     * @return Zero padded samples as a float array
-     * @throws IllegalArgumentException if paddingLength less than 0
+     * Adds zero padding of specified length to a sample block.
+     *
+     * @param samples       the input sample block
+     * @param paddingLength the padding length
+     * @return              zero padded sample block
+     * @throws IllegalArgumentException     if paddingLength less than 0
      */
     private float[] getZeroPaddedSamples(float[] samples, int paddingLength)
             throws IllegalArgumentException {
@@ -168,9 +184,10 @@ public class FFT {
     }
 
     /**
-     * Applies the window function to the sample data.
-     * @param samples Input sample data
-     * @return The filtered sample data
+     * Applies the window function to the sample block.
+     *
+     * @param samples   input samples
+     * @return          the samples weighted by the window function
      */
     private float[] applyWindowToSamples(float[] samples) {
         float[] window = win.getWindow(samples.length);

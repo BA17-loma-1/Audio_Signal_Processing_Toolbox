@@ -2,12 +2,14 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
@@ -16,11 +18,15 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 /**
  * @author georgrem, stockan1
  */
-public class LineSpectrumView extends AudioView {
+public class LineSpectrumView extends FrequencyView {
 
-    private Paint strokePaint, fillPaint, markerPaint;
+    private static final String TAG = LineSpectrumView.class.getSimpleName();
+    private static final int dB_RANGE = 140;
+    private static final int db_PEAK = 50;
+
+    private Paint strokePaint;
     private int width, height;
-    private short[] samples;
+    private float[] magnitudes;
     private float[] spectrumPoints;
 
     public LineSpectrumView(Context context) {
@@ -42,15 +48,11 @@ public class LineSpectrumView extends AudioView {
         setWillNotDraw(false);
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(
-                attrs, R.styleable.WaveformView, defStyle, 0);
+                attrs, R.styleable.LineSpectrumView, defStyle, 0);
 
-        float strokeThickness = a.getFloat(R.styleable.WaveformView_waveformStrokeThickness, 2f);
-        int strokeColor = a.getColor(R.styleable.WaveformView_waveformColor,
-                ContextCompat.getColor(context, R.color.default_waveform));
-        int mFillColor = a.getColor(R.styleable.WaveformView_waveformFillColor,
-                ContextCompat.getColor(context, R.color.default_waveformFill));
-        int mMarkerColor = a.getColor(R.styleable.WaveformView_playbackIndicatorColor,
-                ContextCompat.getColor(context, R.color.default_playback_indicator));
+        float strokeThickness = a.getFloat(R.styleable.LineSpectrumView_lineSpectrumStrokeThickness, 5f);
+        int strokeColor = a.getColor(R.styleable.LineSpectrumView_lineSpectrumColor,
+                ContextCompat.getColor(context, R.color.line_spectrum));
 
         a.recycle();
 
@@ -59,46 +61,25 @@ public class LineSpectrumView extends AudioView {
         strokePaint.setStyle(Paint.Style.STROKE);
         strokePaint.setStrokeWidth(strokeThickness);
         strokePaint.setAntiAlias(false);
-
-        fillPaint = new Paint();
-        fillPaint.setStyle(Paint.Style.FILL);
-        fillPaint.setAntiAlias(true);
-        fillPaint.setColor(mFillColor);
-
-        markerPaint = new Paint();
-        markerPaint.setStyle(Paint.Style.STROKE);
-        markerPaint.setStrokeWidth(0);
-        markerPaint.setAntiAlias(true);
-        markerPaint.setColor(mMarkerColor);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        width = getMeasuredWidth();
-        height = getMeasuredHeight();
+        width = w;
+        height = h;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (samples != null) {
-            float[] amplitudes = getSpectrumPoints(samples);
-
-            float[] logAmplitudes = new float[amplitudes.length];
-            for (int i = 0; i < logAmplitudes.length; i++) {
-                logAmplitudes[i] = 10 * (float) Math.log10(amplitudes[i]);
-            }
-
-            drawSpectrumCurveShape(amplitudes, 50);
-            canvas.drawLines(spectrumPoints, strokePaint);
-
-            drawSpectrumLineShape(amplitudes, 100, canvas);
-
-            drawSpectrumCurveShape(logAmplitudes, 150);
-            canvas.drawLines(spectrumPoints, strokePaint);
-
-            drawSpectrumBarShape(amplitudes, 200, canvas);
+        if (magnitudes != null) {
+            drawSpectrumLineShape(canvas);
+            //drawSpectrumCurveShape(amplitudes, 50);
+            //canvas.drawLines(spectrumPoints, strokePaint);
+            //drawSpectrumCurveShape(logAmplitudes, 150);
+            //canvas.drawLines(spectrumPoints, strokePaint);
+            //drawSpectrumBarShape(amplitudes, 200, canvas);
         }
     }
 
@@ -126,16 +107,54 @@ public class LineSpectrumView extends AudioView {
         }
     }
 
-    private void drawSpectrumLineShape(float[] amplitudes, int ZERO_DEZ_REF, Canvas canvas) {
-        /* For efficiency, we don't draw all of the samples in the buffer, but only the ones
-           that align with pixel boundaries. */
-        for (int x = 0; x < width; x++) {
-            int index = (int) (((x * 1.0f) / width) * amplitudes.length);
-            float sample = amplitudes[index];
-            float downy = ZERO_DEZ_REF - (sample);
-            int upy = ZERO_DEZ_REF;
-            canvas.drawLine(x, downy, x, upy, strokePaint);
+    private void drawSpectrumLineShape(Canvas canvas) {
+        float[] mag = new float[magnitudes.length];
+        System.arraycopy(magnitudes, 0, mag, 0, magnitudes.length);
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bitmap);
+
+        float[] dBMag = new float[mag.length];
+        float dBMax = Float.MIN_VALUE;
+        for (int i = 0; i < mag.length; i++) {
+            dBMag[i] = (float) (10 * Math.log10(mag[i]));
+            if (dBMag[i] > dBMax) {
+                dBMax = dBMag[i];
+            }
         }
+        float offset = dBMax;
+        Log.d(TAG, "max magnitude: " + dBMax);
+
+        for (int x = 0; x < width; x++) {
+            int index = (int) (((x * 1.0f) / width) * mag.length / 2);
+            /*
+            float j = getValueFromRelativePosition(
+                    (float) (width - x) / width, 1, getSampleRate() / 2);
+            j /= getSampleRate() / 2;
+            Log.d(TAG, "index: " + j);
+            float mag = magnitudes[(int) (j * magnitudes.length / 2)];
+            */
+
+            //canvas.drawLine(x, downy, strokePaint);
+
+            float y = db_PEAK - dBMag[index];
+
+
+            c.drawPoint(x, y, strokePaint);
+        }
+
+        canvas.drawBitmap(bitmap, 0, 0, null);
+    }
+
+    /**
+     * Returns the value from its relative position within given boundaries.
+     *
+     * @param position
+     * @param minValue
+     * @param maxValue
+     * @return
+     */
+    private float getValueFromRelativePosition(float position, float minValue, float maxValue) {
+        return minValue + position * (maxValue - minValue);
     }
 
     private void drawSpectrumBarShape(float[] amplitudes, int ZERO_DEZ_REF, Canvas canvas) {
@@ -152,23 +171,15 @@ public class LineSpectrumView extends AudioView {
         }
     }
 
-    public void setSamples(short[] samples) {
-        this.samples = samples;
-        if (this.samples != null) {
-            postInvalidate();
-        }
-    }
-
-    private float[] getSpectrumPoints(short[] samples) {
-        float[] spectrum = getPowerSpectrum(samples);
-        for (int i = 0; i < spectrum.length; i++) {
-            spectrum[i] = -10 * (float) Math.log10(spectrum[i]);
-        }
-        return spectrum;
-    }
-
-    private float[] getPowerSpectrum(@NonNull short[] samples) {
-        return new PowerSpectrum(samples).getPowerSpectrum();
+    /**
+     * Sets the magnitudes to render inside the view.
+     *
+     * @param hMag array of {@code float} representing magnitudes (power spectrum of a time series)
+     */
+    @Override
+    public void setMagnitudes(@NonNull float[] hMag) {
+        magnitudes = hMag;
+        postInvalidate();
     }
 
     @Override

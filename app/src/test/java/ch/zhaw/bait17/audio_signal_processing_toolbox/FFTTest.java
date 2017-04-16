@@ -2,13 +2,14 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Local unit tests of the FFT class.
- * @see ch.zhaw.bait17.audio_signal_processing_toolbox.FFT
+ * See class under test: {@link ch.zhaw.bait17.audio_signal_processing_toolbox.FFT}
  *
- * Created by georgrem, stockan1 on 18.02.2017.
+ * @author georgrem, stockan1.
  */
 public class FFTTest {
 

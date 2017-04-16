@@ -25,19 +25,20 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Colour;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.HeatMap;
 
-public class SpectrogramView extends AudioView {
+public class SpectrogramView extends FrequencyView {
 
     private static final String TAG = SpectrogramView.class.getSimpleName();
     private static final int db_PEAK = 40;
     private static final int dB_FLOOR = -60;
     private static final int dB_RANGE = Math.abs(dB_FLOOR) + db_PEAK;
     private static final int SPECTROGRAM_PAINT_STROKE_WIDTH = 3;
-    private static final float DEFAULT_AXIS_TEXT_SIZE = 12f;
+    private static final float DEFAULT_AXIS_TEXT_SIZE = 10f;
 
     private static Colour[] gradient = HeatMap.LSD;
     private Paint paint = new Paint();
@@ -121,11 +122,11 @@ public class SpectrogramView extends AudioView {
     /**
      * Sets the magnitudes to render inside the view.
      *
-     * @param hMag array of {@code float} representing magnitudes (power spectrum of a time series)
+     * @param   hMag array of {@code float} representing magnitudes (power spectrum of a time series)
      */
+    @Override
     public void setMagnitudes(@NonNull float[] hMag) {
-        magnitudes = new float[hMag.length];
-        System.arraycopy(hMag, 0, magnitudes, 0, hMag.length);
+        magnitudes = hMag;
         postInvalidate();
     }
 
@@ -140,8 +141,10 @@ public class SpectrogramView extends AudioView {
             return;
         }
 
+        float[] hMag = new float[magnitudes.length];
+        System.arraycopy(magnitudes, 0, hMag, 0, magnitudes.length);
         final int magnitudeAxisWidth = 80;
-        final int frequencyAxisWidth = 80;
+        final int frequencyAxisWidth = 60;
         final int spectrogramWidth = width - magnitudeAxisWidth - frequencyAxisWidth;
         double mindB = 0;
         double maxdB = 0;
@@ -153,8 +156,8 @@ public class SpectrogramView extends AudioView {
             float j = getValueFromRelativePosition(
                     (float) (height - i) / height, 1, getSampleRate() / 2);
             j /= getSampleRate() / 2;
-            float mag = magnitudes[(int) (j * magnitudes.length / 2)];
-            double dB = (10 * Math.log10(mag));
+            float mag = hMag[(int) (j * hMag.length / 2)];
+            double dB = 10 * Math.log10(mag);
             if (i == 0) {
                 mindB = dB;
             }
@@ -193,8 +196,8 @@ public class SpectrogramView extends AudioView {
         paint.setTextSize(getTextSizeForAxis());
         canvas.drawText("kHz", spectrogramWidth + gradientWidth, paint.getTextSize(), paint);
         for (int i = 0; i < (getSampleRate() - (frequencyStep / 2)) / 2; i += frequencyStep) {
-            canvas.drawText(" " + (i / frequencyStep), spectrogramWidth + gradientWidth,
-                    height * (1f - (float) i / (getSampleRate() / 2)), paint);
+            float y = height * (1.0f - (float) i / (getSampleRate() / 2));
+            canvas.drawText(" " + (i / frequencyStep), spectrogramWidth + gradientWidth, y, paint);
         }
     }
 

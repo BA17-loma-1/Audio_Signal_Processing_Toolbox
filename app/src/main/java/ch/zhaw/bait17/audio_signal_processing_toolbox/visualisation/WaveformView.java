@@ -18,6 +18,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
@@ -30,7 +31,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 /**
  * @author georgrem, stockan1
  */
-public class WaveformView extends AudioView {
+public class WaveformView extends TimeView {
 
     private Paint strokePaint, fillPaint, markerPaint;
     private int width, height;
@@ -103,11 +104,10 @@ public class WaveformView extends AudioView {
         }
     }
 
-    public void setSamples(short[] samples) {
+    @Override
+    public void setSamples(@NonNull short[] samples) {
         this.samples = samples;
-        if (this.samples != null) {
-            onSamplesChanged();
-        }
+        onSamplesChanged();
     }
 
     private void onSamplesChanged() {

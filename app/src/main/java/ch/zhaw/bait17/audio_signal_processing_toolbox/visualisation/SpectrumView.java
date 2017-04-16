@@ -18,6 +18,8 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.RectF;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.text.TextPaint;
 import android.util.AttributeSet;
@@ -25,25 +27,34 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
+import java.text.DecimalFormat;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 
 /**
+ * Renders a third-octave spectrum view.
  *
  * @author georgrem, stockan1
  */
-public class SpectrumView extends AudioView {
+public class SpectrumView extends FrequencyView {
 
     private static final String TAG = SpectrumView.class.getSimpleName();
-    private final double RENDER_INTERVALL = 1e8;
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("##.0K");
+    private static final int OCTAVE_BANDS = 31;
+    private static final int REFERENCE_CENTER_FREQUENCY = 1000;
+    private static final int OCTAVE_BAND_REFERENCE_FREQUENCY = 18;
+    private static final int dB_RANGE = 96;
 
-    private Thread renderThread;
-    private ThirdOctaveSpectrumRenderer renderer;
+    private double[] centreFrequencies;
+    private double[] thirdOctaveFrequencyBoundaries;
+    private int width, height;
     private TextPaint textPaint;
     private Paint strokePaint;
     private int sampleRate;
-    private short[] samples;
-    private long lastRender = 0;
+    private float[] magnitudes;
 
     public SpectrumView(Context context) {
         super(context);
@@ -84,41 +95,154 @@ public class SpectrumView extends AudioView {
         strokePaint.setStrokeWidth(strokeThickness);
         strokePaint.setAntiAlias(false);
 
-        renderThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                renderer = new ThirdOctaveSpectrumRenderer(strokePaint, textPaint);
-            }
-        });
-        renderThread.start();
+        calculateCentreFrequencies();
+        calculateThirdOctaveBands();
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        renderer.setWidth(getMeasuredWidth());
-        renderer.setHeigth(getMeasuredHeight());
+        width = w;
+        height = h;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        renderer.render(canvas, samples, sampleRate);
+        render(canvas);
     }
 
-    public void setSamples(short[] samples) {
-        this.samples = samples;
-        if (this.samples != null) {
-            onSamplesChanged();
-        }
-    }
-
-    private void onSamplesChanged() {
+    @Override
+    public void setMagnitudes(@NonNull float[] hMag) {
+        magnitudes = hMag;
         postInvalidate();
     }
 
+    @Override
     public void setSampleRate(int sampleRate) {
         this.sampleRate = sampleRate;
+    }
+
+    @Override
+    public AudioView getInflatedView() {
+        return (AudioView) View.inflate(ApplicationContext.getAppContext(),
+                R.layout.spectrum_view, null);
+    }
+
+    public double[] getCentreFrequencies() {
+        double[] retVal = new double[centreFrequencies.length];
+        System.arraycopy(centreFrequencies, 0, retVal, 0, centreFrequencies.length);
+        return retVal;
+    }
+
+    public double[] getThirdOctaveFrequencyBands() {
+        double[] retVal = new double[thirdOctaveFrequencyBoundaries.length];
+        System.arraycopy(thirdOctaveFrequencyBoundaries, 0, retVal, 0, thirdOctaveFrequencyBoundaries.length);
+        return retVal;
+    }
+
+    private void render(@NonNull Canvas canvas) {
+        if (sampleRate > 0 && magnitudes != null) {
+            float[] hMag = new float[magnitudes.length];
+            System.arraycopy(magnitudes, 0, hMag, 0, magnitudes.length);
+
+
+            int nFFT = hMag.length;
+            double deltaFrequency = sampleRate / (double) nFFT;
+
+            float barWidth = width / (float) OCTAVE_BANDS;
+            float dcMagnitude = (float) (10 * Math.log10(Math.abs(hMag[0])));
+
+            //Log.i(TAG, String.format("bar width: %f", barWidth));
+            //Log.i(TAG, String.format("canvas width: %d  canvas height: %d", canvas.getWidth(), canvas.getHeight()));
+            //Log.i(TAG, String.format("measured width: %d  measured height: %d", width, heigth));
+
+            Map<Double, RectF> magnitudeBars = new LinkedHashMap<>();
+            // DC -> bin m[0]
+            magnitudeBars.put(0d, new RectF(0, height - (height / dB_RANGE * dcMagnitude),
+                    barWidth, height - 40));
+
+            double frequency = 0;
+            int bin = 0;
+            int countRect = 1;
+            for (int i = 1; i < thirdOctaveFrequencyBoundaries.length - 1; i += 3) {
+                double upperBound = thirdOctaveFrequencyBoundaries[i + 1];
+                float meanMagnitude = 0;
+                int k = 0;
+                while ((frequency = bin * deltaFrequency) <= upperBound) {
+                    meanMagnitude += Math.abs(hMag[bin]);
+                    bin++;
+                    k++;
+                }
+                meanMagnitude /= k;
+                magnitudeBars.put(frequency, new RectF((countRect * barWidth) + 5,
+                        height - (height / dB_RANGE * (float) (10 * Math.log10(meanMagnitude))),
+                        (countRect * barWidth) + barWidth,
+                        height - 40));
+                countRect++;
+            }
+
+            //Log.i(TAG, String.format("magnitude bars: %d", magnitudeBars.size()));
+
+            int count = 0;
+            for (Map.Entry<Double, RectF> entry : magnitudeBars.entrySet()) {
+                // Render frequency band
+                canvas.drawRect(entry.getValue(), strokePaint);
+
+                // Render frequency label text
+                double freq = entry.getKey();
+                String frequencyLabel = null;
+                if (freq < REFERENCE_CENTER_FREQUENCY && count % 2 == 0) {
+                    frequencyLabel = Long.toString((long) freq);
+                } else {
+                    if (count % 2 == 0) {
+                        frequencyLabel = getFormattedValue(freq / 1000);
+                    }
+                }
+                count++;
+
+                if (frequencyLabel != null) {
+                    canvas.drawText(frequencyLabel, entry.getValue().centerX(),
+                            canvas.getHeight(), textPaint);
+                }
+            }
+
+        }
+    }
+
+    /**
+     * Go through all centre frequencies and calculate lower and upper frequency bounds.
+     */
+    private void calculateThirdOctaveBands() {
+        if (centreFrequencies != null) {
+            thirdOctaveFrequencyBoundaries = new double[(centreFrequencies.length * 2) + 1];
+            int centreFrequencyIndex = 0;
+            double factor = Math.pow(2.0, 1d / 6);
+            double firstLowerBound = centreFrequencies[centreFrequencyIndex] / factor;
+            thirdOctaveFrequencyBoundaries[0] = firstLowerBound;
+
+            for (int i = 1; i < thirdOctaveFrequencyBoundaries.length; ) {
+                double upperBound = centreFrequencies[centreFrequencyIndex] * factor;
+                // Centre frequency
+                thirdOctaveFrequencyBoundaries[i++] = centreFrequencies[centreFrequencyIndex];
+                thirdOctaveFrequencyBoundaries[i++] = upperBound;
+                centreFrequencyIndex++;
+            }
+        }
+    }
+
+    private void calculateCentreFrequencies() {
+        centreFrequencies = new double[OCTAVE_BANDS + 1];
+        centreFrequencies[OCTAVE_BAND_REFERENCE_FREQUENCY] = REFERENCE_CENTER_FREQUENCY;
+        final double factor = Math.pow(2, 1d/3);
+        // Fill lower than centre
+        for (int i = OCTAVE_BAND_REFERENCE_FREQUENCY - 1; i >= 0; i--) {
+            centreFrequencies[i] = centreFrequencies[i + 1] / factor;
+        }
+        // Fill higher than centre
+        for (int i = OCTAVE_BAND_REFERENCE_FREQUENCY; i < centreFrequencies.length-1; i++) {
+            centreFrequencies[i + 1] = centreFrequencies[i] * factor;
+        }
     }
 
     private float getFontSize(Context ctx, int textAppearance) {
@@ -132,10 +256,8 @@ public class SpectrumView extends AudioView {
         return fontSize;
     }
 
-    @Override
-    public AudioView getInflatedView() {
-        return (AudioView) View.inflate(ApplicationContext.getAppContext(),
-                R.layout.spectrum_view, null);
+    private String getFormattedValue(double value) {
+        return DECIMAL_FORMAT.format(value);
     }
 
 }

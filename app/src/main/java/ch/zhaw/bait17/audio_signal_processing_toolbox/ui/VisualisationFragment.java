@@ -9,28 +9,24 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 
-import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.FFT;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PCMSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PostFilterSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PreFilterSampleBlock;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.PCMUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.LineSpectrumView;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.PowerSpectrum;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.FrequencyView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrumView;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.TimeView;
 
 /**
  * @author georgrem, stockan1
@@ -38,12 +34,12 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView
 public class VisualisationFragment extends Fragment {
 
     private static final String TAG = VisualisationFragment.class.getSimpleName();
-    private static final String BUNDLE_ARGUMENT_AUDIOVIEWS = VisualisationFragment.class.getSimpleName() + ".AUDIOVIEWS";
+    private static final String BUNDLE_ARGUMENT_AUDIOVIEWS =
+            VisualisationFragment.class.getSimpleName() + ".AUDIOVIEWS";
 
+    private FFT fft;
     private int fftResolution;
-    private CircularFifoQueue<short[]> trunkBuffer;
     private List<AudioView> views;
-
 
     // Creates a new fragment given a array
     // VisualisationFragment.newInstance(views);
@@ -58,6 +54,9 @@ public class VisualisationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        fftResolution = Constants.DEFAULT_FFT_RESOLUTION;
+        fft = new FFT();
+
         // Get back arguments
         Bundle arguments = this.getArguments();
         if (arguments.getSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS) != null)
@@ -68,9 +67,6 @@ public class VisualisationFragment extends Fragment {
     // either dynamically or via XML layout inflation.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        fftResolution = Constants.DEFAULT_FFT_RESOLUTION;
-        trunkBuffer = new CircularFifoQueue<>();
-
         final View rootView = inflater.inflate(R.layout.content_visualisation, container, false);
 
         // we have to wait for the drawing phase for the actual measurements
@@ -158,93 +154,55 @@ public class VisualisationFragment extends Fragment {
     /**
      * Sets the views to be displayed in the fragment.
      *
-     * @param views
+     * @param views     a list of views
      */
     public void setViews(List<AudioView> views) {
         this.views = views;
     }
 
+    /**
+     * Sets the view parameters: </br>
+     * <ul>
+     *     <li>sample rate</li>
+     *     <li>channels</li>
+     *     <li>PCM samples or magnitude data</li>
+     * </ul>
+     *
+     * @param view          a view
+     * @param sampleBlock   a {@code PCMSampleBlock}
+     */
     private void setViewParameters(AudioView view, PCMSampleBlock sampleBlock) {
         view.setSampleRate(sampleBlock.getSampleRate());
         view.setChannels(sampleBlock.getSampleRate());
-        if (view instanceof LineSpectrumView) {
-            LineSpectrumView lineSpectrumView = (LineSpectrumView) view;
-            lineSpectrumView.setSamples(sampleBlock.getSamples());
+
+        if (view instanceof FrequencyView) {
+            ((FrequencyView) view).setMagnitudes(getPowerSpectrum(sampleBlock.getSamples()));
         }
-        if (view instanceof SpectrogramView) {
-            SpectrogramView spectrogramView = (SpectrogramView) view;
-            initSpectrogramView(sampleBlock, spectrogramView);
-        }
-        if (view instanceof SpectrumView) {
-            SpectrumView spectrumView = (SpectrumView) view;
-            spectrumView.setSamples(sampleBlock.getSamples());
-        }
-        if (view instanceof WaveformView) {
-            WaveformView waveformView = (WaveformView) view;
-            waveformView.setSamples(sampleBlock.getSamples());
+
+        if (view instanceof TimeView) {
+            ((TimeView) view).setSamples(sampleBlock.getSamples());
         }
     }
 
-    private void initSpectrogramView(PCMSampleBlock sampleBlock, SpectrogramView spectrogramView) {
-        short[] samples = sampleBlock.getSamples();
-        int trunkSize = Util.gcd(samples.length, fftResolution);
-        if (trunkSize == 1) {
-            trunkBuffer.offer(samples);
-        } else {
-            truncate(samples, trunkSize);
+    /**
+     * <p>
+     *      Computes the power spectral density of the given audio samples. <br>
+     *      The power spectral density is sometimes simply called power spectrum.
+     * </p>
+     *
+     * @param samples   a block of PCM samples
+     * @return          power spectrum
+     */
+    private float[] getPowerSpectrum(@NonNull short[] samples) {
+        // Perform FFT : Time domain -> Frequency domain
+        float[] hComplex = fft.getForwardTransform(PCMUtil.short2FloatArray(samples));
+        // Calculate power spectrum
+        final int FFT_SIZE = hComplex.length;
+        float[] hMag = new float[FFT_SIZE / 2];
+        for (int i = 0; i < FFT_SIZE / 2; i++) {
+            hMag[i] = (hComplex[2*i] * hComplex[2*i]) + (hComplex[(2*i) + 1] * hComplex[(2*i) + 1]);
         }
-
-        boolean enoughData = false;
-        int sampleBlockSize = 0;
-        Iterator<short[]> iter = trunkBuffer.iterator();
-        while (iter.hasNext() && !enoughData) {
-            sampleBlockSize += iter.next().length;
-            if (sampleBlockSize >= fftResolution) {
-                enoughData = true;
-            }
-        }
-
-        if (enoughData) {
-            sendMagnitudesToSpectrogramView(spectrogramView);
-        }
-    }
-
-    private void sendMagnitudesToSpectrogramView(SpectrogramView spectrogramView) {
-        if (spectrogramView != null) {
-            int totalTrunkSize = 0;
-            short[] trunk = null;
-            short[] fftBuffer = new short[0];
-            while ((trunk = trunkBuffer.poll()) != null && totalTrunkSize < fftResolution) {
-                totalTrunkSize += trunk.length;
-                short[] temp = new short[fftBuffer.length];
-                // fftBuffer samples are now stored in temp
-                System.arraycopy(fftBuffer, 0, temp, 0, fftBuffer.length);
-                fftBuffer = new short[temp.length + trunk.length];
-                // Copy back to fftBuffer
-                System.arraycopy(temp, 0, fftBuffer, 0, temp.length);
-                // Append new trunk of samples
-                System.arraycopy(trunk, 0, fftBuffer, temp.length, trunk.length);
-            }
-
-            if (fftBuffer != null) {
-                // long start = System.nanoTime();
-                PowerSpectrum magnitudes = getTransform(fftBuffer);
-                // long end = System.nanoTime();
-                // Log.d(TAG, "FFT computation [ms]: " + (end - start) / 1000000);
-                spectrogramView.setMagnitudes(magnitudes.getPowerSpectrum());
-            }
-        }
-    }
-
-    private void truncate(short[] samples, int trunkSize) {
-        // Divide into small trunks of equal length
-        for (int i = 0; i < samples.length / trunkSize; i++) {
-            trunkBuffer.offer(Arrays.copyOfRange(samples, i * trunkSize, (i * trunkSize) + trunkSize));
-        }
-    }
-
-    private PowerSpectrum getTransform(@NonNull short[] samples) {
-        return new PowerSpectrum(samples);
+        return hMag;
     }
 
 }
