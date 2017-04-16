@@ -1,8 +1,11 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.player;
 
 /**
+ * Used for custom audio decoders.
+ *
  * @author georgrem, stockan1
  */
+
 public class DecoderException extends Exception {
 
     private String message = null;
