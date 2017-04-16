@@ -10,4 +10,10 @@
     <declare-styleable name="SpectrumView">
         <attr name="spectrumFrequencyLabel" format="color" />
     </declare-styleable>
+
+    <declare-styleable name="LineSpectrumView">
+        <attr name="lineSpectrumStrokeThickness" format="float" />
+        <attr name="lineSpectrumColor" format="color" />
+    </declare-styleable>
+
 </resources>

@@ -28,4 +28,8 @@
     
     <!-- Audio player -->
     <color name="artist_track">#00FFFFFF</color>
+
+    <!-- AudioView -->
+    <color name="line_spectrum">#000000</color>
+
 </resources>

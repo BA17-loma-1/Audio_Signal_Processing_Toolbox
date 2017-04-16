@@ -16,7 +16,7 @@
             android:title="View" />
         <item
             android:id="@+id/nav_filter"
-            android:icon="@android:drawable/star_big_on"
+            android:icon="@drawable/lowpass_ir"
             android:title="Filter" />
         <item
             android:id="@+id/nav_about"
