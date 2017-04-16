@@ -1,19 +1,21 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
 /**
- * Created by georgrem, stockan1 on 20.02.2017.
+ * An interface representing a header of an audio file.
+ *
+ * @author georgrem, stockan
  */
 
 public interface HeaderInfo {
 
-    public int getEncodingFormat();
+    int getEncodingFormat();
 
-    public int getChannels();
+    int getChannels();
 
-    public int getSampleRate();
+    int getSampleRate();
 
-    public int getBitsPerSample();
+    int getBitsPerSample();
 
-    public int getDataSize();
+    int getDataSize();
 
 }

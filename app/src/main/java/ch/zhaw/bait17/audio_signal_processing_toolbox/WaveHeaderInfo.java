@@ -1,8 +1,11 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
+import android.annotation.SuppressLint;
+
 /**
- * Header of WAV audio files.
- * Created by georgrem, stockan1 on 21.02.2017.
+ * Header of a WAV audio file.
+ *
+ * @author georgrem, stockan1
  */
 
 public class WaveHeaderInfo implements HeaderInfo {
@@ -11,22 +14,29 @@ public class WaveHeaderInfo implements HeaderInfo {
     private int channels = 0;
     private int sampleRate = 0;
     private int bitsPerSample = 0;
-    private int bytesPerSample = 0;
     private int dataSize = 0;
 
+    /**
+     *
+     * @param encodingFormat
+     * @param channels
+     * @param sampleRate
+     * @param bitsPerSample
+     * @param dataSize
+     */
     public WaveHeaderInfo(int encodingFormat, int channels, int sampleRate, int bitsPerSample,
-                          int bytesPerSample, int dataSize) {
+                          int dataSize) {
         this.encodingFormat = encodingFormat;
         this.channels = channels;
         this.sampleRate = sampleRate;
         this.bitsPerSample = bitsPerSample;
-        this.bytesPerSample = bytesPerSample;
         this.dataSize = dataSize;
     }
 
     /**
+     * Returns the encoding format.
      *
-     * @return
+     * @return  encoding format
      */
     @Override
     public int getEncodingFormat() {
@@ -35,7 +45,8 @@ public class WaveHeaderInfo implements HeaderInfo {
 
     /**
      * Returns true if audio data is encoded with linear pulse-code modulation.
-     * @return
+     *
+     * @return  true if linear PCM encoding
      */
     public boolean isLinearPCM() {
         return encodingFormat == AudioCodingFormat.LINEAR_PCM.getValue();
@@ -43,7 +54,8 @@ public class WaveHeaderInfo implements HeaderInfo {
 
     /**
      * Returns the number of channels.
-     * @return
+     *
+     * @return  number of channels
      */
     @Override
     public int getChannels() {
@@ -52,7 +64,8 @@ public class WaveHeaderInfo implements HeaderInfo {
 
     /**
      * Returns the sample rate.
-     * @return
+     *
+     * @return  sample rate
      */
     @Override
     public int getSampleRate() {
@@ -61,7 +74,8 @@ public class WaveHeaderInfo implements HeaderInfo {
 
     /**
      * Returns the number of bits per sample.
-     * @return
+     *
+     * @return  quantisation bits per sample
      */
     @Override
     public int getBitsPerSample() {
@@ -71,22 +85,35 @@ public class WaveHeaderInfo implements HeaderInfo {
     /**
      * Returns the number of bytes (for all channels) to represent one sample of data.
      * This is sometimes called the block alignment.
-     * Definition: BitsPerSample * Channels / 8
-     * @return
+     * Definition: Bits per sample * channels / 8
+     *
+     * @return  bytes per sample
      */
     public int getBytesPerSample() {
-        return bytesPerSample;
+        return bitsPerSample * channels / 8;
     }
 
     /**
-     * Returns the PCM data size in bytes.
-     * @return
+     * Returns the number of bytes per second which is the speed of the data stream.
+     * Definition: sample rate * bits per sample * channels / 8
+     *
+     * @return  bytes per second
+     */
+    public int getBytesPerSecond() {
+        return sampleRate * bitsPerSample * channels / 8;
+    }
+
+    /**
+     * Returns the number of bytes of PCM data that is included in the data section.
+     *
+     * @return  the actual PCM audio data size in bytes
      */
     @Override
     public int getDataSize() {
         return dataSize;
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public String toString() {
         return String.format("WAVE header:  encoding format=%s  channels=%d  sample rate=%d  bits per sample=%d",
