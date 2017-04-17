@@ -1,67 +1,75 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui.custom;
 
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.List;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 
-public class TrackAdapter extends BaseAdapter {
 
-    private static class ViewHolderItem {
-        TextView title;
-        TextView artist;
+/**
+ * @author georgrem, stockan1
+ */
+
+public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> {
+
+
+    private final List<Track> tracks;
+    private final ItemSelectedListener listener;
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+        public final TextView title;
+        public final TextView artists;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            title = (TextView) itemView.findViewById(R.id.track_title);
+            artists = (TextView) itemView.findViewById(R.id.track_artist);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            listener.onItemSelected(v, tracks.get(getAdapterPosition()));
+        }
     }
 
-    private List<Track> tracks;
-    private LayoutInflater inflater;
+    public interface ItemSelectedListener {
+        void onItemSelected(View itemView, Track item);
+    }
 
-    public TrackAdapter(List<Track> tracks) {
+    public TrackAdapter(List<Track> tracks, ItemSelectedListener listener) {
         this.tracks = tracks;
-        inflater = LayoutInflater.from(ApplicationContext.getAppContext());
+        this.listener = listener;
     }
 
     @Override
-    public int getCount() {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.media_list_item, parent, false);
+        return new ViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        Track track = tracks.get(position);
+        holder.title.setText(track.getTitle());
+        holder.artists.setText(track.getArtist());
+    }
+
+    @Override
+    public int getItemCount() {
         return tracks.size();
     }
 
-    @Override
-    public Track getItem(int position) {
-        return tracks.get(position);
-    }
 
     @Override
-    public long getItemId(int position) {
+    public int getItemViewType(int position) {
         return position;
     }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        // Android ViewHolder Pattern for smoother scrolling
-        ViewHolderItem viewHolder;
-        if (convertView == null) {
-            convertView = inflater.inflate(R.layout.media_list_item, parent, false);
-            viewHolder = new ViewHolderItem();
-            viewHolder.artist = (TextView) convertView.findViewById(R.id.track_artist);
-            viewHolder.title = (TextView) convertView.findViewById(R.id.track_title);
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolderItem) convertView.getTag();
-        }
-
-        Track track = tracks.get(position);
-        if (track != null) {
-            viewHolder.artist.setText(track.getArtist());
-            viewHolder.title.setText(track.getTitle());
-        }
-        return convertView;
-    }
-
 }

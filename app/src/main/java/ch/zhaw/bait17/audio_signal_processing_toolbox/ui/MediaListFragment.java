@@ -16,13 +16,13 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.SupportedAudioFormat;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
@@ -51,16 +52,18 @@ public class MediaListFragment extends Fragment {
     private Context context;
     private OnTrackSelectedListener listener;
     private List<Track> tracks;
+    private RecyclerView recyclerView;
 
     public interface OnTrackSelectedListener {
-        void onTrackSelected(int trackPos, View mediaListItemView);
+        void onTrackSelected(int trackPos);
     }
 
     // The onCreateView method is called when Fragment should create its View object hierarchy,
     // either dynamically or via XML layout inflation.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.media_list_view, container, false);
+        if (rootView == null)
+            rootView = inflater.inflate(R.layout.media_list_view, container, false);
         tracks = new ArrayList<>();
         return rootView;
     }
@@ -145,20 +148,22 @@ public class MediaListFragment extends Fragment {
             addAllTracks();
             Collections.sort(tracks);
 
-            final ListView listView = (ListView) rootView.findViewById(R.id.media_list);
-            TrackAdapter trackAdapter = new TrackAdapter(tracks);
-            listView.setAdapter(trackAdapter);
-
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    if (listener != null) {
-                        Track track = (Track) adapterView.getItemAtPosition(i);
-                        int trackPosNr = tracks.indexOf(track);
-                        listener.onTrackSelected(trackPosNr, view);
+            if (recyclerView == null) {
+                recyclerView = (RecyclerView) rootView.findViewById(R.id.media_list);
+                TrackAdapter trackAdapter = new TrackAdapter(tracks, new TrackAdapter.ItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(View itemView, Track track) {
+                        if (listener != null) {
+                            int trackPosNr = tracks.indexOf(track);
+                            listener.onTrackSelected(trackPosNr);
+                        }
                     }
-                }
-            });
+                });
+
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setLayoutManager(new LinearLayoutManager(ApplicationContext.getAppContext()));
+                recyclerView.setAdapter(trackAdapter);
+            }
         } else {
             requestReadExternalStoragePermission();
         }
@@ -262,5 +267,9 @@ public class MediaListFragment extends Fragment {
 
     public List<Track> getTracks() {
         return tracks;
+    }
+
+    public RecyclerView getRecyclerView() {
+        return recyclerView;
     }
 }

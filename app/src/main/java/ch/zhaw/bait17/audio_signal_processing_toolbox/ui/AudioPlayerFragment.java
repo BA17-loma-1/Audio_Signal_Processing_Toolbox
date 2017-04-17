@@ -6,6 +6,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,7 +17,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -62,6 +63,7 @@ public class AudioPlayerFragment extends Fragment {
     private ImageButton playPauseButton;
     private View currentMediaListItemView;
     private View previousMediaListItemView;
+    private RecyclerView recyclerView;
 
     /*
         In certain cases, your fragment may want to accept certain arguments.
@@ -164,6 +166,15 @@ public class AudioPlayerFragment extends Fragment {
     }
 
     /**
+     * Sets the recyclerView.
+     *
+     * @param recyclerView
+     */
+    public void setRecyclerView(RecyclerView recyclerView) {
+        this.recyclerView = recyclerView;
+    }
+
+    /**
      * Selects an audio track from the track list and initiates playback.
      *
      * @param trackPosNr the {@code Track} id from the tracks list
@@ -221,9 +232,8 @@ public class AudioPlayerFragment extends Fragment {
                 audioPlayer.play();
             }
         } else {
-            setPlayButtonOnUI();
-            Toast.makeText(ApplicationContext.getAppContext(), "No track selected.",
-                    Toast.LENGTH_SHORT).show();
+            // No track selected. Ok start with the first track
+            setTrack(0);
         }
     }
 
@@ -231,15 +241,14 @@ public class AudioPlayerFragment extends Fragment {
      * Starts playback of previous track in the track list.
      */
     public void playPreviousTrack() {
-        setTrack(--trackPosNr);
-        //((AudioPlayerFragment) fragment).setCurrentMediaListItemView(mediaListItemView);
+        if (trackPosNr > 0) setTrack(--trackPosNr);
     }
 
     /**
      * Starts playback of next track in the track list.
      */
     public void playNextTrack() {
-        setTrack(++trackPosNr);
+        if (trackPosNr < tracks.size() - 1) setTrack(++trackPosNr);
     }
 
     private void scheduleSeekbarUpdate() {
@@ -295,24 +304,12 @@ public class AudioPlayerFragment extends Fragment {
             public void run() {
                 playPauseButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
 
+                currentMediaListItemView = recyclerView.findViewHolderForAdapterPosition(trackPosNr).itemView;
                 if (previousMediaListItemView != null) {
-                    Drawable pauseDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
-                            R.drawable.ic_play_arrow_black_36dp);
-                    ImageView equalizerImage = (ImageView) previousMediaListItemView.findViewById(R.id.play_eq);
-                    equalizerImage.setImageDrawable(pauseDrawable);
-                    TextView titleTextView = (TextView) previousMediaListItemView.findViewById(R.id.track_title);
-                    titleTextView.setTextColor(ContextCompat.getColor(ApplicationContext.getAppContext(), R.color.primary_text));
+                    setDrawablesOnPlay();
                 }
-
-                AnimationDrawable animation = (AnimationDrawable)
-                        ContextCompat.getDrawable(ApplicationContext.getAppContext(), R.drawable.ic_equalizer_white_36dp);
-                animation.start();
                 if (currentMediaListItemView != null) {
-                    ImageView equalizerImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_eq);
-                    equalizerImage.setImageDrawable(animation);
-                    TextView titleTextView = (TextView) currentMediaListItemView.findViewById(R.id.track_title);
-                    titleTextView.setTextColor(ContextCompat.getColor(ApplicationContext.getAppContext(), R.color.media_item_icon_playing));
-                    previousMediaListItemView = currentMediaListItemView;
+                    resetDrawablesOnPlay();
                 }
             }
         });
@@ -323,15 +320,59 @@ public class AudioPlayerFragment extends Fragment {
             @Override
             public void run() {
                 playPauseButton.setImageResource(R.drawable.uamp_ic_play_arrow_white_48dp);
-
-                Drawable playDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
-                        R.drawable.ic_equalizer1_white_36dp);
-                if (currentMediaListItemView != null) {
-                    ImageView equalizerImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_eq);
-                    equalizerImage.setImageDrawable(playDrawable);
-                }
+                setDrawablesOnPause();
             }
         });
+    }
+
+    private void setDrawablesOnPlay() {
+        Drawable playDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
+                R.drawable.ic_play_arrow_black_36dp);
+        ImageView playPauseImage = (ImageView) previousMediaListItemView.findViewById(R.id.play_pause);
+        playPauseImage.setImageDrawable(playDrawable);
+
+        ImageView equalizerImage = (ImageView) previousMediaListItemView.findViewById(R.id.play_eq);
+        equalizerImage.setImageDrawable(null);
+
+        TextView titleTextView = (TextView) previousMediaListItemView.findViewById(R.id.track_title);
+        titleTextView.setTextColor(ContextCompat.getColor(ApplicationContext.getAppContext(), R.color.primary_text));
+    }
+
+    private void resetDrawablesOnPlay() {
+        AnimationDrawable animation = (AnimationDrawable)
+                ContextCompat.getDrawable(ApplicationContext.getAppContext(), R.drawable.ic_equalizer_white_36dp);
+        animation.start();
+        ImageView equalizerImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_eq);
+        equalizerImage.setImageDrawable(animation);
+
+        Drawable pauseDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
+                R.drawable.ic_pause_black_36dp);
+        ImageView playPauseImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_pause);
+        playPauseImage.setImageDrawable(pauseDrawable);
+
+        TextView titleTextView = (TextView) currentMediaListItemView.findViewById(R.id.track_title);
+        titleTextView.setTextColor(ContextCompat.getColor(ApplicationContext.getAppContext(), R.color.media_item_icon_playing));
+        previousMediaListItemView = currentMediaListItemView;
+    }
+
+    private void setDrawablesOnPause() {
+        RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(trackPosNr);
+        if (viewHolder == null) {
+            LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+            linearLayoutManager.scrollToPositionWithOffset(trackPosNr, 0);
+        } else {
+            currentMediaListItemView = recyclerView.findViewHolderForAdapterPosition(trackPosNr).itemView;
+
+            Drawable playDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
+                    R.drawable.ic_play_arrow_black_36dp);
+            ImageView playPauseImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_pause);
+            playPauseImage.setImageDrawable(playDrawable);
+
+            Drawable equalizeDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
+                    R.drawable.ic_equalizer1_white_36dp);
+            ImageView equalizerImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_eq);
+            equalizerImage.setImageDrawable(equalizeDrawable);
+        }
     }
 
 }

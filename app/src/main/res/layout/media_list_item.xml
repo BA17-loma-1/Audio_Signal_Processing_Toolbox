@@ -1,32 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/media_item_height">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="?selectableItemBackgroundBorderless"
+    android:padding="@dimen/playback_controls_padding">
 
     <ImageView
-        android:id="@+id/play_eq"
+        android:id="@+id/play_pause"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_marginStart="@dimen/media_item_icon_margin_start"
-        android:contentDescription="@string/play_item"
+        android:padding="8dp"
+        android:scaleType="centerCrop"
         android:src="@drawable/ic_play_arrow_black_36dp"
         android:tint="@color/media_item_icon_playing" />
 
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
+        android:id="@+id/content"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_marginStart="@dimen/media_item_text_margin_start" >
+        android:layout_marginStart="@dimen/playback_controls_albumart_horizontal_margin"
+        android:layout_toEndOf="@id/play_pause"
+        android:layout_toStartOf="@+id/play_eq"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/track_title"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
@@ -35,7 +37,7 @@
 
         <TextView
             android:id="@+id/track_artist"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
@@ -43,5 +45,14 @@
             android:textColor="@color/secondary_text" />
 
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/play_eq"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:padding="8dp"
+        android:tint="@color/media_item_icon_playing" />
 
 </RelativeLayout>

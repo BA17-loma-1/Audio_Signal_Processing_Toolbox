@@ -10,6 +10,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -75,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         actionBarDrawerToggle.syncState();
-        setTrackList();
+        initAudioPlayerFragment();
     }
 
     @Override
@@ -127,10 +128,9 @@ public class MainActivity extends AppCompatActivity implements
      * Sends the {@code Track} id to the {@code AudioPlayerFragment}
      */
     @Override
-    public void onTrackSelected(int trackPos,  View mediaListItemView) {
+    public void onTrackSelected(int trackPos) {
         if (audioPlayerFragment != null) {
             audioPlayerFragment.setTrack(trackPos);
-            audioPlayerFragment.setCurrentMediaListItemView(mediaListItemView);
         }
     }
 
@@ -288,10 +288,12 @@ public class MainActivity extends AppCompatActivity implements
         audioEffects.add(new SoftClipper(Constants.SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR));
     }
 
-    private void setTrackList() {
+    private void initAudioPlayerFragment() {
         Fragment mlf = getFragmentByTag(TAG_MEDIA_LIST_FRAGMENT);
         List<Track> tracks = ((MediaListFragment) mlf).getTracks();
+        RecyclerView recyclerView = ((MediaListFragment) mlf).getRecyclerView();
         if (audioPlayerFragment != null) {
+            audioPlayerFragment.setRecyclerView(recyclerView);
             audioPlayerFragment.setTracks(tracks);
         }
     }
