@@ -4,25 +4,18 @@ import android.app.Fragment;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
@@ -39,27 +32,13 @@ public class AudioPlayerFragment extends Fragment {
 
     private static final String TAG = AudioPlayerFragment.class.getSimpleName();
     private static final String BUNDLE_ARGUMENT_AUDIOEFFECTS = "audio_effect_view";
-    private static final long PROGRESS_UPDATE_INTERNAL = 1000;
-    private static final long PROGRESS_UPDATE_INITIAL_INTERVAL = 100;
-    private final Handler seekBarHandler = new Handler();
-    private final ScheduledExecutorService executorService =
-            Executors.newSingleThreadScheduledExecutor();
-    private ScheduledFuture<?> scheduleFuture;
-    private final Runnable updateProgressTask = new Runnable() {
-        @Override
-        public void run() {
-            updateSeekBarProgress();
-        }
-    };
 
     private List<Track> tracks;
     private Track currentTrack;
     private Track nextTrack;
     private int trackPosNr;
     private AudioPlayer audioPlayer;
-    private TextView currentTime;
-    private TextView endTime;
-    private SeekBar seekBar;
+    private TextView trackInfo;
     private ImageButton playPauseButton;
     private View currentMediaListItemView;
     private View previousMediaListItemView;
@@ -92,29 +71,7 @@ public class AudioPlayerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.audio_player, container, false);
-        currentTime = (TextView) rootView.findViewById(R.id.currentTime);
-        endTime = (TextView) rootView.findViewById(R.id.endTime);
-        seekBar = (SeekBar) rootView.findViewById(R.id.seekBar);
-        if (seekBar != null) {
-            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    currentTime.setText(DateUtils.formatElapsedTime(progress / 1000));
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-                    stopSeekbarUpdate();
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                    audioPlayer.seekToPosition(seekBar.getProgress());
-                    scheduleSeekbarUpdate();
-                }
-            });
-            seekBar.setMax(100);
-        }
+        trackInfo = (TextView) rootView.findViewById(R.id.track_info);
         playPauseButton = (ImageButton) rootView.findViewById(R.id.play_pause);
         return rootView;
     }
@@ -126,7 +83,6 @@ public class AudioPlayerFragment extends Fragment {
         audioPlayer.setOnPlaybackListener(new PlaybackListener() {
             @Override
             public void onProgress(int progress) {
-                // Use to update the SeekBar position.
             }
 
             @Override
@@ -214,6 +170,7 @@ public class AudioPlayerFragment extends Fragment {
                 } else {
                     // Start playback
                     setPauseButtonOnUI();
+                    updateTrackPropertiesOnUI();
                     audioPlayer.play();
                 }
             } else {
@@ -251,43 +208,13 @@ public class AudioPlayerFragment extends Fragment {
         if (trackPosNr < tracks.size() - 1) setTrack(++trackPosNr);
     }
 
-    private void scheduleSeekbarUpdate() {
-        stopSeekbarUpdate();
-        if (!executorService.isShutdown()) {
-            scheduleFuture = executorService.scheduleAtFixedRate(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            seekBarHandler.post(updateProgressTask);
-                        }
-                    }, PROGRESS_UPDATE_INITIAL_INTERVAL,
-                    PROGRESS_UPDATE_INTERNAL, TimeUnit.MILLISECONDS);
-        }
-    }
-
-    private void stopSeekbarUpdate() {
-        if (scheduleFuture != null) {
-            scheduleFuture.cancel(false);
-        }
-    }
-
     private void updateTrackPropertiesOnUI() {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                int duration = Integer.parseInt(currentTrack.getDuration());
-                endTime.setText(DateUtils.formatElapsedTime(duration / 1000));
-                //updateSeekBarProgress();
+                trackInfo.setText(currentTrack.getTitle());
             }
         });
-    }
-
-    private void updateSeekBarProgress() {
-        //seekBar.setProgress(playerPresenter.getCurrentPosition());
-        if (!audioPlayer.isPaused()) {
-            int framePosition = audioPlayer.getPlaybackPosition();
-            seekBarHandler.postDelayed(updateProgressTask, PROGRESS_UPDATE_INTERNAL);
-        }
     }
 
     private void setPauseButtonOnUI() {
