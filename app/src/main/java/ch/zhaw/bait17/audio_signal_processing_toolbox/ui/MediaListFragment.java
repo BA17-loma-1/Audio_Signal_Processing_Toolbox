@@ -148,22 +148,20 @@ public class MediaListFragment extends Fragment {
             addAllTracks();
             Collections.sort(tracks);
 
-            if (recyclerView == null) {
-                recyclerView = (RecyclerView) rootView.findViewById(R.id.media_list);
-                TrackAdapter trackAdapter = new TrackAdapter(tracks, new TrackAdapter.ItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(View itemView, Track track) {
-                        if (listener != null) {
-                            int trackPosNr = tracks.indexOf(track);
-                            listener.onTrackSelected(trackPosNr);
-                        }
+            recyclerView = (RecyclerView) rootView.findViewById(R.id.media_list);
+            TrackAdapter trackAdapter = new TrackAdapter(tracks, new TrackAdapter.ItemSelectedListener() {
+                @Override
+                public void onItemSelected(View itemView, Track track) {
+                    if (listener != null) {
+                        int trackPosNr = tracks.indexOf(track);
+                        listener.onTrackSelected(trackPosNr);
                     }
-                });
+                }
+            });
 
-                recyclerView.setHasFixedSize(true);
-                recyclerView.setLayoutManager(new LinearLayoutManager(ApplicationContext.getAppContext()));
-                recyclerView.setAdapter(trackAdapter);
-            }
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setLayoutManager(new LinearLayoutManager(ApplicationContext.getAppContext()));
+            recyclerView.setAdapter(trackAdapter);
         } else {
             requestReadExternalStoragePermission();
         }
