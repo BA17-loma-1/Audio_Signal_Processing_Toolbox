@@ -4,11 +4,13 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -23,7 +25,14 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SearchView;
 import android.widget.Toast;
+
+import com.google.common.base.Joiner;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -35,24 +44,28 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.SupportedAudioFormat;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.stream.HttpHandler;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ui.custom.TrackAdapter;
 
 /**
  * @author georgrem, stockan1
  */
 
-public class MediaListFragment extends Fragment {
+public class MediaListFragment extends Fragment implements SearchView.OnQueryTextListener {
 
     private static final String TAG = MediaListFragment.class.getSimpleName();
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
-    public final static String KEY_TRACK = "ch.zhaw.bait17.audio_signal_processing_toolbox.TRACK";
-    public final static String KEY_TRACKS = "ch.zhaw.bait17.audio_signal_processing_toolbox.TRACKS";
 
     private View rootView;
     private Context context;
     private OnTrackSelectedListener listener;
     private List<Track> tracks;
     private RecyclerView recyclerView;
+    private SearchView searchView;
+    private ProgressDialog progressDialog;
+    private TrackAdapter trackAdapter;
+    // URL to get tracks JSON
+    private String url;
 
     public interface OnTrackSelectedListener {
         void onTrackSelected(int trackPos);
@@ -65,6 +78,27 @@ public class MediaListFragment extends Fragment {
         if (rootView == null)
             rootView = inflater.inflate(R.layout.media_list_view, container, false);
         tracks = new ArrayList<>();
+
+        // Setup search field
+        searchView = (SearchView) rootView.findViewById(R.id.search_view);
+        searchView.setOnQueryTextListener(this);
+
+        // Setup search results list
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.media_list);
+        trackAdapter = new TrackAdapter(new TrackAdapter.ItemSelectedListener() {
+            @Override
+            public void onItemSelected(View itemView, Track track) {
+                if (listener != null) {
+                    int trackPosNr = tracks.indexOf(track);
+                    listener.onTrackSelected(trackPosNr);
+                }
+            }
+        });
+
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(ApplicationContext.getAppContext()));
+        recyclerView.setAdapter(trackAdapter);
+
         return rootView;
     }
 
@@ -119,10 +153,6 @@ public class MediaListFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        Bundle args = getArguments();
-        if (args != null) {
-
-        }
     }
 
     /*
@@ -147,21 +177,7 @@ public class MediaListFragment extends Fragment {
                 Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             addAllTracks();
             Collections.sort(tracks);
-
-            recyclerView = (RecyclerView) rootView.findViewById(R.id.media_list);
-            TrackAdapter trackAdapter = new TrackAdapter(tracks, new TrackAdapter.ItemSelectedListener() {
-                @Override
-                public void onItemSelected(View itemView, Track track) {
-                    if (listener != null) {
-                        int trackPosNr = tracks.indexOf(track);
-                        listener.onTrackSelected(trackPosNr);
-                    }
-                }
-            });
-
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setLayoutManager(new LinearLayoutManager(ApplicationContext.getAppContext()));
-            recyclerView.setAdapter(trackAdapter);
+            trackAdapter.addData(tracks);
         } else {
             requestReadExternalStoragePermission();
         }
@@ -212,7 +228,7 @@ public class MediaListFragment extends Fragment {
         artist = artist == null ? "<unknown>" : artist;
         album = album == null ? "<unknown>" : album;
         SupportedAudioFormat audioFormat = SupportedAudioFormat.getSupportedAudioFormat(mimeType);
-        return new Track(title, artist, album, duration, uri, audioFormat);
+        return new Track(title, artist, album, duration, uri, "", audioFormat);
     }
 
     private List<Track> getTracksFromDevice() {
@@ -235,7 +251,7 @@ public class MediaListFragment extends Fragment {
                 String mimeType = musicCursor.getString(mimeTypeColumn);
                 SupportedAudioFormat audioFormat = SupportedAudioFormat.getSupportedAudioFormat(mimeType);
                 if (audioFormat != SupportedAudioFormat.UNKNOWN)
-                    tracksOnDevice.add(new Track(title, artist, album, duration, file, audioFormat));
+                    tracksOnDevice.add(new Track(title, artist, album, duration, file, "", audioFormat));
             }
             while (musicCursor.moveToNext());
         }
@@ -269,5 +285,128 @@ public class MediaListFragment extends Fragment {
 
     public RecyclerView getRecyclerView() {
         return recyclerView;
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        url = "https://api.spotify.com/v1/search?q=" +
+                query +
+                "&type=track";
+        new GetTracksFromSpotify().execute();
+
+        // Remove old entries
+        tracks.clear();
+        trackAdapter.clearData();
+        searchView.clearFocus();
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        return false;
+    }
+
+    /**
+     * Async task class to get json by making HTTP call
+     */
+    private class GetTracksFromSpotify extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // Showing progress dialog
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Please wait...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            HttpHandler sh = new HttpHandler();
+
+            // Making a request to url and getting response
+            String jsonStr = sh.makeServiceCall(url);
+
+            Log.e(TAG, "Response from url: " + jsonStr);
+
+            if (jsonStr != null) {
+                try {
+                    JSONObject jsonObj = new JSONObject(jsonStr);
+                    JSONObject root = (JSONObject) jsonObj.get("tracks");
+
+                    // Getting JSON Array node
+                    JSONArray items = root.getJSONArray("items");
+
+                    // looping through All Items
+                    for (int i = 0; i < items.length(); i++) {
+                        JSONObject item = items.getJSONObject(i);
+                        // Album node is JSON Object
+                        JSONObject album = (JSONObject) item.get("album");
+                        // Getting Artists and Images JSON Array node
+                        JSONArray artists = item.getJSONArray("artists");
+                        JSONArray images = album.getJSONArray("images");
+                        // Getting first Image node as JSON Object
+                        JSONObject image = images.getJSONObject(0);
+
+                        String title = item.getString("name");
+                        String albumName = album.getString("name");
+                        String preview_url = item.getString("preview_url");
+                        String imageUrl = image.getString("url");
+
+                        // looping through All Artists
+                        List<String> artistNames = new ArrayList<>();
+                        for (int j = 0; j < artists.length(); j++) {
+                            JSONObject artist = artists.getJSONObject(j);
+                            artistNames.add(artist.getString("name"));
+                        }
+                        Joiner joiner = Joiner.on(", ");
+                        String artistName = joiner.join(artistNames);
+
+                        // tmp Track for single Track
+                        Track track = new Track(title, artistName, albumName, "", preview_url,
+                                imageUrl, SupportedAudioFormat.MP3);
+
+                        // adding track to track list
+                        tracks.add(track);
+                    }
+                } catch (final JSONException e) {
+                    Log.e(TAG, "Json parsing error: " + e.getMessage());
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(ApplicationContext.getAppContext(),
+                                    "Json parsing error: " + e.getMessage(),
+                                    Toast.LENGTH_LONG)
+                                    .show();
+                        }
+                    });
+                }
+            } else {
+                Log.e(TAG, "Couldn't get json from server.");
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(ApplicationContext.getAppContext(),
+                                "Couldn't get json from server. Check LogCat for possible errors!",
+                                Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            // Dismiss the progress dialog
+            if (progressDialog.isShowing())
+                progressDialog.dismiss();
+
+            // Updating parsed JSON data into ListView
+            trackAdapter.addData(tracks);
+        }
+
     }
 }
