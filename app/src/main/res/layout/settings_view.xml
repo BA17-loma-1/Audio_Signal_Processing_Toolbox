@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/filter_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorAccent"
+    android:orientation="vertical"
+    android:padding="@dimen/activity_vertical_padding">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Change audio effect parameters"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ring modulation"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/primary_text" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Frequency"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/secondary_text" />
+
+    <SeekBar
+        android:id="@+id/seekbar_modulation_frequency"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:progressDrawable="@drawable/seekbar_progressbar" />
+
+</LinearLayout>

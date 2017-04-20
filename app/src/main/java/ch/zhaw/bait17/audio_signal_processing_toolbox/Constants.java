@@ -29,4 +29,7 @@ public class Constants {
     // SoftClipper
     public static final float SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR = 200f;
 
+    // RingModulator
+    public static final float RING_MODULATOR_DEFAULT_FREQUENCY = 5;
+
 }

@@ -19,6 +19,10 @@
             android:icon="@drawable/lowpass_ir"
             android:title="Filter" />
         <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_build_black_18dp"
+            android:title="Settings" />
+        <item
             android:id="@+id/nav_about"
             android:icon="@drawable/about_96"
             android:title="About" />

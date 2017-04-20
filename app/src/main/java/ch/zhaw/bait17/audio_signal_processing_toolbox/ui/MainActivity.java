@@ -25,6 +25,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.RingModulation;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Bitcrusher;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.SoftClipper;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
@@ -39,11 +40,13 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         MediaListFragment.OnTrackSelectedListener,
-        AudioEffectFragment.OnItemSelectedListener {
+        AudioEffectFragment.OnItemSelectedListener,
+        SettingsFragment.OnItemChangedListener {
 
     private static final String TAG_AUDIO_PLAYER_FRAGMENT = "AUDIO_PLAYER";
     private static final String TAG_FILTER_FRAGMENT = "FILTER";
     private static final String TAG_MEDIA_LIST_FRAGMENT = "MEDIA_LIST";
+    private static final String TAG_SETTINGS_FRAGMENT = "SETTINGS";
     private static final String TAG_VISUALISATION_CONFIGURATION_FRAGMENT = "VISUALISATION_CONFIGURATION";
     private static final String TAG_VISUALISATION_FRAGMENT = "VISUALISATION";
 
@@ -153,6 +156,15 @@ public class MainActivity extends AppCompatActivity implements
         if (audioPlayerFragment != null) {
             audioPlayerFragment.setAudioEffects(audioEffects);
         }
+        Fragment sf = getFragmentByTag(TAG_SETTINGS_FRAGMENT);
+        ((SettingsFragment) sf).setAudioEffects(audioEffects);
+    }
+
+    @Override
+    public void onParameterChanged(List<AudioEffect> audioEffects) {
+        if (audioPlayerFragment != null) {
+            audioPlayerFragment.setAudioEffects(audioEffects);
+        }
     }
 
     // Layout: onClick event
@@ -191,6 +203,7 @@ public class MainActivity extends AppCompatActivity implements
                 TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
         ft.replace(R.id.content_frame, VisualisationFragment.newInstance(activeViews),
                 TAG_VISUALISATION_FRAGMENT);
+        ft.replace(R.id.content_frame, new SettingsFragment(), TAG_SETTINGS_FRAGMENT);
         ft.replace(R.id.content_frame, new MediaListFragment(), TAG_MEDIA_LIST_FRAGMENT);
         ft.replace(R.id.audio_player_fragment, audioPlayerFragment, TAG_AUDIO_PLAYER_FRAGMENT);
         ft.addToBackStack(null);
@@ -235,6 +248,11 @@ public class MainActivity extends AppCompatActivity implements
                 fragment = getFragmentByTag(TAG_FILTER_FRAGMENT);
                 title = "Filter";
                 tagFragmentName = TAG_FILTER_FRAGMENT;
+                break;
+            case R.id.nav_settings:
+                fragment = getFragmentByTag(TAG_SETTINGS_FRAGMENT);
+                title = "Settings";
+                tagFragmentName = TAG_SETTINGS_FRAGMENT;
                 break;
             case R.id.nav_about:
                 title = "About the app";
@@ -286,6 +304,7 @@ public class MainActivity extends AppCompatActivity implements
         audioEffects.add(new Bitcrusher(Constants.BITCRUSHER_DEFAULT_NORM_FREQUENCY,
                 Constants.BITCRUSHER_DEFAULT_BITS));
         audioEffects.add(new SoftClipper(Constants.SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR));
+        audioEffects.add(new RingModulation(Constants.RING_MODULATOR_DEFAULT_FREQUENCY));
     }
 
     private void initAudioPlayerFragment() {
