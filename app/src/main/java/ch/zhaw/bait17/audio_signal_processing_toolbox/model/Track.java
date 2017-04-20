@@ -12,16 +12,17 @@ import android.support.annotation.NonNull;
  */
 public class Track implements Comparable<Track>, Parcelable {
 
-    private String title, artist, album, duration, uri;
+    private String title, artist, album, duration, uri, imageUrl;
     private SupportedAudioFormat audioFormat;
 
     public Track(String title, String artist, String album,
-                 String duration, String uri, SupportedAudioFormat audioFormat) {
+                 String duration, String uri, String imageUrl, SupportedAudioFormat audioFormat) {
         this.title = title;
         this.artist = artist;
         this.album = album;
         this.duration = duration;
         this.uri = uri;
+        this.imageUrl = imageUrl;
         this.audioFormat = audioFormat;
     }
 
@@ -37,6 +38,7 @@ public class Track implements Comparable<Track>, Parcelable {
         this.album = in.readString();
         this.duration = in.readString();
         this.uri = in.readString();
+        this.imageUrl = in.readString();
         try {
             this.audioFormat = SupportedAudioFormat.valueOf(in.readString());
         } catch (IllegalArgumentException x) {
@@ -63,6 +65,7 @@ public class Track implements Comparable<Track>, Parcelable {
         dest.writeString(album);
         dest.writeString(duration);
         dest.writeString(uri);
+        dest.writeString(imageUrl);
         dest.writeString(audioFormat.toString());
     }
 
@@ -111,6 +114,10 @@ public class Track implements Comparable<Track>, Parcelable {
         return uri;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -120,6 +127,7 @@ public class Track implements Comparable<Track>, Parcelable {
             .append("', album='" + album)
             .append("', duration='" + duration)
             .append("', uri='" + uri)
+            .append("', imageUrl='" + imageUrl)
             .append("', audioFormat='" + audioFormat)
             .append("'}");
         return sb.toString();
