@@ -1,5 +1,6 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui.custom;
 
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,7 +70,11 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> 
 
         String imageUrl = track.getImageUrl();
         if (imageUrl != "") {
+            holder.image.clearColorFilter();
             Picasso.with(ApplicationContext.getAppContext()).load(imageUrl).into(holder.image);
+        } else {
+            int color = ContextCompat.getColor(ApplicationContext.getAppContext(), R.color.media_item_icon_playing);
+            holder.image.setColorFilter(color);
         }
     }
 
