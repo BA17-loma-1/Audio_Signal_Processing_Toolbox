@@ -5,35 +5,35 @@
         <item
             android:id="@+id/nav_media_list"
             android:icon="@drawable/ic_playlist_music_black_24dp"
-            android:title="My music" />
+            android:title="@string/drawer_menu_item_music" />
         <item
             android:id="@+id/nav_stream_list"
             android:icon="@drawable/ic_cloud_download_black_48dp"
-            android:title="Music streaming" />
+            android:title="@string/drawer_menu_item_music_streaming" />
         <item
             android:id="@+id/nav_microphone"
             android:icon="@drawable/ic_mic_black_48dp"
-            android:title="Microphone" />
+            android:title="@string/drawer_menu_item_microphone" />
         <item
             android:id="@+id/nav_visualisation"
             android:icon="@drawable/filter"
-            android:title="Visualisation" />
+            android:title="@string/drawer_menu_item_visualation" />
         <item
             android:id="@+id/nav_view"
             android:icon="@drawable/ic_view_black_18dp"
-            android:title="View" />
+            android:title="@string/drawer_menu_item_view_configuration" />
         <item
             android:id="@+id/nav_filter"
             android:icon="@drawable/lowpass_ir"
-            android:title="Filter" />
+            android:title="@string/drawer_menu_item_audio_effects_filter" />
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_build_black_18dp"
-            android:title="Settings" />
+            android:title="@string/drawer_menu_item_settings" />
         <item
             android:id="@+id/nav_about"
             android:icon="@drawable/about_96"
-            android:title="About" />
+            android:title="@string/drawer_menu_item_about_app" />
     </group>
 
 </menu>

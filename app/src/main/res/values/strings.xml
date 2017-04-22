@@ -1,6 +1,16 @@
 <resources>
     <string name="app_name">Audio Signal Processing Toolbox</string>
 
+    <!-- Drawer menu item titles -->
+    <string name="drawer_menu_item_music">My music</string>
+    <string name="drawer_menu_item_music_streaming">Music streaming</string>
+    <string name="drawer_menu_item_microphone">Microphone</string>
+    <string name="drawer_menu_item_visualation">Visualisation</string>
+    <string name="drawer_menu_item_view_configuration">View configuration</string>
+    <string name="drawer_menu_item_audio_effects_filter">Audio effects and filter</string>
+    <string name="drawer_menu_item_settings">Settings</string>
+    <string name="drawer_menu_item_about_app">About</string>
+
     <!-- Media browser -->
     <string name="title_activity_media_browser">Media Browser</string>
     <string name="title_activity_media_list">Media List</string>
@@ -27,6 +37,12 @@
     <string name="navigation_header_faculty">ZHAW School of Engineering</string>
     <string name="navigation_header_institute">Zentrum für Signalverarbeitung und Nachrichtentechnik (ZSN)</string>
 
+    <!-- View config -->
+    <string name="view_config_view1">View 1</string>
+    <string name="view_config_view2">View 2</string>
+    <string name="view_config_pre_audio_effect">pre audio effect</string>
+    <string name="view_config_post_audio_effect">post audio effect</string>
+
     <!-- FX section -->
     <string name="effect_slot1">Insert audio effect 1</string>
     <string name="effect_slot2">Insert audio effect 2</string>
@@ -37,4 +53,5 @@
     <string name="band_pass_filter">Band pass filter</string>
     <string name="band_stop_filter">Band stop filter</string>
     <string name="no_filter">No filter</string>
+
 </resources>

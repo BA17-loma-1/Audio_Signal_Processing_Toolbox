@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 
@@ -21,9 +22,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ui.custom.ViewAdapter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.LineSpectrumView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrumView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView;
 
 /**
@@ -47,17 +46,17 @@ public class ViewFragment extends Fragment implements
 
     static {
         views.put("No view", null);
-        views.put("Line Spectrum", new LineSpectrumView(ApplicationContext.getAppContext()));
-        views.put("Spectrogram", new SpectrogramView(ApplicationContext.getAppContext()));
-        views.put("Spectrum", new SpectrumView(ApplicationContext.getAppContext()));
         views.put("Waveform", new WaveformView(ApplicationContext.getAppContext()));
+        views.put("Spectrogram", new SpectrogramView(ApplicationContext.getAppContext()));
+        //views.put("Line Spectrum", new LineSpectrumView(ApplicationContext.getAppContext()));
+        //views.put("Spectrum", new SpectrumView(ApplicationContext.getAppContext()));
     }
 
     // The onCreateView method is called when Fragment should create its View object hierarchy,
     // either dynamically or via XML layout inflation.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.view_view, container, false);
+        View view = inflater.inflate(R.layout.view_config_view, container, false);
 
         Set<String> keys = views.keySet();
         String[] viewNames = keys.toArray(new String[keys.size()]);
@@ -80,6 +79,47 @@ public class ViewFragment extends Fragment implements
         radioGroupBottom = (RadioGroup) view.findViewById(R.id.radioGroup_second_view);
         radioGroupBottom.setOnCheckedChangeListener(this);
 
+        final RadioButton radioButtonViewOnePreAudioEffect = (RadioButton) view.findViewById(
+                R.id.radioButton_preFilter_first_view);
+        final RadioButton radioButtonViewOnePostAudioEffect = (RadioButton) view.findViewById(
+                R.id.radioButton_postFilter_first_view);
+        final RadioButton radioButtonViewTwoPreAudioEffect = (RadioButton) view.findViewById(
+                R.id.radioButton_preFilter_second_view);
+        final RadioButton radioButtonViewTwoPostAudioEffect = (RadioButton) view.findViewById(
+                R.id.radioButton_postFilter_second_view);
+
+        radioButtonViewOnePreAudioEffect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                radioButtonViewOnePreAudioEffect.setChecked(true);
+                radioButtonViewOnePostAudioEffect.setChecked(false);
+            }
+        });
+
+        radioButtonViewOnePostAudioEffect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                radioButtonViewOnePostAudioEffect.setChecked(true);
+                radioButtonViewOnePreAudioEffect.setChecked(false);
+            }
+        });
+
+        radioButtonViewTwoPreAudioEffect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                radioButtonViewTwoPreAudioEffect.setChecked(true);
+                radioButtonViewTwoPostAudioEffect.setChecked(false);
+            }
+        });
+
+        radioButtonViewTwoPostAudioEffect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                radioButtonViewTwoPostAudioEffect.setChecked(true);
+                radioButtonViewTwoPreAudioEffect.setChecked(false);
+            }
+        });
+
         return view;
     }
 
@@ -92,9 +132,16 @@ public class ViewFragment extends Fragment implements
         return activeViews;
     }
 
-    // to dynamically add the same view to a wrapper layout we have to use the inflate of this views
-    // because the inflate makes the view unique in the ViewGroup then the view object self is not unique
-    //  From: {@link http://androblip.huiges.nl/2010/05/14/add-a-view-to-a-wrapper-multiple-times-with-inflate/}
+    /**
+     * to dynamically add the same view to a wrapper layout we have to use the inflate of this views
+     * because the inflate makes the view unique in the ViewGroup then the view object self is not unique
+     * From <a href="http://androblip.huiges.nl/2010/05/14/add-a-view-to-a-wrapper-multiple-times-with-inflate/">androblip.huiges.nl</a>
+     *
+     * @param parent
+     * @param view
+     * @param position
+     * @param id
+     */
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         activeViews = new ArrayList<>();

@@ -10,7 +10,7 @@ public class Constants {
     public static final int DEFAULT_SAMPLE_RATE = 44100;
     public static final int DEFAULT_BITS_PER_SAMPLE = 16;
     public static final int DEFAULT_CHANNELS = 2;
-    public static final int DEFAULT_FFT_RESOLUTION = 2048;
+    public static final int DEFAULT_FFT_RESOLUTION = 4096;
 
     // Filter
     public static final String FREQUENCY_PASS_1 = "fpass1";
@@ -26,10 +26,10 @@ public class Constants {
     public static final float BITCRUSHER_DEFAULT_NORM_FREQUENCY = 0.1f;
     public static final int BITCRUSHER_DEFAULT_BITS = 8;
 
-    // SoftClipper
-    public static final float SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR = 200f;
+    // Soft clipper
+    public static final float SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR = 120f;
 
-    // RingModulator
+    // Ring modulator
     public static final float RING_MODULATOR_DEFAULT_FREQUENCY = 5;
 
 }
