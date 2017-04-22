@@ -23,6 +23,10 @@ public class Constants {
     public static final String ATTENUATION_STOP_2 = "Astop2";
 
     // Bitcrusher
+    public static final float MIN_NORM_FREQ = 0;
+    public static final float MAX_NORM_FREQ = 1;
+    public static final int MIN_BIT_DEPTH = 1;
+    public static final int MAX_BIT_DEPTH = 16;
     public static final float BITCRUSHER_DEFAULT_NORM_FREQUENCY = 0.1f;
     public static final int BITCRUSHER_DEFAULT_BITS = 8;
 

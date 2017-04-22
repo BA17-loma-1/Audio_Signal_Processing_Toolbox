@@ -3,6 +3,7 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 
 /**
@@ -14,6 +15,7 @@ public class Bitcrusher implements AudioEffect {
 
     private static final String LABEL = "Bitcrusher";
     private static final String DESCRIPTION = "";
+
     private float normFrequency;
     private int bits;
 
@@ -28,19 +30,52 @@ public class Bitcrusher implements AudioEffect {
     }
 
     /**
+     * Sets the normalised frequency.
      *
      * @param normFrequency     frequency / sampleRate, a value in the range [0,1]
      */
     public void setNormFrequency(float normFrequency) {
-        this.normFrequency = normFrequency;
+        if (normFrequency < Constants.MIN_NORM_FREQ) {
+            this.normFrequency = Constants.MIN_NORM_FREQ;
+        } else if (normFrequency > Constants.MAX_NORM_FREQ) {
+            this.normFrequency = Constants.MAX_NORM_FREQ;
+        } else {
+            this.normFrequency = normFrequency;
+        }
     }
 
     /**
+     * Returns the normalised frequency.
+     *
+     * @return      normalised frequency
+     */
+    public float getNormalisedFrequency() {
+        return normFrequency;
+    }
+
+
+    /**
+     * Sets the bit depth.
      *
      * @param bits  the number of bits in the range [1,16]
      */
     public void setBits(int bits) {
-        this.bits = bits;
+        if (bits < Constants.MIN_BIT_DEPTH) {
+            this.bits = Constants.MIN_BIT_DEPTH;
+        } else if (bits > Constants.MAX_BIT_DEPTH) {
+            this.bits = Constants.MAX_BIT_DEPTH;
+        } else {
+            this.bits = bits;
+        }
+    }
+
+    /**
+     * Returns the bit depth.
+     *
+     * @return      bit depth
+     */
+    public int getBits() {
+        return bits;
     }
 
     /**
