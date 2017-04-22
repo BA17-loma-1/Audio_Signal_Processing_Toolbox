@@ -233,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements
         switch (item.getItemId()) {
             case R.id.nav_media_list:
                 fragment = getFragmentByTag(TAG_MEDIA_LIST_FRAGMENT);
-                title = "My Music";
+                title = "My music";
                 tagFragmentName = TAG_MEDIA_LIST_FRAGMENT;
                 break;
             case R.id.nav_visualisation:
@@ -246,12 +246,12 @@ public class MainActivity extends AppCompatActivity implements
                 break;
             case R.id.nav_view:
                 fragment = getFragmentByTag(TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
-                title = "View";
+                title = "View configuration";
                 tagFragmentName = TAG_VISUALISATION_CONFIGURATION_FRAGMENT;
                 break;
             case R.id.nav_filter:
                 fragment = getFragmentByTag(TAG_FILTER_FRAGMENT);
-                title = "Filter";
+                title = "Filters and audio effects";
                 tagFragmentName = TAG_FILTER_FRAGMENT;
                 break;
             case R.id.nav_settings:
