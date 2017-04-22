@@ -16,6 +16,7 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -23,6 +24,7 @@ import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -34,11 +36,10 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.util.HeatMap;
 public class SpectrogramView extends FrequencyView {
 
     private static final String TAG = SpectrogramView.class.getSimpleName();
-    private static final int db_PEAK = 40;
+    private static final int db_PEAK = 50;
     private static final int dB_FLOOR = -60;
     private static final int dB_RANGE = Math.abs(dB_FLOOR) + db_PEAK;
     private static final int SPECTROGRAM_PAINT_STROKE_WIDTH = 3;
-    private static final float DEFAULT_AXIS_TEXT_SIZE = 10f;
 
     private static Colour[] gradient = HeatMap.LSD;
     private Paint paint = new Paint();
@@ -46,8 +47,7 @@ public class SpectrogramView extends FrequencyView {
     private Canvas canvas;
     private int pos;
     private int width, height;
-    private int fftResolution;
-    private float[] magnitudes;
+    private float[] spectralDensity;
 
     /**
      *
@@ -115,18 +115,20 @@ public class SpectrogramView extends FrequencyView {
      *
      * @param fftResolution     power of 2 in the range [2^11, 2^15]
      */
+    @Override
     public void setFFTResolution(int fftResolution) {
-        this.fftResolution = fftResolution;
+        spectralDensity = new float[fftResolution];
     }
 
     /**
-     * Sets the magnitudes to render inside the view.
+     * Sets the spectral density to be displayed in the {@code FrequencyView}.
+     * hMag represents the power spectrum of a time series.
      *
-     * @param   hMag array of {@code float} representing magnitudes (power spectrum of a time series)
+     * @param hMag    an array of {@code float}
      */
     @Override
-    public void setMagnitudes(@NonNull float[] hMag) {
-        magnitudes = hMag;
+    public void setSpectralDensity(@NonNull float[] hMag) {;
+        System.arraycopy(hMag, 0, spectralDensity, 0, hMag.length);
         postInvalidate();
     }
 
@@ -137,14 +139,12 @@ public class SpectrogramView extends FrequencyView {
      */
     @Override
     public void onDraw(Canvas canvas) {
-        if (magnitudes == null) {
+        if (spectralDensity == null || getSampleRate() == 0) {
             return;
         }
 
-        float[] hMag = new float[magnitudes.length];
-        System.arraycopy(magnitudes, 0, hMag, 0, magnitudes.length);
         final int magnitudeAxisWidth = 80;
-        final int frequencyAxisWidth = 60;
+        final int frequencyAxisWidth = 70;
         final int spectrogramWidth = width - magnitudeAxisWidth - frequencyAxisWidth;
         double mindB = 0;
         double maxdB = 0;
@@ -155,8 +155,7 @@ public class SpectrogramView extends FrequencyView {
         for (int i = 0; i < height; i++) {
             float j = getValueFromRelativePosition(
                     (float) (height - i) / height, 1, getSampleRate() / 2);
-            j /= getSampleRate() / 2;
-            float mag = hMag[(int) (j * hMag.length / 2)];
+            float mag = spectralDensity[(int) (j * spectralDensity.length / 4)];
             double dB = 10 * Math.log10(mag);
             if (i == 0) {
                 mindB = dB;
@@ -193,7 +192,7 @@ public class SpectrogramView extends FrequencyView {
         paint.setColor(Color.WHITE);
         canvas.drawRect(gradientWidth + spectrogramWidth, 0, width, height, paint);
         paint.setColor(Color.BLACK);
-        paint.setTextSize(getTextSizeForAxis());
+        paint.setTextSize(getFontSize(android.R.attr.textAppearanceSmall));
         canvas.drawText("kHz", spectrogramWidth + gradientWidth, paint.getTextSize(), paint);
         for (int i = 0; i < (getSampleRate() - (frequencyStep / 2)) / 2; i += frequencyStep) {
             float y = height * (1.0f - (float) i / (getSampleRate() / 2));
@@ -218,7 +217,7 @@ public class SpectrogramView extends FrequencyView {
 
         // Axis label
         paint.setColor(Color.BLACK);
-        paint.setTextSize(getTextSizeForAxis());
+        paint.setTextSize(getFontSize(android.R.attr.textAppearanceSmall));
         canvas.drawText("dB", gradientWidth - textWidth, paint.getTextSize(), paint);
         for (int i = dB_RANGE; i >= 0; i -= dBStep) {
             canvas.drawText(Integer.toString(dB_FLOOR + i), gradientWidth - textWidth,
@@ -244,7 +243,7 @@ public class SpectrogramView extends FrequencyView {
      * @return
      */
     private float getValueFromRelativePosition(float position, float minValue, float maxValue) {
-        return minValue + position * (maxValue - minValue);
+        return (minValue + position * (maxValue - minValue)) / maxValue;
     }
 
     /**
@@ -266,13 +265,14 @@ public class SpectrogramView extends FrequencyView {
         return gradient[index];
     }
 
-    /**
-     * Returns the text size taking into account the pixel density of the device.
-     *
-     * @return text size
-     */
-    private float getTextSizeForAxis() {
-        return DEFAULT_AXIS_TEXT_SIZE * getResources().getDisplayMetrics().scaledDensity;
+    private float getFontSize(int textAppearance) {
+        TypedValue typedValue = new TypedValue();
+        getContext().getTheme().resolveAttribute(textAppearance, typedValue, true);
+        int[] textSizeAttr = new int[]{android.R.attr.textSize};
+        TypedArray arr = getContext().obtainStyledAttributes(typedValue.data, textSizeAttr);
+        float fontSize = arr.getDimensionPixelSize(0, -1);
+        arr.recycle();
+        return fontSize;
     }
 
 }

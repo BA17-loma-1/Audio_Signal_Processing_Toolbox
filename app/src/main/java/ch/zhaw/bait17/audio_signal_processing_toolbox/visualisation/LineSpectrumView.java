@@ -44,25 +44,6 @@ public class LineSpectrumView extends FrequencyView {
         init(context, attrs, defStyle);
     }
 
-    private void init(Context context, AttributeSet attrs, int defStyle) {
-        setWillNotDraw(false);
-        // Load attributes
-        final TypedArray a = getContext().obtainStyledAttributes(
-                attrs, R.styleable.LineSpectrumView, defStyle, 0);
-
-        float strokeThickness = a.getFloat(R.styleable.LineSpectrumView_lineSpectrumStrokeThickness, 5f);
-        int strokeColor = a.getColor(R.styleable.LineSpectrumView_lineSpectrumColor,
-                ContextCompat.getColor(context, R.color.line_spectrum));
-
-        a.recycle();
-
-        strokePaint = new Paint();
-        strokePaint.setColor(strokeColor);
-        strokePaint.setStyle(Paint.Style.STROKE);
-        strokePaint.setStrokeWidth(strokeThickness);
-        strokePaint.setAntiAlias(false);
-    }
-
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
@@ -171,14 +152,28 @@ public class LineSpectrumView extends FrequencyView {
         }
     }
 
+
     /**
-     * Sets the magnitudes to render inside the view.
+     * Sets the resolution of the FFT. Sometimes called the FFT windows size.
+     * The input value is usually a power of 2.
+     * For good results the window size should be in the range [2^11, 2^15].
+     * The input value should not exceed 2^15.
+     *
+     * @param fftResolution     power of 2 in the range [2^11, 2^15]
+     */
+    public void setFFTResolution(int fftResolution) {
+        magnitudes = new float[fftResolution];
+    }
+
+    /**
+     * Sets the spectral density to be displayed in the {@code FrequencyView}.
+     * hMag represents the power spectrum of a time series.
      *
      * @param hMag array of {@code float} representing magnitudes (power spectrum of a time series)
      */
     @Override
-    public void setMagnitudes(@NonNull float[] hMag) {
-        magnitudes = hMag;
+    public void setSpectralDensity(@NonNull float[] hMag) {
+        System.arraycopy(hMag, 0, magnitudes, 0, hMag.length);
         postInvalidate();
     }
 
@@ -186,6 +181,25 @@ public class LineSpectrumView extends FrequencyView {
     public AudioView getInflatedView() {
         return (AudioView) View.inflate(ApplicationContext.getAppContext(),
                 R.layout.line_spectrum_view, null);
+    }
+
+    private void init(Context context, AttributeSet attrs, int defStyle) {
+        setWillNotDraw(false);
+        // Load attributes
+        final TypedArray a = getContext().obtainStyledAttributes(
+                attrs, R.styleable.LineSpectrumView, defStyle, 0);
+
+        float strokeThickness = a.getFloat(R.styleable.LineSpectrumView_lineSpectrumStrokeThickness, 5f);
+        int strokeColor = a.getColor(R.styleable.LineSpectrumView_lineSpectrumColor,
+                ContextCompat.getColor(context, R.color.line_spectrum));
+
+        a.recycle();
+
+        strokePaint = new Paint();
+        strokePaint.setColor(strokeColor);
+        strokePaint.setStyle(Paint.Style.STROKE);
+        strokePaint.setStrokeWidth(strokeThickness);
+        strokePaint.setAntiAlias(false);
     }
 
 }

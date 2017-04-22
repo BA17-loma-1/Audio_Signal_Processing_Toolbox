@@ -2,7 +2,6 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +19,6 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.FFT;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PCMSampleBlock;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PostFilterSampleBlock;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PreFilterSampleBlock;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.util.PCMUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.FrequencyView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView;
@@ -38,7 +34,7 @@ public class VisualisationFragment extends Fragment {
             VisualisationFragment.class.getSimpleName() + ".AUDIOVIEWS";
 
     private FFT fft;
-    private int fftResolution;
+    private int fftResolution = Constants.DEFAULT_FFT_RESOLUTION;
     private List<AudioView> views;
 
     // Creates a new fragment given a array
@@ -54,8 +50,6 @@ public class VisualisationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        fftResolution = Constants.DEFAULT_FFT_RESOLUTION;
-        fft = new FFT();
 
         // Get back arguments
         Bundle arguments = this.getArguments();
@@ -113,6 +107,8 @@ public class VisualisationFragment extends Fragment {
         // Register for event bus
         EventBus.getDefault().register(this);
 
+        fft = new FFT(fftResolution);
+
         if (views != null) {
             for (AudioView view : views) {
                 if (view instanceof SpectrogramView) {
@@ -129,6 +125,7 @@ public class VisualisationFragment extends Fragment {
         super.onStop();
     }
 
+    /*
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onPreFilterSampleBlockReceived(PreFilterSampleBlock sampleBlock) {
         if (sampleBlock != null && views != null) {
@@ -150,7 +147,19 @@ public class VisualisationFragment extends Fragment {
             }
         }
     }
+    */
 
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    public void onPCMSampleBlockReceived(PCMSampleBlock sampleBlock) {
+        if (sampleBlock != null && views != null) {
+            for (AudioView view : views) {
+                if ((view.isPreFilterView() && sampleBlock.isPreFilterSamples())
+                        || (!view.isPreFilterView() && !sampleBlock.isPreFilterSamples())){
+                    setViewParameters(view, sampleBlock);
+                }
+            }
+        }
+    }
     /**
      * Sets the views to be displayed in the fragment.
      *
@@ -176,33 +185,13 @@ public class VisualisationFragment extends Fragment {
         view.setChannels(sampleBlock.getSampleRate());
 
         if (view instanceof FrequencyView) {
-            ((FrequencyView) view).setMagnitudes(getPowerSpectrum(sampleBlock.getSamples()));
+            ((FrequencyView) view).setSpectralDensity(fft.getPowerSpectrum(sampleBlock.getSamples(),
+                    sampleBlock.getChannels()));
         }
 
         if (view instanceof TimeView) {
             ((TimeView) view).setSamples(sampleBlock.getSamples());
         }
-    }
-
-    /**
-     * <p>
-     *      Computes the power spectral density of the given audio samples. <br>
-     *      The power spectral density is sometimes simply called power spectrum.
-     * </p>
-     *
-     * @param samples   a block of PCM samples
-     * @return          power spectrum
-     */
-    private float[] getPowerSpectrum(@NonNull short[] samples) {
-        // Perform FFT : Time domain -> Frequency domain
-        float[] hComplex = fft.getForwardTransform(PCMUtil.short2FloatArray(samples));
-        // Calculate power spectrum
-        final int FFT_SIZE = hComplex.length;
-        float[] hMag = new float[FFT_SIZE / 2];
-        for (int i = 0; i < FFT_SIZE / 2; i++) {
-            hMag[i] = (hComplex[2*i] * hComplex[2*i]) + (hComplex[(2*i) + 1] * hComplex[(2*i) + 1]);
-        }
-        return hMag;
     }
 
 }

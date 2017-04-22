@@ -43,6 +43,6 @@ public final class HeatMap {
      *
      */
     public final static Colour[] LSD = Gradient.createMultiGradient(
-            new Colour[]{BLACK, LILA, BLUE, GREEN, YELLOW, ORANGE, RED}, 2 * NUMBER_OF_STEPS);
+            new Colour[]{BLACK, BLUE, LILA, RED, ORANGE, YELLOW, WHITE}, 2 * NUMBER_OF_STEPS);
 
 }

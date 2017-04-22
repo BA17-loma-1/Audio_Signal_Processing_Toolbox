@@ -9,10 +9,10 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.model;
  *
  * @author georgrem, stockan1
  */
-public class PostFilterSampleBlock extends PCMSampleBlock {
+public class PostFilterSampleBlock {
 
     public PostFilterSampleBlock(short[] samples, final int sampleRate) {
-        super(samples, sampleRate);
+
     }
 
 }

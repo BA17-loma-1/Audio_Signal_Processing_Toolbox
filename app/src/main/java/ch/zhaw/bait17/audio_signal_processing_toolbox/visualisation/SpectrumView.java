@@ -112,9 +112,27 @@ public class SpectrumView extends FrequencyView {
         render(canvas);
     }
 
+    /**
+     * Sets the resolution of the FFT. Sometimes called the FFT windows size.
+     * The input value is usually a power of 2.
+     * For good results the window size should be in the range [2^11, 2^15].
+     * The input value should not exceed 2^15.
+     *
+     * @param fftResolution     power of 2 in the range [2^11, 2^15]
+     */
+    public void setFFTResolution(int fftResolution) {
+        magnitudes = new float[fftResolution];
+    }
+
+    /**
+     * Sets the spectral density to be displayed in the {@code FrequencyView}.
+     * hMag represents the power spectrum of a time series.
+     *
+     * @param hMag array of {@code float} representing magnitudes (power spectrum of a time series)
+     */
     @Override
-    public void setMagnitudes(@NonNull float[] hMag) {
-        magnitudes = hMag;
+    public void setSpectralDensity(@NonNull float[] hMag) {
+        System.arraycopy(hMag, 0, magnitudes, 0, hMag.length);
         postInvalidate();
     }
 

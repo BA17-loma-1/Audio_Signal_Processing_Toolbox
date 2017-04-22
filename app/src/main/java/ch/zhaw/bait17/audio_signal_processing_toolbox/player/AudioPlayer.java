@@ -16,8 +16,7 @@ import java.util.List;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PostFilterSampleBlock;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PreFilterSampleBlock;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PCMSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.SupportedAudioFormat;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.PCMUtil;
@@ -36,7 +35,7 @@ public final class AudioPlayer {
 
     private static final String TAG = AudioPlayer.class.getSimpleName();
     private static final AudioPlayer INSTANCE = new AudioPlayer();
-    private static final int BUFFER_LENGTH_PER_CHANNEL_IN_SECONDS = 3;
+    private static final int BUFFER_LENGTH_PER_CHANNEL_IN_SECONDS = 1;
 
     private static short[] decodedSamples;
     private static AudioDecoder decoder;
@@ -316,10 +315,12 @@ public final class AudioPlayer {
                                     Log.d(TAG, "Dropped samples.");
                                 }
                                 // Broadcast pre applyAudioEffect sample block using event bus
-                                eventBus.post(new PreFilterSampleBlock(decodedSamples, sampleRate));
+                                eventBus.post(new PCMSampleBlock(decodedSamples, sampleRate,
+                                        channels, true));
                                 // Broadcast post applyAudioEffect sample block using event bus
-                                eventBus.post(new PostFilterSampleBlock(
-                                        PCMUtil.float2ShortArray(filteredSamples), sampleRate));
+                                eventBus.post(new PCMSampleBlock(
+                                        PCMUtil.float2ShortArray(filteredSamples), sampleRate,
+                                        channels, false));
                             } else {
                                 // No more frames to decode, we reached the end of the InputStream.
                                 // --> quit
@@ -330,9 +331,9 @@ public final class AudioPlayer {
                     Log.d(TAG, "Finished decoding");
                     // Wait some time and let AudioTrack output the frames in its buffer.
                     long then = System.nanoTime();
-                    while (System.nanoTime() < then + 1e9) {
+                    while (System.nanoTime() < then + 7e8) {
                         try {
-                            Thread.sleep(10);
+                            Thread.sleep(800);
                         } catch (InterruptedException e) {
                             Log.e(TAG, "Interrupted while waiting that playback finishes.");
                         }

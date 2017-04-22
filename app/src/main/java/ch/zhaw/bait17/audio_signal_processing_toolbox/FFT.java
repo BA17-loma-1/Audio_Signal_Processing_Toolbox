@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 
 import org.jtransforms.fft.FloatFFT_1D;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.PCMUtil;
+
 /**
  * <p>
  *     Calculates the Fourier spectrum of a signal.<br>
@@ -19,19 +21,22 @@ import org.jtransforms.fft.FloatFFT_1D;
 public class FFT {
 
     private static final String TAG = FFT.class.getSimpleName();
-    private static final WindowType DEFAULT_WINDOW_TYPE = WindowType.HAMMING;
-    private Window win;
+    private WindowType windowType = WindowType.HAMMING;
     private int fftResolution = Constants.DEFAULT_FFT_RESOLUTION;
+    private FloatFFT_1D fft_1D;
+    private int sampleSize = 0;
+    private float[] window = null;
 
     /**
-     * Creates an instance of {@code FFT} with a Hamming window by default.
+     * Creates an instance of {@code FFT} with a Hamming window and default FFT resolution.
      */
     public FFT() {
-        win = new Window(DEFAULT_WINDOW_TYPE);
+        initialise();
     }
 
     /**
-     * Creates an instance of {@code FFT} with the specified resolution.
+     * Creates an instance of {@code FFT} with the specified resolution and a
+     * Hamming window by default.
      * <p>
      *     Although the FFT resolution can be any size it is usually a power of 2. </br>
      *     A window size (resolution) in the range [2^11, 2^15] is recommended.
@@ -41,20 +46,21 @@ public class FFT {
      * @throws IllegalArgumentException     if fftResolution is <= 0
      */
     public FFT(int fftResolution) {
-        this();
         if (fftResolution <= 0) {
             throw new IllegalArgumentException("FFT resolution must be greater than 0.");
         }
         this.fftResolution = fftResolution;
+        initialise();
     }
 
     /**
-     * * Creates an instance of {@code FFT} with the specified window.
+     * Creates an instance of {@code FFT} with the specified window and default FFT resolution.
      *
-     * @param type      the window type used to weigh the samples
+     * @param windowType      the window type used to weigh the samples
      */
-    public FFT(@NonNull WindowType type) {
-        win = new Window(type);
+    public FFT(@NonNull WindowType windowType) {
+        this.windowType = windowType;
+        initialise();
     }
 
     /**
@@ -65,12 +71,92 @@ public class FFT {
      * </p>
      *
      * @param fftResolution                 the FFT resolution a.k.a the window size
-     * @param type                          the window type
+     * @param windowType                    the window type
      * @throws IllegalArgumentException     if fftResolution is <= 0
      */
-    public FFT(int fftResolution, @NonNull WindowType type) {
+    public FFT(int fftResolution, @NonNull WindowType windowType) {
         this(fftResolution);
-        win = new Window(type);
+        this.windowType = windowType;
+    }
+
+    /**
+     * <p>
+     *      Computes the power spectral density of the given audio samples. <br>
+     *      The power spectral density is sometimes simply called power spectrum.
+     * </p>
+     * <p>
+     *     Power spectral density is computed only for one channel (mono - left).
+     * </p>
+     *
+     * @param samples   a block of PCM samples
+     * @param channels  the number of channels contained in the PCM samples
+     * @return          power spectrum
+     * @throws IllegalArgumentException     - if samples block contains two channels
+     *                                        but the block length is odd
+     *                                      - if channels < 1 or channels > 2
+     */
+    public float[] getPowerSpectrum(@NonNull short[] samples, int channels) {
+        if (channels < 1 || channels > 2) {
+            throw new IllegalArgumentException("Channels must be 1 or 2.");
+        }
+        if (channels != 1 && samples.length % 2 != 0) {
+            // Stereo, but sample block length is odd
+            throw new IllegalArgumentException("Stereo: Sample block length must be even.");
+        }
+
+        if (samples.length > fftResolution) {
+            /*
+                We can't process the samples because the FFT resolution is too small.
+                One solution would be to cut sample block into smaller pieces and process FFT.
+                However, it is better to increase the fft resolution for better accuracy in the
+                frequency domain as this is the goal for this app.
+             */
+            return new float[0];
+        }
+
+        if (sampleSize != samples.length || window == null) {
+            onSampleSizeChanged(samples.length);
+        }
+
+        /*
+        if (sampleSize != (samples.length / 2) || window == null) {
+            // Important for sampleSize: take only one channel into account.
+            onSampleSizeChanged(samples.length / 2);
+        }*/
+
+        float[] x = new float[fftResolution];
+        float[] weightedSamples = applyWindowToSamples(PCMUtil.short2FloatArray(samples));
+        System.arraycopy(weightedSamples, 0, x, 0, weightedSamples.length);
+
+        /*
+        if (channels == 2) {
+            // STEREO
+            short[] leftChannel = new short[samples.length / channels];
+            for (int i = 0; i < leftChannel.length; i++) {
+                // Copy only even samples to left channel array
+                leftChannel[i] = samples[2*i];
+            }
+
+            float[] weightedSamples = applyWindowToSamples(PCMUtil.short2FloatArray(leftChannel));
+
+            // Zero-padding: not necessary since Java initialises the array with zeros.
+            // Transform: short[] -> float[]
+            System.arraycopy(weightedSamples, 0, x, 0, weightedSamples.length);
+        } else {
+            // MONO
+            float[] weightedSamples = applyWindowToSamples(PCMUtil.short2FloatArray(samples));
+            // Zero-padding: not necessary since Java initialises the array with zeros.
+            // Transform: short[] -> float[]
+            System.arraycopy(weightedSamples, 0, x, 0, weightedSamples.length);
+        }*/
+
+        // Perform FFT: Time domain -> Frequency domain
+        fft_1D.realForward(x);
+        float[] hMag = new float[fftResolution / 2];
+        for (int i = 0; i < fftResolution / 2; i++) {
+            hMag[i] = (x[2*i] * x[2*i]) + (x[(2*i) + 1] * x[(2*i) + 1]);
+        }
+        return hMag;
     }
 
     /**
@@ -85,15 +171,18 @@ public class FFT {
      * @return          the transformed data
      */
     public float[] getForwardTransform(float[] samples) {
-        float[] weightedSamples = applyWindowToSamples(samples);
-        int paddingLength = getPaddingLength(weightedSamples.length);
-        // Zero-padding if necessary
-        if (paddingLength > 0) {
-            weightedSamples = getZeroPaddedSamples(samples, paddingLength);
+        if (sampleSize != samples.length || window == null) {
+            onSampleSizeChanged(samples.length);
         }
-        FloatFFT_1D fft = new FloatFFT_1D(weightedSamples.length);
-        fft.realForward(weightedSamples);
+        float[] weightedSamples = applyWindowToSamples(samples);
+        // Zero-padding if necessary
+        int paddingLength = getPaddingLength(sampleSize);
+        if (paddingLength > 0) {
+            weightedSamples = applyZeroPaddingToSamples(samples, paddingLength);
+        }
+
         return weightedSamples;
+
     }
 
     /**
@@ -108,39 +197,40 @@ public class FFT {
      * @return          the transformed data in an array of {@code float}
      */
     public float[] getForwardTransformFull(float[] samples) {
-        float[] weightedSamples = applyWindowToSamples(samples);
-        int paddingLength = getPaddingLength(weightedSamples.length);
-        // Zero-padding if necessary
-        if (paddingLength > 0) {
-            weightedSamples = getZeroPaddedSamples(samples, paddingLength);
+        if (sampleSize != samples.length || window == null) {
+            onSampleSizeChanged(samples.length);
         }
-        FloatFFT_1D fft = new FloatFFT_1D(weightedSamples.length / 2);
+        float[] weightedSamples = applyWindowToSamples(samples);
+        // Zero-padding if necessary
+        int paddingLength = getPaddingLength(sampleSize);
+        if (paddingLength > 0) {
+            weightedSamples = applyZeroPaddingToSamples(samples, paddingLength);
+        }
+        FloatFFT_1D fft = new FloatFFT_1D(weightedSamples.length);
         fft.realForwardFull(weightedSamples);
         return weightedSamples;
     }
 
     /**
-     * <p>
-     *     Computes the inverse FFT of real input data and returns the result in a {@code float} array.
-     * </p>
+     * Returns the FFT resolution.
      *
-     * @param spectrum  an array containing the data to transform
-     * @param scale     if true scaling is performed
-     * @return          the transformed data in an array of {@code float}
+     * @return  FFT resolution
      */
-    public float[] getBackwardTransform(float[] spectrum, boolean scale) {
-        FloatFFT_1D ifft = new FloatFFT_1D(spectrum.length);
-        ifft.complexInverse(spectrum, scale);
-        return spectrum;
+    public int getFFTResolution() {
+        return fftResolution;
     }
 
     /**
      * Returns the window type used by this instance of {@code FFT}.
      *
-     * @return  the window type
+     * @return  {@code WindowType}
      */
-    public String getWindowType() {
-        return win.toString();
+    public WindowType getWindowType() {
+        return windowType;
+    }
+
+    private void initialise() {
+        fft_1D = new FloatFFT_1D(fftResolution);
     }
 
     /**
@@ -155,7 +245,12 @@ public class FFT {
         if (sampleLength < 0) {
             throw new IllegalArgumentException("Illegal sample length: " + sampleLength);
         }
-        int exponent = (int) Math.ceil(Math.log(sampleLength) / Math.log(2));
+        int exponent = 0;
+        if (fftResolution <= sampleLength) {
+            exponent = (int) Math.ceil(Math.log(sampleLength) / Math.log(2));
+        } else {
+            exponent = (int) Math.ceil(Math.log(fftResolution) / Math.log(2));
+        }
         /*
         if (sampleLength >= fftWindowSize) {
             return sampleLength;
@@ -173,7 +268,7 @@ public class FFT {
      * @return              zero padded sample block
      * @throws IllegalArgumentException     if paddingLength less than 0
      */
-    private float[] getZeroPaddedSamples(float[] samples, int paddingLength)
+    private float[] applyZeroPaddingToSamples(float[] samples, int paddingLength)
             throws IllegalArgumentException {
         if (paddingLength < 0) {
             throw new IllegalArgumentException("Illegal padding length: " + paddingLength);
@@ -190,11 +285,15 @@ public class FFT {
      * @return          the samples weighted by the window function
      */
     private float[] applyWindowToSamples(float[] samples) {
-        float[] window = win.getWindow(samples.length);
         for (int i = 0; i < samples.length; i++) {
             samples[i] = samples[i] * window[i];
         }
         return samples;
+    }
+
+    private void onSampleSizeChanged(int sampleSize) {
+        this.sampleSize = sampleSize;
+        window = new Window(windowType).getWindow(sampleSize);
     }
 
 }

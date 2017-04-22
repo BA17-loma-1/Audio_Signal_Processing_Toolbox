@@ -1,6 +1,7 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.util;
 
 import android.util.Log;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -63,6 +64,21 @@ public class PCMUtil {
             output[i] = ((float) samples[i]) * (1.0f / BIAS_16_BIT);
         }
         return output;
+    }
+
+    /**
+     * <p>
+     *     Converts a {@code short} (signed, 16 bit) into a signed 32-bit {@code float}.
+     *     The float value is normalised and guaranteed to lie in the range [-1,1].
+     *     16-bit PCM samples are stored as 2's-complement signed integers,
+     *     ranging from -32768 to 32767.
+     * </p>
+     *
+     * @param sample   a {@code short}
+     * @return         a {@code float}
+     */
+    public static float short2Float(short sample) {
+        return (float) sample * (1.0f / BIAS_16_BIT);
     }
 
     /**

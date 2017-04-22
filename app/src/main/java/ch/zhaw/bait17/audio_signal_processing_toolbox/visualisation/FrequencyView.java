@@ -26,10 +26,20 @@ public abstract class FrequencyView extends AudioView {
     }
 
     /**
-     * Sets the data to be displayed in the {@code FrequencyView}.
+     * Sets the resolution of the FFT. Sometimes called the FFT windows size.
+     * The input value is usually a power of 2.
+     * For good results the window size should be in the range [2^11, 2^15].
+     * The input value should not exceed 2^15.
      *
-     * @param magnitudes    an array of {@code float}
+     * @param fftResolution     power of 2 in the range [2^11, 2^15]
      */
-    public abstract void setMagnitudes(@NonNull float[] magnitudes);
+    public abstract void setFFTResolution(int fftResolution);
+
+    /**
+     * Sets the spectral density to be displayed in the {@code FrequencyView}.
+     *
+     * @param hMag    an array of {@code float}
+     */
+    public abstract void setSpectralDensity(@NonNull float[] hMag);
 
 }
