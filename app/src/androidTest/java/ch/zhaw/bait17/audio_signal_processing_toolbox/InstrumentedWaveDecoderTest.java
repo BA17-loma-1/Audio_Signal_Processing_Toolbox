@@ -54,7 +54,7 @@ public class InstrumentedWaveDecoderTest {
      */
     @Parameterized.Parameters
     public static Collection<Integer> generatedData() {
-        return Arrays.asList(R.raw.sawtooth, R.raw.square, R.raw.sine);
+        return Arrays.asList(R.raw.sawtooth, R.raw.square, R.raw.cosine);
     }
 
     /**
