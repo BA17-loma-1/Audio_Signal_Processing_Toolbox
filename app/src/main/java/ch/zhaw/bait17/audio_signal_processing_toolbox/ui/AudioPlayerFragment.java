@@ -21,6 +21,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.MediaListType;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.player.AudioPlayer;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.player.PlaybackListener;
@@ -37,12 +38,15 @@ public class AudioPlayerFragment extends Fragment {
     private Track currentTrack;
     private Track nextTrack;
     private int trackPosNr;
+    private int currentTrackColor;
     private AudioPlayer audioPlayer;
     private TextView trackInfo;
     private ImageButton playPauseButton;
     private View currentMediaListItemView;
     private View previousMediaListItemView;
     private RecyclerView recyclerView;
+    private MediaListType mediaListType;
+
 
     /*
         In certain cases, your fragment may want to accept certain arguments.
@@ -73,6 +77,7 @@ public class AudioPlayerFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.audio_player, container, false);
         trackInfo = (TextView) rootView.findViewById(R.id.track_info);
         playPauseButton = (ImageButton) rootView.findViewById(R.id.play_pause);
+        currentTrackColor = ContextCompat.getColor(ApplicationContext.getAppContext(), R.color.media_item_icon_playing);
         return rootView;
     }
 
@@ -130,6 +135,10 @@ public class AudioPlayerFragment extends Fragment {
         this.recyclerView = recyclerView;
     }
 
+    public void setMediaListType(MediaListType mediaListType) {
+        this.mediaListType = mediaListType;
+    }
+
     /**
      * Selects an audio track from the track list and initiates playback.
      *
@@ -171,7 +180,7 @@ public class AudioPlayerFragment extends Fragment {
                     // Start playback
                     setPauseButtonOnUI();
                     updateTrackPropertiesOnUI();
-                    audioPlayer.play();
+                    audioPlayer.play(mediaListType);
                 }
             } else {
                 // A new track has been selected.
@@ -186,7 +195,7 @@ public class AudioPlayerFragment extends Fragment {
                     }
                 }
                 updateTrackPropertiesOnUI();
-                audioPlayer.play();
+                audioPlayer.play(mediaListType);
             }
         } else {
             // No track selected. Ok start with the first track
@@ -247,10 +256,13 @@ public class AudioPlayerFragment extends Fragment {
     }
 
     private void resetDrawablesOnPlay() {
-        Drawable playDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
-                R.drawable.ic_play_arrow_black_36dp);
-        ImageView playPauseImage = (ImageView) previousMediaListItemView.findViewById(R.id.play_pause);
-        playPauseImage.setImageDrawable(playDrawable);
+        if (mediaListType == MediaListType.MY_MUSIC) {
+            Drawable playDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
+                    R.drawable.ic_play_arrow_black_36dp);
+            ImageView playPauseImage = (ImageView) previousMediaListItemView.findViewById(R.id.play_pause);
+            playPauseImage.setColorFilter(currentTrackColor);
+            playPauseImage.setImageDrawable(playDrawable);
+        }
 
         ImageView equalizerImage = (ImageView) previousMediaListItemView.findViewById(R.id.play_eq);
         equalizerImage.setImageDrawable(null);
@@ -266,13 +278,16 @@ public class AudioPlayerFragment extends Fragment {
         ImageView equalizerImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_eq);
         equalizerImage.setImageDrawable(animation);
 
-        Drawable pauseDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
-                R.drawable.ic_pause_black_36dp);
-        ImageView playPauseImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_pause);
-        playPauseImage.setImageDrawable(pauseDrawable);
+        if (mediaListType == MediaListType.MY_MUSIC) {
+            Drawable pauseDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
+                    R.drawable.ic_pause_black_36dp);
+            ImageView playPauseImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_pause);
+            playPauseImage.setColorFilter(currentTrackColor);
+            playPauseImage.setImageDrawable(pauseDrawable);
+        }
 
         TextView titleTextView = (TextView) currentMediaListItemView.findViewById(R.id.track_title);
-        titleTextView.setTextColor(ContextCompat.getColor(ApplicationContext.getAppContext(), R.color.media_item_icon_playing));
+        titleTextView.setTextColor(currentTrackColor);
         previousMediaListItemView = currentMediaListItemView;
     }
 
@@ -284,10 +299,12 @@ public class AudioPlayerFragment extends Fragment {
         } else {
             currentMediaListItemView = recyclerView.findViewHolderForAdapterPosition(trackPosNr).itemView;
 
-            Drawable playDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
-                    R.drawable.ic_play_arrow_black_36dp);
-            ImageView playPauseImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_pause);
-            playPauseImage.setImageDrawable(playDrawable);
+            if (mediaListType == MediaListType.MY_MUSIC) {
+                Drawable playDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
+                        R.drawable.ic_play_arrow_black_36dp);
+                ImageView playPauseImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_pause);
+                playPauseImage.setImageDrawable(playDrawable);
+            }
 
             Drawable equalizeDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
                     R.drawable.ic_equalizer1_white_36dp);

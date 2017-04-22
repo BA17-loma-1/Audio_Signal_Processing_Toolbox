@@ -31,6 +31,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Overdrive;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.SoftClipper;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FilterUtil;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.MediaListType;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
 
@@ -200,6 +201,8 @@ public class MainActivity extends AppCompatActivity implements
         Fragment visualisationConfigurationFragment = new ViewFragment();
         audioPlayerFragment = new AudioPlayerFragment();
         List<AudioView> activeViews = ((ViewFragment) visualisationConfigurationFragment).getActiveViews();
+        MediaListFragment mediaListFragment = new MediaListFragment();
+        mediaListFragment.setMediaListType(MediaListType.MY_MUSIC);
 
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.content_frame, AudioEffectFragment.newInstance(audioEffects),
@@ -209,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements
         ft.replace(R.id.content_frame, VisualisationFragment.newInstance(activeViews),
                 TAG_VISUALISATION_FRAGMENT);
         ft.replace(R.id.content_frame, new SettingsFragment(), TAG_SETTINGS_FRAGMENT);
-        ft.replace(R.id.content_frame, new MediaListFragment(), TAG_MEDIA_LIST_FRAGMENT);
+        ft.replace(R.id.content_frame, mediaListFragment, TAG_MEDIA_LIST_FRAGMENT);
         ft.replace(R.id.audio_player_fragment, audioPlayerFragment, TAG_AUDIO_PLAYER_FRAGMENT);
         ft.addToBackStack(null);
         ft.commit();
@@ -228,14 +231,27 @@ public class MainActivity extends AppCompatActivity implements
         // Store containerViewId and associated Fragment
         Fragment fragment = null;
         String title = "";
-        String tagFragmentName= "";
+        String tagFragmentName = "";
 
         switch (item.getItemId()) {
             case R.id.nav_media_list:
                 fragment = getFragmentByTag(TAG_MEDIA_LIST_FRAGMENT);
+                ((MediaListFragment) fragment).setMediaListType(MediaListType.MY_MUSIC);
+                ((MediaListFragment) fragment).reloadList();
+                initAudioPlayerFragment();
                 title = "My music";
                 tagFragmentName = TAG_MEDIA_LIST_FRAGMENT;
                 break;
+            /*
+            case R.id.nav_stream_list:
+                fragment = getFragmentByTag(TAG_MEDIA_LIST_FRAGMENT);
+                ((MediaListFragment) fragment).setMediaListType(MediaListType.STREAM);
+                ((MediaListFragment) fragment).reloadList();
+                initAudioPlayerFragment();
+                title = "Music streaming";
+                tagFragmentName = TAG_MEDIA_LIST_FRAGMENT;
+                break;
+             */
             case R.id.nav_visualisation:
                 Fragment vcf = getFragmentByTag(TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
                 List<AudioView> activeViews = ((ViewFragment) vcf).getActiveViews();
@@ -317,9 +333,11 @@ public class MainActivity extends AppCompatActivity implements
         Fragment mlf = getFragmentByTag(TAG_MEDIA_LIST_FRAGMENT);
         List<Track> tracks = ((MediaListFragment) mlf).getTracks();
         RecyclerView recyclerView = ((MediaListFragment) mlf).getRecyclerView();
+        MediaListType mediaListType = ((MediaListFragment) mlf).getMediaListType();
         if (audioPlayerFragment != null) {
             audioPlayerFragment.setRecyclerView(recyclerView);
             audioPlayerFragment.setTracks(tracks);
+            audioPlayerFragment.setMediaListType(mediaListType);
         }
     }
 

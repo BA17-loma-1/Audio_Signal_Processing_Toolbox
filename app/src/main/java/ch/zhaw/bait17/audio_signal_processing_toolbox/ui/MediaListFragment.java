@@ -35,13 +35,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.model.MediaListType;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.SupportedAudioFormat;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.stream.HttpHandler;
@@ -64,6 +67,7 @@ public class MediaListFragment extends Fragment implements SearchView.OnQueryTex
     private SearchView searchView;
     private ProgressDialog progressDialog;
     private TrackAdapter trackAdapter;
+    private MediaListType mediaListType;
     // URL to get tracks JSON
     private String url;
 
@@ -71,12 +75,17 @@ public class MediaListFragment extends Fragment implements SearchView.OnQueryTex
         void onTrackSelected(int trackPos);
     }
 
+
     // The onCreateView method is called when Fragment should create its View object hierarchy,
     // either dynamically or via XML layout inflation.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (rootView == null)
-            rootView = inflater.inflate(R.layout.media_list_view, container, false);
+        rootView = inflater.inflate(R.layout.media_list_view, container, false);
+        init();
+        return rootView;
+    }
+
+    private void init() {
         tracks = new ArrayList<>();
 
         // Setup search field
@@ -98,8 +107,6 @@ public class MediaListFragment extends Fragment implements SearchView.OnQueryTex
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(ApplicationContext.getAppContext()));
         recyclerView.setAdapter(trackAdapter);
-
-        return rootView;
     }
 
     @TargetApi(23)
@@ -144,7 +151,7 @@ public class MediaListFragment extends Fragment implements SearchView.OnQueryTex
     // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        loadTrackList();
+        reloadList();
     }
 
     // During startup, check if there are arguments passed to the fragment.
@@ -169,6 +176,22 @@ public class MediaListFragment extends Fragment implements SearchView.OnQueryTex
         } else {
             Toast.makeText(context, "You don't have permission to read from external storage.",
                     Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void reloadList() {
+        switch (mediaListType) {
+            case MY_MUSIC:
+                searchView.setVisibility(View.GONE);
+                init();
+                loadTrackList();
+                break;
+            case STREAM:
+                searchView.setVisibility(View.VISIBLE);
+                init();
+                break;
+            default:
+                break;
         }
     }
 
@@ -287,11 +310,23 @@ public class MediaListFragment extends Fragment implements SearchView.OnQueryTex
         return recyclerView;
     }
 
+    public MediaListType getMediaListType() {
+        return mediaListType;
+    }
+
+    public void setMediaListType(MediaListType mediaListType) {
+        this.mediaListType = mediaListType;
+    }
+
     @Override
     public boolean onQueryTextSubmit(String query) {
-        url = "https://api.spotify.com/v1/search?q=" +
-                query +
-                "&type=track";
+        try {
+            url = "https://api.spotify.com/v1/search?q=" +
+                    URLEncoder.encode(query, "UTF-8") +
+                    "&type=track";
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "UTF-8 encoding from search query failed: " + e.getMessage());
+        }
         new GetTracksFromSpotify().execute();
 
         // Remove old entries
