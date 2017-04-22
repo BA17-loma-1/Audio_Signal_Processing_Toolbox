@@ -25,7 +25,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.view.MotionEvent;
 import android.view.View;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
@@ -93,12 +92,6 @@ public class SpectrogramView extends FrequencyView {
             bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             canvas = new Canvas(bitmap);
         }
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        invalidate();
-        return true;
     }
 
     @Override
