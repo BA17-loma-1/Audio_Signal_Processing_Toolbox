@@ -74,7 +74,7 @@ public class SettingsFragment extends Fragment implements SeekBar.OnSeekBarChang
         View view = inflater.inflate(R.layout.settings_view, container, false);
 
         if(audioEffects != null) {
-            seekBarRingModulationFrequency = (SeekBar) view.findViewById(R.id.seekbar_modulation_frequency);
+            seekBarRingModulationFrequency = (SeekBar) view.findViewById(R.id.seekbar_ringmod);
             seekBarRingModulationFrequency.setOnSeekBarChangeListener(this);
         }
 
@@ -84,7 +84,7 @@ public class SettingsFragment extends Fragment implements SeekBar.OnSeekBarChang
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         switch (seekBar.getId()) {
-            case R.id.seekbar_modulation_frequency:
+            case R.id.seekbar_ringmod:
                 for (AudioEffect audioEffect : audioEffects) {
                     if (audioEffect instanceof RingModulation) {
                         ((RingModulation) audioEffect).setFrequency(progress);

@@ -7,6 +7,7 @@ import android.content.Context;
  * <p>
  *     Convenient helper class that provides application context.
  * </p>
+ *
  * @author georgrem, stockan1
  */
 

@@ -22,18 +22,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.View;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 
-/**
- * @author georgrem, stockan1
- */
 public class WaveformView extends TimeView {
 
-    private Paint strokePaint, fillPaint, markerPaint;
+    private Paint strokePaint;
     private int width, height;
     private float centerY;
     private short[] samples;
@@ -63,11 +59,6 @@ public class WaveformView extends TimeView {
         float strokeThickness = a.getFloat(R.styleable.WaveformView_waveformStrokeThickness, 2f);
         int strokeColor = a.getColor(R.styleable.WaveformView_waveformColor,
                 ContextCompat.getColor(context, R.color.default_waveform));
-        int mFillColor = a.getColor(R.styleable.WaveformView_waveformFillColor,
-                ContextCompat.getColor(context, R.color.default_waveformFill));
-        int mMarkerColor = a.getColor(R.styleable.WaveformView_playbackIndicatorColor,
-                ContextCompat.getColor(context, R.color.default_playback_indicator));
-
         a.recycle();
 
         strokePaint = new Paint();
@@ -75,17 +66,6 @@ public class WaveformView extends TimeView {
         strokePaint.setStyle(Paint.Style.STROKE);
         strokePaint.setStrokeWidth(strokeThickness);
         strokePaint.setAntiAlias(false);
-
-        fillPaint = new Paint();
-        fillPaint.setStyle(Paint.Style.FILL);
-        fillPaint.setAntiAlias(true);
-        fillPaint.setColor(mFillColor);
-
-        markerPaint = new Paint();
-        markerPaint.setStyle(Paint.Style.STROKE);
-        markerPaint.setStrokeWidth(0);
-        markerPaint.setAntiAlias(true);
-        markerPaint.setColor(mMarkerColor);
     }
 
     @Override
@@ -139,16 +119,6 @@ public class WaveformView extends TimeView {
             lastX = x;
             lastY = y;
         }
-    }
-
-    private float getFontSize(Context ctx, int textAppearance) {
-        TypedValue typedValue = new TypedValue();
-        ctx.getTheme().resolveAttribute(textAppearance, typedValue, true);
-        int[] textSizeAttr = new int[]{android.R.attr.textSize};
-        TypedArray arr = ctx.obtainStyledAttributes(typedValue.data, textSizeAttr);
-        float fontSize = arr.getDimensionPixelSize(0, -1);
-        arr.recycle();
-        return fontSize;
     }
 
     @Override
