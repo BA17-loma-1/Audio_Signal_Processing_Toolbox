@@ -26,7 +26,7 @@ public interface AudioEffect extends Parcelable {
      *      This label will be displayed in the {@code AudioEffect} drop down list.
      * </p>
      *
-     * @return label
+     * @return      label
      */
     String getLabel();
 
@@ -36,7 +36,7 @@ public interface AudioEffect extends Parcelable {
      *      This description will be displayed in the {@code AudioEffect} drop down list.
      * </p>
      *
-     * @return description
+     * @return      description
      */
     String getDescription();
 

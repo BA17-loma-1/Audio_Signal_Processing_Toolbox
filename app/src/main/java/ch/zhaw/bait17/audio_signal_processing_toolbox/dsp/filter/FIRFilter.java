@@ -20,9 +20,10 @@ public class FIRFilter implements Filter {
     private float[] overlap;
 
     /**
+     * Creates a new instance of {@code FIRFilter}.
      *
-     * @param filterSpec
-     * @param coefficients
+     * @param filterSpec        a filter specification
+     * @param coefficients      filter coefficients
      */
     public FIRFilter(@NonNull FilterSpec filterSpec, @NonNull float[] coefficients) {
         this.filterSpec = filterSpec;
@@ -33,8 +34,9 @@ public class FIRFilter implements Filter {
     }
 
     /**
-     * Returns the filter specifications.
-     * @return
+     * Returns the filter specification.
+     *
+     * @return      the filter specification
      */
     @Override
     public FilterSpec getFilterSpec() {
@@ -43,18 +45,29 @@ public class FIRFilter implements Filter {
 
     /**
      * Returns the filter order.
-     * @return
+     *
+     * @return      the filter order
      */
     @Override
     public int getOrder() {
         return ORDER;
     }
 
+    /**
+     * Returns the label that identifies this filter in e.g. a view.
+     *
+     * @return      label
+     */
     @Override
     public String getLabel() {
         return filterSpec.getFilterType().getLabel();
     }
 
+    /**
+     * Returns a description of the filter.
+     *
+     * @return      filter description
+     */
     @Override
     public String getDescription() {
         return filterSpec.getDescription();
@@ -64,8 +77,8 @@ public class FIRFilter implements Filter {
      * <p>
      *     Process a block of PCM samples with discrete convolution.
      *     Calculates the full convolution and takes advantage of symmetry of FIR filters
-     *     to reduce multiplications.
-     *     Input and output sample arrays must have the same length.
+     *     to reduce multiplications. </br>
+     *     Input and output samples arrays must have the same length.
      * </p>
      * <p>
      *     See The Scientist and Engineer's Guide to Digital Signal Processing for detailed
@@ -73,13 +86,11 @@ public class FIRFilter implements Filter {
      *     <a href="http://www.dspguide.com/ch6/4.htm">www.dspguide.com</a>
      * </p>
      *
-     * @param input {@code float} array of filter input samples
-     * @param output {@code float} array of filter output samples
+     * @param input     {@code float} array of filter input samples
+     * @param output    {@code float} array of filter output samples
      */
     public void apply(@NonNull float[] input, @NonNull float[] output) {
-        if (input.length != output.length || input.length == 0 || getOrder() <= 0) {
-            return;
-        } else {
+        if (input.length == output.length && input.length != 0 && getOrder() > 0) {
             float[] fullConvolution = new float[input.length + getOrder()];
             convolveInputSide(input, fullConvolution, input.length);
             System.arraycopy(fullConvolution, 0, output, 0, output.length);
@@ -90,17 +101,20 @@ public class FIRFilter implements Filter {
      * <p>
      *     Discrete convolution using the input side algorithm.
      *     FIR filters have symmetrical impulse response. Full convolution is performed but
-     *     not needed calculations due to symmetry in impulse response are eliminated.
+     *     not needed calculations due to symmetry in impulse response are eliminated. </br>
+     *     Input and output samples arrays must have the same length.
      * </p>
      * <p>
-     *     Source: {@Link https://christianfloisand.wordpress.com/2013/02/18/the-different-sides-of-convolution/}
+     *     Source: <a href="https://christianfloisand.wordpress.com/2013/02/18/the-different-sides-of-convolution/">christianfloisand.wordpress.com</a>
      * </p>
-     * @param input
-     * @return
+     *
+     * @param input             array of input samples
+     * @param output            array that will hold the output samples
+     * @param inputLength       the length of the input samples array
      */
-    private void convolveInputSide(float[] input, float[] output, int inputLength) {
+    private void convolveInputSide(@NonNull float[] input, @NonNull float[] output, int inputLength) {
         int i,j;
-        float temp;
+        float temp = 0;
         int halfOrder = getOrder() / 2;
         for (i = 0; i < inputLength; ++i) {
             for (j = 0; j < halfOrder; ++j) {
@@ -111,7 +125,7 @@ public class FIRFilter implements Filter {
             output[i + j] += COEFFICIENTS[j] * input[i];           // Midpoint value
         }
 
-        // Overlap-add
+        // Kind of "Overlap-add" in time-domain convolution
         for (int k = 0; k < COEFFICIENTS.length; ++k) {
             output[k] += overlap[k];
             overlap[k] = output[inputLength + k - 1];
@@ -122,15 +136,18 @@ public class FIRFilter implements Filter {
      * <p>
      *     Discrete convolution using the output side algorithm.
      *     FIR filters have symmetrical impulse response. Full convolution is performed but
-     *     not needed calculations due to symmetry in impulse response are eliminated.
+     *     not needed calculations due to symmetry in impulse response are eliminated. </br>
+     *     Input and output samples arrays must have the same length.
      * </p>
      * <p>
-     *     Source: {@Link https://christianfloisand.wordpress.com/2013/02/18/the-different-sides-of-convolution/}
+     *     Source: <a href="https://christianfloisand.wordpress.com/2013/02/18/the-different-sides-of-convolution/">christianfloisand.wordpress.com</a>
      * </p>
-     * @param input
-     * @return
+     *
+     * @param input             array of input samples
+     * @param output            array that will hold the output samples
+     * @param inputLength       the length of the input samples array
      */
-    private void convolveOutputSide(short[] input, short[] output) {
+    private void convolveOutputSide(@NonNull float[] input, @NonNull float[] output, int inputLength) {
 
     }
 

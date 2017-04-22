@@ -17,6 +17,7 @@ public class SoftClipper implements AudioEffect {
     private float clippingFactor;
 
     /**
+     * Creates a new SoftClipper instance.
      *
      * @param clippingFactor    value should be in the range [1,1000]
      */
@@ -25,6 +26,7 @@ public class SoftClipper implements AudioEffect {
     }
 
     /**
+     * Sets the clipping factor.
      *
      * @param clippingFactor    value should be in the range [1,1000]
      */

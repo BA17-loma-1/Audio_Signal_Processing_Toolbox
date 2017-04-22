@@ -1,16 +1,25 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion;
 
+import android.os.Parcel;
 import android.support.annotation.NonNull;
+
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 
 /**
  * Overdrive effect. By, MusicDSP forum (www.musicdsp.com)
  *
  */
 
-public class Overdrive {
+public class Overdrive implements AudioEffect {
 
+    private static final String LABEL = "Overdrive";
+    private static final String DESCRIPTION = "";
     private static final float ONE_THIRD = 1/3.0f;
     private static final float TWO_THIRDS = 2 * ONE_THIRD;
+
+    public Overdrive() {
+
+    }
 
     /**
      * @param input     an array of {@code float} containing the input samples
@@ -29,5 +38,41 @@ public class Overdrive {
             }
         }
     }
+
+    @Override
+    public String getLabel() {
+        return LABEL;
+    }
+
+    @Override
+    public String getDescription() {
+        return DESCRIPTION;
+    }
+
+    @Override
+    public int describeContents() {
+        return hashCode();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
+    }
+
+    protected Overdrive(Parcel in) {
+
+    }
+
+    public static final Creator<Overdrive> CREATOR = new Creator<Overdrive>() {
+        @Override
+        public Overdrive createFromParcel(Parcel source) {
+            return new Overdrive(source);
+        }
+
+        @Override
+        public Overdrive[] newArray(int size) {
+            return new Overdrive[size];
+        }
+    };
 
 }
