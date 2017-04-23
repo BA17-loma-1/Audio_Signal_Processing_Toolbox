@@ -57,6 +57,7 @@ public final class AudioPlayer {
     private int channels;
     private boolean sampleRateHasChanged = false;
     private boolean channelsHasChanged = false;
+    private boolean overrideFXChain = false;
 
     private enum PlayState {
         PLAY, STOP, PAUSE;
@@ -266,10 +267,19 @@ public final class AudioPlayer {
     }
 
     /**
+     * Switches the audio effects chain on or off.
+     *
+     * @param overrideFXChain   true will override the FX chain
+     */
+    public void setAudioEffectsChainOverride(boolean overrideFXChain) {
+        this.overrideFXChain = overrideFXChain;
+    }
+
+    /**
      * Initialises the decoder.
      *
      * @param track a {@code Track}
-     * @param is
+     * @param is    {@code InputStream} to read from
      */
     private void initialiseDecoder(@NonNull Track track, InputStream is) {
         try {
@@ -305,34 +315,6 @@ public final class AudioPlayer {
         }
     }
 
-    class GetInputStreamFromURL extends AsyncTask<String, Void, InputStream> {
-
-        @Override
-        protected InputStream doInBackground(String... str) {
-            InputStream inputStream = null;
-            try {
-                URL url = new URL(str[0]);
-                URLConnection urlConnection = url.openConnection();
-                inputStream = urlConnection.getInputStream();
-            } catch (IOException e) {
-                Log.e(TAG, e.getMessage());
-            }
-            return inputStream;
-        }
-
-        @Override
-        protected void onPostExecute(InputStream inputStream) {
-            super.onPostExecute(inputStream);
-            initialiseDecoder(currentTrack, inputStream);
-            if (isDecoderInitialised()
-                    && (!isAudioTrackInitialised() || sampleRateHasChanged || channelsHasChanged)) {
-                audioTrack = null;
-                createAudioTrack();
-            }
-            startPlayback();
-        }
-    }
-
     /**
      * Starts the audio playback.
      */
@@ -361,7 +343,7 @@ public final class AudioPlayer {
                             decodedSamples = decoder.getNextSampleBlock();
                             if (decodedSamples != null) {
                                 float[] filteredSamples = PCMUtil.short2FloatArray(decodedSamples);
-                                if (audioEffects != null) {
+                                if (audioEffects != null && !overrideFXChain) {
                                     applyAudioEffect(PCMUtil.short2FloatArray(decodedSamples),
                                             filteredSamples);
                                 }
@@ -486,6 +468,34 @@ public final class AudioPlayer {
         eventBus = EventBus.builder()
                 .logNoSubscriberMessages(false)
                 .installDefaultEventBus();
+    }
+
+    private class GetInputStreamFromURL extends AsyncTask<String, Void, InputStream> {
+
+        @Override
+        protected InputStream doInBackground(String... str) {
+            InputStream inputStream = null;
+            try {
+                URL url = new URL(str[0]);
+                URLConnection urlConnection = url.openConnection();
+                inputStream = urlConnection.getInputStream();
+            } catch (IOException e) {
+                Log.e(TAG, e.getMessage());
+            }
+            return inputStream;
+        }
+
+        @Override
+        protected void onPostExecute(InputStream inputStream) {
+            super.onPostExecute(inputStream);
+            initialiseDecoder(currentTrack, inputStream);
+            if (isDecoderInitialised()
+                    && (!isAudioTrackInitialised() || sampleRateHasChanged || channelsHasChanged)) {
+                audioTrack = null;
+                createAudioTrack();
+            }
+            startPlayback();
+        }
     }
 
 }

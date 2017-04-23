@@ -92,8 +92,6 @@ public class VisualisationFragment extends Fragment {
         return rootView;
     }
 
-    // This event is triggered soon after onCreateView().
-    // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         //TextView frequency = (TextView) spectrogramView.findViewById(R.id.textview_spectrogram_header);
@@ -104,7 +102,7 @@ public class VisualisationFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        // Register for event bus
+        // Register to EventBus
         EventBus.getDefault().register(this);
 
         fft = new FFT(fftResolution);
@@ -120,35 +118,17 @@ public class VisualisationFragment extends Fragment {
 
     @Override
     public void onStop() {
-        // Unregister from event bus
+        // Unregister from EventBus
         EventBus.getDefault().unregister(this);
         super.onStop();
     }
 
-    /*
-    @Subscribe(threadMode = ThreadMode.BACKGROUND)
-    public void onPreFilterSampleBlockReceived(PreFilterSampleBlock sampleBlock) {
-        if (sampleBlock != null && views != null) {
-            for (AudioView view : views) {
-                if (view.isPreFilterView()) {
-                    setViewParameters(view, sampleBlock);
-                }
-            }
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.BACKGROUND)
-    public void onPostFilterSampleBlockReceived(PostFilterSampleBlock sampleBlock) {
-        if (sampleBlock != null && views != null) {
-            for (AudioView view : views) {
-                if (!view.isPreFilterView()) {
-                    setViewParameters(view, sampleBlock);
-                }
-            }
-        }
-    }
-    */
-
+    /**
+     * EventBus subscriber - receives {@code PCMSampleBlock}s from the publisher
+     * {@link ch.zhaw.bait17.audio_signal_processing_toolbox.player.AudioPlayer}
+     *
+     * @param sampleBlock   a {@code PCMSampleBlock}
+     */
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onPCMSampleBlockReceived(PCMSampleBlock sampleBlock) {
         if (sampleBlock != null && views != null) {
@@ -160,6 +140,7 @@ public class VisualisationFragment extends Fragment {
             }
         }
     }
+
     /**
      * Sets the views to be displayed in the fragment.
      *

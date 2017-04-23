@@ -35,10 +35,10 @@ public class Bitcrusher implements AudioEffect {
      * @param normFrequency     frequency / sampleRate, a value in the range [0,1]
      */
     public void setNormFrequency(float normFrequency) {
-        if (normFrequency < Constants.MIN_NORM_FREQ) {
-            this.normFrequency = Constants.MIN_NORM_FREQ;
-        } else if (normFrequency > Constants.MAX_NORM_FREQ) {
-            this.normFrequency = Constants.MAX_NORM_FREQ;
+        if (normFrequency < Constants.BITCRUSHER_MIN_NORM_FREQ) {
+            this.normFrequency = Constants.BITCRUSHER_MIN_NORM_FREQ;
+        } else if (normFrequency > Constants.BITCRUSHER_MAX_NORM_FREQ) {
+            this.normFrequency = Constants.BITCRUSHER_MAX_NORM_FREQ;
         } else {
             this.normFrequency = normFrequency;
         }
@@ -60,10 +60,10 @@ public class Bitcrusher implements AudioEffect {
      * @param bits  the number of bits in the range [1,16]
      */
     public void setBits(int bits) {
-        if (bits < Constants.MIN_BIT_DEPTH) {
-            this.bits = Constants.MIN_BIT_DEPTH;
-        } else if (bits > Constants.MAX_BIT_DEPTH) {
-            this.bits = Constants.MAX_BIT_DEPTH;
+        if (bits < Constants.BITCRUSHER_MIN_BIT_DEPTH) {
+            this.bits = Constants.BITCRUSHER_MIN_BIT_DEPTH;
+        } else if (bits > Constants.BITCRUSHER_MAX_BIT_DEPTH) {
+            this.bits = Constants.BITCRUSHER_MAX_BIT_DEPTH;
         } else {
             this.bits = bits;
         }

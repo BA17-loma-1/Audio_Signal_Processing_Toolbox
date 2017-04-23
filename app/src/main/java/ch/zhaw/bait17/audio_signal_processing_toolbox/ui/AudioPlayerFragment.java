@@ -217,6 +217,17 @@ public class AudioPlayerFragment extends Fragment {
         if (trackPosNr < tracks.size() - 1) setTrack(++trackPosNr);
     }
 
+    /**
+     * Switches the audio effects chain on or off.
+     *
+     * @param overrideFXChain   true will override the FX chain
+     */
+    public void setAudioEffectsChainOverride(boolean overrideFXChain) {
+        if (audioPlayer != null) {
+            audioPlayer.setAudioEffectsChainOverride(overrideFXChain);
+        }
+    }
+
     private void updateTrackPropertiesOnUI() {
         getActivity().runOnUiThread(new Runnable() {
             @Override

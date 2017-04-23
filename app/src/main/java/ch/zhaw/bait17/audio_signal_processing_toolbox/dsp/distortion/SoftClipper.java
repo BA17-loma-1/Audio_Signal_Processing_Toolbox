@@ -28,7 +28,7 @@ public class SoftClipper implements AudioEffect {
     /**
      * Sets the clipping factor.
      *
-     * @param clippingFactor    value should be in the range [1,1000]
+     * @param clippingFactor    value should be in the range [{1,1000]
      */
     public void setClippingFactor(float clippingFactor) {
         this.clippingFactor = clippingFactor;

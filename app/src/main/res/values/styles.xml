@@ -12,4 +12,17 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <!-- Audio FX chain switch -->
+    <style name="AudioFXSwitch" parent="Theme.AppCompat.Light">
+        <!-- active thumb & track color (30% transparency) -->
+        <item name="colorControlActivated">@color/fx_switch_green</item>
+        <!-- inactive track color (30% transparency) -->
+        <item name="android:colorForeground">@color/fx_switch_disable_foreground</item>
+    </style>
+
+    <!-- Toolbar title text size -->
+    <style name="ToolbarTitle" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">16sp</item>
+    </style>
 </resources>

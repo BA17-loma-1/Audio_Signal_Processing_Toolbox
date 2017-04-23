@@ -11,11 +11,14 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.Toast;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -28,7 +31,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.RingModulation;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Bitcrusher;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Overdrive;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.SoftClipper;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Waveshaper;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FilterUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.MediaListType;
@@ -108,6 +111,29 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
+        View actionView = menu.findItem(R.id.action_fx_switch).getActionView();
+        if (actionView != null) {
+            final SwitchCompat fxSwitch =
+                    (SwitchCompat) actionView.findViewById(R.id.audio_effects_on_off_switch);
+            fxSwitch.setChecked(true);
+            fxSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (audioPlayerFragment != null) {
+                        audioPlayerFragment.setAudioEffectsChainOverride(!isChecked);
+                        if (isChecked) {
+                            Toast.makeText(getApplication(), "Audio effects on",
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getApplication(), "Audio effects off",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+            });
+        }
+
         return true;
     }
 
@@ -129,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         return selectMenuItem(item);
     }
 
@@ -239,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements
                 ((MediaListFragment) fragment).setMediaListType(MediaListType.MY_MUSIC);
                 ((MediaListFragment) fragment).reloadList();
                 initAudioPlayerFragment();
-                title = "My music";
+                title = getString(R.string.drawer_menu_item_music);
                 tagFragmentName = TAG_MEDIA_LIST_FRAGMENT;
                 break;
             /*
@@ -248,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements
                 ((MediaListFragment) fragment).setMediaListType(MediaListType.STREAM);
                 ((MediaListFragment) fragment).reloadList();
                 initAudioPlayerFragment();
-                title = "Music streaming";
+                title = getString(R.string.drawer_menu_item_music_streaming);
                 tagFragmentName = TAG_MEDIA_LIST_FRAGMENT;
                 break;
              */
@@ -257,28 +283,29 @@ public class MainActivity extends AppCompatActivity implements
                 List<AudioView> activeViews = ((ViewFragment) vcf).getActiveViews();
                 fragment = getFragmentByTag(TAG_VISUALISATION_FRAGMENT);
                 ((VisualisationFragment) fragment).setViews(activeViews);
-                title = "Visualisation";
+                title = getString(R.string.drawer_menu_item_visualisation);
                 tagFragmentName = TAG_VISUALISATION_FRAGMENT;
                 break;
             case R.id.nav_view:
                 fragment = getFragmentByTag(TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
-                title = "View configuration";
+                title = getString(R.string.drawer_menu_item_view_configuration);
                 tagFragmentName = TAG_VISUALISATION_CONFIGURATION_FRAGMENT;
                 break;
             case R.id.nav_filter:
                 fragment = getFragmentByTag(TAG_FILTER_FRAGMENT);
-                title = "Filters and audio effects";
+                title = getString(R.string.drawer_menu_item_audio_effects_filter);
                 tagFragmentName = TAG_FILTER_FRAGMENT;
                 break;
             case R.id.nav_settings:
                 fragment = getFragmentByTag(TAG_SETTINGS_FRAGMENT);
-                title = "Settings";
+                title = getString(R.string.drawer_menu_item_settings);
                 tagFragmentName = TAG_SETTINGS_FRAGMENT;
                 break;
             case R.id.nav_about:
-                title = "About the app";
+                title = getString(R.string.app_name);
                 break;
             default:
+                title = getString(R.string.app_name);
                 break;
         }
 
@@ -295,9 +322,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     * Finds all filter spec files in the raw resources folder and returns a list of {@code Filter}.
+     * Finds all filter spec files in the raw resources folder and returns a list of {@code Filter}
+     * objects.
      *
-     * @return
+     * @return  a list of {@code Filter}s
      */
     private List<Filter> getAllFilters() {
         List<Filter> filters = new ArrayList<>();
@@ -324,7 +352,7 @@ public class MainActivity extends AppCompatActivity implements
         audioEffects.addAll(getAllFilters());
         audioEffects.add(new Bitcrusher(Constants.BITCRUSHER_DEFAULT_NORM_FREQUENCY,
                 Constants.BITCRUSHER_DEFAULT_BITS));
-        audioEffects.add(new SoftClipper(Constants.SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR));
+        audioEffects.add(new Waveshaper(Constants.WAVESHAPER_DEFAULT_THRESHOLD));
         audioEffects.add(new Overdrive());
         audioEffects.add(new RingModulation(Constants.RING_MODULATOR_DEFAULT_FREQUENCY));
     }

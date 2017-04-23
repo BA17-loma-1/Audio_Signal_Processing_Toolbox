@@ -30,7 +30,7 @@ public class Waveshaper implements AudioEffect {
      *
      * @param threshold    value > 1.0
      */
-    public void setTreshold(float threshold) {
+    public void setThreshold(float threshold) {
         this.threshold = threshold;
     }
 

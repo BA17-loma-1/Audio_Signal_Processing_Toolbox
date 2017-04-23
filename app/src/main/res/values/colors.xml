@@ -32,4 +32,8 @@
     <!-- AudioView -->
     <color name="line_spectrum">#000000</color>
 
+    <!-- Audio FX switch -->
+    <color name="fx_switch_disable_foreground">#42221f</color>
+    <color name="fx_switch_green">#f44336</color>
+
 </resources>

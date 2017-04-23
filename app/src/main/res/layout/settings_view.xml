@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/filter_view"
+    android:id="@+id/settings_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorAccent"
@@ -26,7 +26,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ring modulation"
+            android:text="@string/ring_modulation"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/primary_text">
         </TextView>
@@ -43,19 +43,19 @@
                 android:layout_gravity="start"
                 android:layout_weight="1"
                 android:gravity="start"
-                android:text="frequency: "
+                android:text="mod. frequency:"
                 android:textAlignment="gravity"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/secondary_text">
             </TextView>
 
             <TextView
-                android:id="@+id/ringmod_frequency_current_value"
+                android:id="@+id/ringmod_freq_current_value"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start"
+                android:layout_gravity="center"
                 android:layout_weight="1"
-                android:gravity="start"
+                android:gravity="center"
                 android:text=""
                 android:textAlignment="gravity"
                 android:textAppearance="?android:attr/textAppearanceSmall"
@@ -98,7 +98,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bitcrusher"
+            android:text="@string/bitcrusher"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/primary_text">
         </TextView>
@@ -121,12 +121,12 @@
             </TextView>
 
             <TextView
-                android:id="@+id/ringmod_norm_freq_current_value"
+                android:id="@+id/bitcrusher_norm_freq_current_value"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start"
+                android:layout_gravity="end"
                 android:layout_weight="1"
-                android:gravity="start"
+                android:gravity="end"
                 android:text=""
                 android:textAlignment="gravity"
                 android:textAppearance="?android:attr/textAppearanceSmall"
@@ -162,18 +162,18 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/bitcrusher_bitdepth"
+                android:id="@+id/bitcrusher_bit_depth"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:text="bit depth: "
+                android:text="bits:"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/secondary_text">
             </TextView>
 
             <TextView
-                android:id="@+id/bitcrusher_bitdepth_current_value"
+                android:id="@+id/bitcrusher_bit_depth_current_value"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -199,6 +199,79 @@
 
         <SeekBar
             android:id="@+id/seekbar_bitcrusher_bit_depth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/seekbar_margin"
+            android:layout_marginTop="@dimen/seekbar_margin"
+            android:progressDrawable="@drawable/seekbar_progressbar">
+        </SeekBar>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/waveshaper_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/group_layout_margin"
+        android:layout_marginTop="@dimen/group_layout_margin"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/waveshaper"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/primary_text">
+        </TextView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/waveshaper_threshold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_weight="1"
+                android:gravity="start"
+                android:text="threshold:"
+                android:textAlignment="gravity"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/secondary_text">
+            </TextView>
+
+            <TextView
+                android:id="@+id/waveshaper_threshold_current_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text=""
+                android:textAlignment="gravity"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/secondary_text">
+            </TextView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text=""
+                android:textAlignment="gravity"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/secondary_text">
+
+            </TextView>
+
+        </LinearLayout>
+
+        <SeekBar
+            android:id="@+id/seekbar_waveshaper_threshold"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/seekbar_margin"
