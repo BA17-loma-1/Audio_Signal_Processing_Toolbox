@@ -344,7 +344,7 @@ public final class AudioPlayer {
                             if (decodedSamples != null) {
                                 float[] filteredSamples = PCMUtil.short2FloatArray(decodedSamples);
                                 if (audioEffects != null && !overrideFXChain) {
-                                    applyAudioEffect(PCMUtil.short2FloatArray(decodedSamples),
+                                    applyAudioEffects(PCMUtil.short2FloatArray(decodedSamples),
                                             filteredSamples);
                                 }
                                 if (audioTrack.write(PCMUtil.float2ShortArray(filteredSamples),
@@ -401,7 +401,7 @@ public final class AudioPlayer {
      * @param input  an array of {@code float}
      * @param output an array of {@code float}
      */
-    private void applyAudioEffect(@NonNull float[] input, @NonNull float[] output) {
+    private void applyAudioEffects(@NonNull float[] input, @NonNull float[] output) {
         if (audioEffects != null && input.length == output.length) {
             for (AudioEffect fx : audioEffects) {
                 if (fx != null) {

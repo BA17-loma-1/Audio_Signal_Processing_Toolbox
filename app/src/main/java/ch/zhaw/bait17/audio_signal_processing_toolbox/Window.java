@@ -3,13 +3,13 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox;
 import java.util.Arrays;
 
 /**
- * Created by georgrem, stockan1 on 18.02.2017.
- *
  * Creates a window used in the Fast Fourier Transform.
  *  @see ch.zhaw.bait17.audio_signal_processing_toolbox.FFT
  *
  * Consult enum {@link ch.zhaw.bait17.audio_signal_processing_toolbox.WindowType} for all supported
  * window types.
+ *
+ * @author georgrem, stockan1
  */
 
 public class Window {
@@ -22,8 +22,9 @@ public class Window {
 
     /**
      * Creates a window of specified type with length L = size and returns it as a float array.
-     * @param size Size of the window.
-     * @return a float array containing the coefficients of the window.
+     *
+     * @param size  size of the window
+     * @return      a {@code float} array containing the coefficients of the window
      */
     public float[] getWindow(int size) {
         switch (windowType) {
@@ -38,6 +39,15 @@ public class Window {
         }
     }
 
+    /**
+     * Returns the window type.
+     *
+     * @return  {@code WindowType}
+     */
+    public WindowType getWindowType() {
+        return windowType;
+    }
+
     @Override
     public String toString() {
         return windowType.toString();
@@ -45,8 +55,9 @@ public class Window {
 
     /**
      * Creates a rectangular window with length L = size.
-     * @param size Size of the window
-     * @return a float array containing only coefficients of value 1.0.
+     *
+     * @param size  size of the window
+     * @return      a {@code float} array containing only coefficients of value 1.0
      */
     private float[] getRectangularWindow(int size) {
         float[] rectWindow = new float[size];
@@ -56,9 +67,10 @@ public class Window {
 
     /**
      * Creates a Hamming window with length L = size.
-     * See: http://mathworks.com/help/signal/ref/hamming.html
-     * @param size Size of the window
-     * @return a float array containing the coefficients of the window
+     * See <a href="http://mathworks.com/help/signal/ref/hamming.html">mathworks.com</a>
+     *
+     * @param size  size of the window
+     * @return      a {@code float} array containing the coefficients of the window
      */
     private float[] getHammingWindow(int size) {
         double alpha = 0.53836;
@@ -72,9 +84,10 @@ public class Window {
 
     /**
      * Creates a Hann window with length L = size.
-     * See: https://ch.mathworks.com/help/signal/ref/hann.html
-     * @param size Size of the window
-     * @return a float array containing the coefficients of the window
+     * See <a href="https://ch.mathworks.com/help/signal/ref/hann.html">mathworks.com</a>
+     *
+     * @param size  size of the window
+     * @return      a {@code float} array containing the coefficients of the window
      */
     private float[] getHannWindow(int size) {
         float[] hannWindow = new float[size];
@@ -87,9 +100,10 @@ public class Window {
     /**
      * Creates a Blackman window with length L = size.
      * The Blackman window is useful for single tone measurement.
-     * See: http://zone.ni.com/reference/en-XX/help/371361E-01/lvanlsconcepts/char_smoothing_windows/
-     * @param size Size of the window
-     * @return a float array containing the coefficients of the window
+     * See <a href="http://zone.ni.com/reference/en-XX/help/371361E-01/lvanlsconcepts/char_smoothing_windows/">zone.ni.com</a>
+     *
+     * @param size  size of the window
+     * @return      a {@code float} array containing the coefficients of the window
      */
     private float[] getBlackmanWindow(int size) {
         float[] blackmanWindow = new float[size];

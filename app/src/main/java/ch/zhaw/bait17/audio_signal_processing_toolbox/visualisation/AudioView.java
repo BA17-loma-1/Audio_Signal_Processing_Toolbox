@@ -31,7 +31,7 @@ public abstract class AudioView extends View {
     /**
      * Returns the sample rate.
      *
-     * @return
+     * @return      sample rate
      */
     protected int getSampleRate() {
         return sampleRate;
@@ -40,7 +40,7 @@ public abstract class AudioView extends View {
     /**
      * Sets the sample rate.
      *
-     * @param sampleRate
+     * @param sampleRate    sample rate
      */
     public void setSampleRate(int sampleRate) {
         this.sampleRate = sampleRate;
@@ -49,7 +49,7 @@ public abstract class AudioView extends View {
     /**
      * Returns the number of audio channels.
      *
-     * @return
+     * @return      channels
      */
     protected int getChannels() {
         return channels;
@@ -58,7 +58,7 @@ public abstract class AudioView extends View {
     /**
      * Sets the number of channels.
      *
-     * @param channels
+     * @param channels      channels
      */
     public void setChannels(int channels) {
         this.channels = channels;

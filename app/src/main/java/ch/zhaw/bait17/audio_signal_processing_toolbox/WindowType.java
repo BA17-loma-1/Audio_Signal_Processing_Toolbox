@@ -1,8 +1,9 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox;
 
 /**
- * Window types.
- * Created by georgrem, stockan1 on 18.02.2017.
+ * Supported window types.
+ *
+ * @author georgrem, stockan1
  */
 
 public enum WindowType {
@@ -11,7 +12,7 @@ public enum WindowType {
     private String stringValue = "";
     private int intValue = 0;
 
-    private WindowType(String toString, int value) {
+    WindowType(String toString, int value) {
         stringValue = toString;
         intValue = value;
     }
