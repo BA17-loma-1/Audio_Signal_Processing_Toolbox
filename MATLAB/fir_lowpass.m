@@ -7,9 +7,9 @@
 format compact; format short; clear; close all; clc;
 
 fs = 48e3;                  % Sample rate (not relevant) [Hz]
-fpass = 1e3;                % Durchlassbereich (pass band), Matrize [Hz]
+fpass = 1000;               % Durchlassbereich (pass band), Matrize [Hz]
 Apass = 0.02;               % Rippel im Durchlassbereich [dB]
-fstop = 2e3;                % Sperrbereich (stop band), Stempel [Hz]
+fstop = 1800;               % Sperrbereich (stop band), Stempel [Hz]
 Astop = 80;                 % min. Dämpfung im Sperrbereich [dB]
 
 % Optimale Bestimmung des FIR-Filters

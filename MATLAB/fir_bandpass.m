@@ -8,10 +8,10 @@ format compact; format short; clear; close all; clc;
 
 fs = 48e3;                  % Sample rate (not relevant) [Hz]
 Apass = 0.02;               % Rippel im Durchlassbereich [dB]
-fpass1 = 3e3;               % Durchlassbereich links (pass band 1) [Hz]
+fpass1 = 2.5e3;             % Durchlassbereich links (pass band 1) [Hz]
 fstop1 = 2e3;               % Sperrbereich links (stop band1 ) [Hz]
-fpass2 = 4e3;               % Durchlassbereich rechts (pass band 2) [Hz]
-fstop2 = 5e3;               % Sperrbereich rechts (stop band 2) [Hz]
+fpass2 = 3e3;               % Durchlassbereich rechts (pass band 2) [Hz]
+fstop2 = 3.5e3;             % Sperrbereich rechts (stop band 2) [Hz]
 Astop = 90;                 % min. Dämpfung in Sperrbereichen [dB]
 
 % Optimale Bestimmung des FIR-Filters

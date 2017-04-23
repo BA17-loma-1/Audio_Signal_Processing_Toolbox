@@ -8,11 +8,11 @@ format compact; format short; clear; close all; clc;
 
 fs = 48e3;                  % Sample rate (not relevant) [Hz]
 Apass = 0.02;               % Rippel in Durchlassbereichen [dB]
-fpass1 = 1.5e3;             % Durchlassbereich links (pass band 1) [Hz]
-fstop1 = 2e3;               % Sperrbereich links (stop band 1) [Hz]
-fpass2 = 6e3;               % Durchlassbereich rechts (pass band 2) [Hz]
-fstop2 = 5e3;               % Sperrbereich rechts (stop band 2) [Hz]
-Astop = 90;                 % min. Dämpfung im Sperrbereich [dB]
+fpass1 = 1000;              % Durchlassbereich links (pass band 1) [Hz]
+fstop1 = 2000;              % Sperrbereich links (stop band 1) [Hz]
+fpass2 = 4000;              % Durchlassbereich rechts (pass band 2) [Hz]
+fstop2 = 3000;              % Sperrbereich rechts (stop band 2) [Hz]
+Astop = 80;                 % min. Dämpfung im Sperrbereich [dB]
 
 % Optimale Bestimmung des FIR-Filters
 h = fdesign.bandstop(fpass1,fstop1,fstop2,fpass2,Apass,Astop,Apass,fs);

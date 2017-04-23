@@ -7,10 +7,10 @@
 format compact; format short; clear; close all; clc;
 
 fs = 48e3;                  % Sample rate (not relevant) [Hz]
-fpass = 2e3;                % Durchlassbereich (pass band) [Hz]
+fpass = 1500;               % Durchlassbereich (pass band) [Hz]
 Apass = 0.02;               % Rippel im Durchlassbereich [dB]
-fstop = 1e3;                % Sperrbereich (stop band) [Hz]
-Astop = 80;                 % min. Dämpfung im Sperrbereich [dB]
+fstop = 1000;               % Sperrbereich (stop band) [Hz]
+Astop = 100;                % min. Dämpfung im Sperrbereich [dB]
 
 % Optimale Bestimmung des FIR-Filters
 h = fdesign.highpass(fstop, fpass, Astop, Apass, fs);
