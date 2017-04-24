@@ -107,25 +107,30 @@ public final class AudioPlayer {
      * Therefore if the sample rate or the channel count has changed, a new {@code AudioTrack}
      * must be created.
      *
-     * @param mediaListType
+     * @param mediaListType     the {@code MediaListType}
      */
-    public void play(MediaListType mediaListType) {
+    public void play(@NonNull MediaListType mediaListType) {
         if (!isPaused() && !isPlaying() && currentTrack != null) {
             switch (mediaListType) {
                 case MY_MUSIC:
-                    InputStream inputStream = null;
                     try {
-                        inputStream = Util.getInputStreamFromURI(currentTrack.getUri());
+                        InputStream inputStream = Util.getInputStreamFromURI(currentTrack.getUri());
+                        if (inputStream != null) {
+                            initialiseDecoder(currentTrack, inputStream);
+                            if (isDecoderInitialised()
+                                    && (!isAudioTrackInitialised() || sampleRateHasChanged || channelsHasChanged)) {
+                                audioTrack = null;
+                                createAudioTrack();
+                            }
+                            startPlayback();
+                        } else {
+                            Toast.makeText(ApplicationContext.getAppContext(),
+                                    "Unsupported audio format", Toast.LENGTH_SHORT).show();
+                        }
                     } catch (FileNotFoundException e) {
                         Log.e(TAG, e.getMessage());
                     }
-                    initialiseDecoder(currentTrack, inputStream);
-                    if (isDecoderInitialised()
-                            && (!isAudioTrackInitialised() || sampleRateHasChanged || channelsHasChanged)) {
-                        audioTrack = null;
-                        createAudioTrack();
-                    }
-                    startPlayback();
+
                     break;
                 case STREAM:
                     new GetInputStreamFromURL().execute(currentTrack.getUri());
