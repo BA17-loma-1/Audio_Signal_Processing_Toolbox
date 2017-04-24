@@ -2,9 +2,12 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.util;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 
 /**
@@ -24,6 +27,7 @@ public class Util {
      * @return                          an InputStream
      * @throws FileNotFoundException    Throws an exception if the file cannot be found
      */
+    @Nullable
     public static InputStream getInputStreamFromURI(@NonNull String uri)
             throws FileNotFoundException {
         return ApplicationContext.getAppContext().getContentResolver().openInputStream(Uri.parse(uri));
