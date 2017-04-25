@@ -31,7 +31,6 @@ public class MP3Decoder implements AudioDecoder {
     private static final MP3Decoder INSTANCE = new MP3Decoder();
     private static Decoder decoder;
 
-    private static short[] sampleBlock = null;
     private static Bitstream bitstream;
     private InputStream is;
     private static int sampleRate;
@@ -77,6 +76,7 @@ public class MP3Decoder implements AudioDecoder {
     @Override
     @Nullable
     public short[] getNextSampleBlock() {
+        short[] sampleBlock = null;
         try {
             Header currentFrameHeader = bitstream.readFrame();
             if (currentFrameHeader != null) {

@@ -69,7 +69,7 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> 
         holder.artists.setText(track.getArtist());
 
         String imageUrl = track.getImageUrl();
-        if (imageUrl != "") {
+        if (!imageUrl.equals("")) {
             holder.image.clearColorFilter();
             Picasso.with(ApplicationContext.getAppContext()).load(imageUrl).into(holder.image);
         } else {

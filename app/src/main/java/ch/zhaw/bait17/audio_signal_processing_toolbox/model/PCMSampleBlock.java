@@ -1,5 +1,7 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.model;
 
+import java.util.Arrays;
+
 /**
  * <p>
  *     This class is used to pass PCM samples between fragments. </br>
@@ -28,7 +30,7 @@ public final class PCMSampleBlock {
      */
     public PCMSampleBlock(short[] samples, final int sampleRate, final int channels,
                           final boolean preFilterSamples) {
-        this.samples = samples;
+        this.samples = Arrays.copyOf(samples, samples.length);
         this.SAMPLE_RATE = sampleRate;
         this.CHANNELS = channels;
         this.PRE_FILTER_SAMPLES = preFilterSamples;
@@ -40,7 +42,7 @@ public final class PCMSampleBlock {
      * @return  an array of {@code short}
      */
     public short[] getSamples() {
-        return samples;
+        return Arrays.copyOf(samples, samples.length);
     }
 
     /**

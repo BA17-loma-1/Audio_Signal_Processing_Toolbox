@@ -42,7 +42,7 @@ public final class HeatMap {
      * The classic rainbow gradient.
      *
      */
-    public final static Colour[] LSD = Gradient.createMultiGradient(
+    public static final Colour[] LSD = Gradient.createMultiGradient(
             new Colour[]{BLACK, BLUE, LILA, RED, ORANGE, YELLOW, WHITE}, 2 * NUMBER_OF_STEPS);
 
 }

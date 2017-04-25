@@ -45,22 +45,15 @@ public class HttpHandler {
     }
 
     private String convertStreamToString(InputStream is) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
-
-        String line;
-        try {
+        // try-with-resources for auto-closeable streams
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+            String line;
             while ((line = reader.readLine()) != null) {
                 sb.append(line).append('\n');
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
         return sb.toString();
     }

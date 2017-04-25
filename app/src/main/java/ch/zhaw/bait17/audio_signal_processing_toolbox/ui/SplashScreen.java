@@ -9,12 +9,11 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 
 public class SplashScreen extends Activity {
 
-    private final int SPLASH_DISPLAY_LENGTH = 3000;
-
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         setContentView(R.layout.splash_activity);
+        final int SPLASH_DISPLAY_LENGTH = 3000;
         new Handler().postDelayed(new Runnable(){
             @Override
             public void run() {

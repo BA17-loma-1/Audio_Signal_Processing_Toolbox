@@ -6,6 +6,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import java.util.Arrays;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 
@@ -19,7 +21,7 @@ public class ViewAdapter extends BaseAdapter {
     private LayoutInflater inflater;
 
     public ViewAdapter(String[] viewNames) {
-        this.viewNames = viewNames;
+        this.viewNames = Arrays.copyOf(viewNames, viewNames.length);
         inflater = LayoutInflater.from(ApplicationContext.getAppContext());
     }
 

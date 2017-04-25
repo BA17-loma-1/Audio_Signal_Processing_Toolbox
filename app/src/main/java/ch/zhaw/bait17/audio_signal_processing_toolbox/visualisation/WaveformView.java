@@ -24,6 +24,8 @@ import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.View;
 
+import java.util.Arrays;
+
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 
@@ -86,7 +88,7 @@ public class WaveformView extends TimeView {
 
     @Override
     public void setSamples(@NonNull short[] samples) {
-        this.samples = samples;
+        this.samples = Arrays.copyOf(samples, samples.length);
         onSamplesChanged();
     }
 
