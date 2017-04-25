@@ -308,9 +308,9 @@ public class MainActivity extends AppCompatActivity implements
                 break;
         }
 
-        if (fragment != null) {
+        if (fragment != null && !fragment.isVisible()) {
             ft.replace(R.id.content_frame, fragment, tagFragmentName);
-            ft.addToBackStack(null);
+            ft.addToBackStack(tagFragmentName);
         }
         ft.commit();
 
