@@ -1,61 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/filter_view"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorAccent"
-    android:orientation="vertical"
-    android:padding="@dimen/activity_vertical_padding">
+    android:fillViewport="true" >
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/audio_effect_view"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/effect_slot1"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:background="?attr/colorAccent"
+        android:orientation="vertical"
+        android:padding="@dimen/activity_vertical_padding">
 
-    <Spinner
-        android:id="@+id/spinner_first_filter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/end_text_margin" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/audio_fx_chain_title"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_marginBottom="@dimen/end_text_margin" >
+        </TextView>
 
+        <!-- Audio source block -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/fx_chain_block"
+            android:text="@string/audio_source"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:textAlignment="gravity"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:padding="@dimen/fx_chain_block_padding"
+            android:layout_marginBottom="@dimen/fx_chain_block_margin_bottom" >
+        </TextView>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/effect_slot2"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        <!-- arrow down -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:src="@android:drawable/arrow_down_float" />
 
-    <Spinner
-        android:id="@+id/spinner_second_filter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/end_text_margin" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/fx_chain_block_padding"
+            android:layout_marginTop="@dimen/fx_chain_block_margin_top"
+            android:layout_marginBottom="@dimen/fx_chain_block_margin_bottom"
+            android:background="@drawable/fx_chain_block"
+            android:orientation="horizontal" >
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/insert_effect_1"
+                android:layout_gravity="center_vertical"
+                android:textAlignment="gravity"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/effect_slot3"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+            <Spinner
+                android:id="@+id/spinner_first_fx"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dialog" />
 
-    <Spinner
-        android:id="@+id/spinner_third_filter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/end_text_margin" />
+        </LinearLayout>
 
+        <!-- arrow down -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:src="@android:drawable/arrow_down_float" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/effect_slot4"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/fx_chain_block_padding"
+            android:layout_marginTop="@dimen/fx_chain_block_margin_top"
+            android:layout_marginBottom="@dimen/fx_chain_block_margin_bottom"
+            android:background="@drawable/fx_chain_block"
+            android:orientation="horizontal" >
 
-    <Spinner
-        android:id="@+id/spinner_fourth_filter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/end_text_margin" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/insert_effect_2"
+                android:layout_gravity="center_vertical"
+                android:textAlignment="gravity"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-</LinearLayout>
+            <Spinner
+                android:id="@+id/spinner_second_fx"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dialog" />
+
+        </LinearLayout>
+
+        <!-- arrow down -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:src="@android:drawable/arrow_down_float" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/fx_chain_block_padding"
+            android:layout_marginTop="@dimen/fx_chain_block_margin_top"
+            android:layout_marginBottom="@dimen/fx_chain_block_margin_bottom"
+            android:background="@drawable/fx_chain_block"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/insert_effect_3"
+                android:layout_gravity="center_vertical"
+                android:textAlignment="gravity"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Spinner
+                android:id="@+id/spinner_third_fx"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dialog" />
+
+        </LinearLayout>
+
+        <!-- arrow down -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:src="@android:drawable/arrow_down_float" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/fx_chain_block_padding"
+            android:layout_marginTop="@dimen/fx_chain_block_margin_top"
+            android:layout_marginBottom="@dimen/fx_chain_block_margin_bottom"
+            android:background="@drawable/fx_chain_block"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/insert_effect_4"
+                android:layout_gravity="center_vertical"
+                android:textAlignment="gravity"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Spinner
+                android:id="@+id/spinner_fourth_fx"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dialog" />
+
+        </LinearLayout>
+
+        <!-- arrow down -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:src="@android:drawable/arrow_down_float" />
+
+        <!-- Audio sink block -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/fx_chain_block"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:textAlignment="gravity"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:padding="@dimen/fx_chain_block_padding"
+            android:layout_marginTop="@dimen/fx_chain_block_margin_top" >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_volume_up_black_48dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

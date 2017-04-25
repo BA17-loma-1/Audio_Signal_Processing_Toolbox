@@ -13,7 +13,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 public class Overdrive implements AudioEffect {
 
     private static final String LABEL = "Overdrive";
-    private static final String DESCRIPTION = "";
+    private static final String DESCRIPTION = "A nonlinear system, spectral components (distortion products) appear that were not part of the original signal";
     private static final float ONE_THIRD = 1/3.0f;
     private static final float TWO_THIRDS = 2 * ONE_THIRD;
 

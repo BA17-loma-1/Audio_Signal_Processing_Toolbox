@@ -36,4 +36,8 @@
     <color name="fx_switch_disable_foreground">#42221f</color>
     <color name="fx_switch_green">#f44336</color>
 
+    <!-- Spinners -->
+    <color name="spinner_background_color">#FFFFFF</color>
+    <color name="spinner_divider_color">@android:color/darker_gray</color>
+
 </resources>

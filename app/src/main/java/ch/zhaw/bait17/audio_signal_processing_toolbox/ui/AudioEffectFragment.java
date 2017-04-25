@@ -110,19 +110,19 @@ public class AudioEffectFragment extends Fragment implements AdapterView.OnItemS
 
         AudioEffectAdapter audioEffectAdapter = new AudioEffectAdapter(audioEffects);
 
-        spinnerFirstFilter = (Spinner) view.findViewById(R.id.spinner_first_filter);
+        spinnerFirstFilter = (Spinner) view.findViewById(R.id.spinner_first_fx);
         spinnerFirstFilter.setAdapter(audioEffectAdapter);
         spinnerFirstFilter.setOnItemSelectedListener(this);
 
-        spinnerSecondFilter = (Spinner) view.findViewById(R.id.spinner_second_filter);
+        spinnerSecondFilter = (Spinner) view.findViewById(R.id.spinner_second_fx);
         spinnerSecondFilter.setAdapter(audioEffectAdapter);
         spinnerSecondFilter.setOnItemSelectedListener(this);
 
-        spinnerThirdFilter = (Spinner) view.findViewById(R.id.spinner_third_filter);
+        spinnerThirdFilter = (Spinner) view.findViewById(R.id.spinner_third_fx);
         spinnerThirdFilter.setAdapter(audioEffectAdapter);
         spinnerThirdFilter.setOnItemSelectedListener(this);
 
-        spinnerFourthFilter = (Spinner) view.findViewById(R.id.spinner_fourth_filter);
+        spinnerFourthFilter = (Spinner) view.findViewById(R.id.spinner_fourth_fx);
         spinnerFourthFilter.setAdapter(audioEffectAdapter);
         spinnerFourthFilter.setOnItemSelectedListener(this);
 

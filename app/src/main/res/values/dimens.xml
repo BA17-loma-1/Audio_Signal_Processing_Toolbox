@@ -39,4 +39,9 @@
     <dimen name="group_layout_margin">16dp</dimen>
     <dimen name="seekbar_margin">8dp</dimen>
 
+    <!-- fx chain -->
+    <dimen name="fx_chain_block_padding">8dp</dimen>
+    <dimen name="fx_chain_block_margin_top">4dp</dimen>
+    <dimen name="fx_chain_block_margin_bottom">4dp</dimen>
+
 </resources>

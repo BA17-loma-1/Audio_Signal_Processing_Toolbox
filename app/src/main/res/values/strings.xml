@@ -46,15 +46,17 @@
     <string name="view_config_post_audio_effect">post audio effect</string>
 
     <!-- FX section -->
-    <string name="effect_slot1">Insert audio effect 1</string>
-    <string name="effect_slot2">Insert audio effect 2</string>
-    <string name="effect_slot3">Insert audio effect 3</string>
-    <string name="effect_slot4">Insert audio effect 4</string>
+    <string name="audio_fx_chain_title">Select insert effects</string>
+    <string name="insert_effect_1">Insert 1</string>
+    <string name="insert_effect_2">Insert 2</string>
+    <string name="insert_effect_3">Insert 3</string>
+    <string name="insert_effect_4">Insert 4</string>
+    <string name="audio_source">Audio source</string>
+    <string name="no_fx">No fx/filter</string>
     <string name="low_pass_filter">Low pass filter</string>
     <string name="high_pass_filter">High pass filter</string>
     <string name="band_pass_filter">Band pass filter</string>
     <string name="band_stop_filter">Band stop filter</string>
-    <string name="no_filter">No filter</string>
     <string name="ring_modulation">Ring modulation</string>
     <string name="bitcrusher">Bitcrusher</string>
     <string name="soft_clipper">Soft clipper</string>

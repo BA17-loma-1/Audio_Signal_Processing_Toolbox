@@ -27,12 +27,12 @@ public class Constants {
     public static final float BITCRUSHER_MAX_NORM_FREQ = 1;
     public static final int BITCRUSHER_MIN_BIT_DEPTH = 1;
     public static final int BITCRUSHER_MAX_BIT_DEPTH = 16;
-    public static final float BITCRUSHER_DEFAULT_NORM_FREQUENCY = 0.1f;
-    public static final int BITCRUSHER_DEFAULT_BITS = 8;
+    public static final float BITCRUSHER_DEFAULT_NORM_FREQUENCY = 1.0f;
+    public static final int BITCRUSHER_DEFAULT_BITS = 16;
 
     // Soft clipper
     public static final int SOFT_CLIPPER_MIN_CLIPPING_FACTOR = 1;
-    public static final int SOFT_CLIPPER_MAX_CLIPPING_FACTOR = 10000;
+    public static final int SOFT_CLIPPER_MAX_CLIPPING_FACTOR = 1000;
     public static final float SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR = 120f;
 
     // Waveshaper
@@ -42,7 +42,7 @@ public class Constants {
 
     // Ring modulator
     public static final int RING_MODULATOR_MIN_MOD_FREQ = 1;
-    public static final int RING_MODULATOR_MAX_MOD_FREQ = 2500;
-    public static final float RING_MODULATOR_DEFAULT_FREQUENCY = 5;
+    public static final int RING_MODULATOR_MAX_MOD_FREQ = 5000;
+    public static final float RING_MODULATOR_DEFAULT_FREQUENCY = 0;
 
 }

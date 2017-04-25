@@ -12,7 +12,7 @@ import static ch.zhaw.bait17.audio_signal_processing_toolbox.Constants.DEFAULT_S
 public class RingModulation implements AudioEffect {
 
     private static final String LABEL = "Ring modulation";
-    private static final String DESCRIPTION = "";
+    private static final String DESCRIPTION = "Amplitude modulation without the original signal, duplicates and shifts the spectrum, modifies pitch and timbre";
 
     private double fMod;
     private long index = 0;

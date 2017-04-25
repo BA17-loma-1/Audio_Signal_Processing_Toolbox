@@ -14,7 +14,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 public class Bitcrusher implements AudioEffect {
 
     private static final String LABEL = "Bitcrusher";
-    private static final String DESCRIPTION = "";
+    private static final String DESCRIPTION = "Lo-fi distortion effect, reduces the amplitude resolution";
 
     private float normFrequency;
     private int bits;
