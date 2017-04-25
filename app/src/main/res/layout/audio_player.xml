@@ -7,7 +7,7 @@
     android:layout_alignParentBottom="true"
     android:layout_alignParentEnd="true"
     android:layout_gravity="bottom"
-    android:background="@drawable/fullscreen_bg_gradient"
+    android:background="@drawable/audioplayer_bg_gradient"
     tools:context="ch.zhaw.bait17.audio_signal_processing_toolbox.ui.MainActivity">
 
     <LinearLayout
