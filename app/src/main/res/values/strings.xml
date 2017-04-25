@@ -58,8 +58,15 @@
     <string name="band_pass_filter">Band pass filter</string>
     <string name="band_stop_filter">Band stop filter</string>
     <string name="ring_modulation">Ring modulation</string>
+
+    <!-- Settings -->
+    <string name="change_fx_params">Change audio effect parameters</string>
     <string name="bitcrusher">Bitcrusher</string>
     <string name="soft_clipper">Soft clipper</string>
     <string name="waveshaper">Waveshaper</string>
+    <string name="ringmod_mod_freq">mod. frequency:</string>
+    <string name="bitcrusher_norm_freq">normalised frequency:</string>
+    <string name="bitcrusher_bits">bits:</string>
+    <string name="waveshaper_threshold">threshold:</string>
 
 </resources>
