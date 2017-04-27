@@ -257,26 +257,31 @@ public class MainActivity extends AppCompatActivity implements
         Fragment fragment = null;
         String title = "";
         String tagFragmentName = "";
+        MediaListType mediaListType;
 
         switch (item.getItemId()) {
             case R.id.nav_media_list:
                 fragment = getFragmentByTag(TAG_MEDIA_LIST_FRAGMENT);
-                ((MediaListFragment) fragment).setMediaListType(MediaListType.MY_MUSIC);
-                ((MediaListFragment) fragment).reloadList();
-                initAudioPlayerFragment();
+                mediaListType = ((MediaListFragment) fragment).getMediaListType();
+                if (mediaListType != MediaListType.MY_MUSIC) {
+                    ((MediaListFragment) fragment).setMediaListType(MediaListType.MY_MUSIC);
+                    ((MediaListFragment) fragment).reloadList();
+                    initAudioPlayerFragment();
+                }
                 title = getString(R.string.drawer_menu_item_music);
                 tagFragmentName = TAG_MEDIA_LIST_FRAGMENT;
                 break;
-            /*
             case R.id.nav_stream_list:
                 fragment = getFragmentByTag(TAG_MEDIA_LIST_FRAGMENT);
-                ((MediaListFragment) fragment).setMediaListType(MediaListType.STREAM);
-                ((MediaListFragment) fragment).reloadList();
-                initAudioPlayerFragment();
+                mediaListType = ((MediaListFragment) fragment).getMediaListType();
+                if (mediaListType != MediaListType.STREAM) {
+                    ((MediaListFragment) fragment).setMediaListType(MediaListType.STREAM);
+                    ((MediaListFragment) fragment).reloadList();
+                    initAudioPlayerFragment();
+                }
                 title = getString(R.string.drawer_menu_item_music_streaming);
                 tagFragmentName = TAG_MEDIA_LIST_FRAGMENT;
                 break;
-             */
             case R.id.nav_visualisation:
                 Fragment vcf = getFragmentByTag(TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
                 List<AudioView> activeViews = ((ViewFragment) vcf).getActiveViews();

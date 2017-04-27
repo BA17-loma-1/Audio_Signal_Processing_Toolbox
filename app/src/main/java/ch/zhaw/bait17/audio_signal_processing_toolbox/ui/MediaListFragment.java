@@ -76,39 +76,6 @@ public class MediaListFragment extends Fragment implements SearchView.OnQueryTex
     }
 
 
-    // The onCreateView method is called when Fragment should create its View object hierarchy,
-    // either dynamically or via XML layout inflation.
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.media_list_view, container, false);
-        init();
-        return rootView;
-    }
-
-    private void init() {
-        tracks = new ArrayList<>();
-
-        // Setup search field
-        searchView = (SearchView) rootView.findViewById(R.id.search_view);
-        searchView.setOnQueryTextListener(this);
-
-        // Setup search results list
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.media_list);
-        trackAdapter = new TrackAdapter(new TrackAdapter.ItemSelectedListener() {
-            @Override
-            public void onItemSelected(View itemView, Track track) {
-                if (listener != null) {
-                    int trackPosNr = tracks.indexOf(track);
-                    listener.onTrackSelected(trackPosNr);
-                }
-            }
-        });
-
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(ApplicationContext.getAppContext()));
-        recyclerView.setAdapter(trackAdapter);
-    }
-
     @TargetApi(23)
     @Override
     public void onAttach(Context context) {
@@ -147,20 +114,43 @@ public class MediaListFragment extends Fragment implements SearchView.OnQueryTex
         }
     }
 
-    // This event is triggered soon after onCreateView().
-    // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
+
+    // The onCreateView method is called when Fragment should create its View object hierarchy,
+    // either dynamically or via XML layout inflation.
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        reloadList();
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if (rootView == null) {
+            rootView = inflater.inflate(R.layout.media_list_view, container, false);
+            init();
+            loadTrackList();
+        }
+        return rootView;
     }
 
-    // During startup, check if there are arguments passed to the fragment.
-    // onStart is a good place to do this because the layout has already been
-    // applied to the fragment at this point
-    @Override
-    public void onStart() {
-        super.onStart();
+    private void init() {
+        tracks = new ArrayList<>();
+
+        // Setup search field
+        searchView = (SearchView) rootView.findViewById(R.id.search_view);
+        searchView.setOnQueryTextListener(this);
+
+        // Setup search results list
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.media_list);
+        trackAdapter = new TrackAdapter(new TrackAdapter.ItemSelectedListener() {
+            @Override
+            public void onItemSelected(View itemView, Track track) {
+                if (listener != null) {
+                    int trackPosNr = tracks.indexOf(track);
+                    listener.onTrackSelected(trackPosNr);
+                }
+            }
+        });
+
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(ApplicationContext.getAppContext()));
+        recyclerView.setAdapter(trackAdapter);
     }
+
 
     /*
         This method is not being called by requestReadExternalStoragePermission().
