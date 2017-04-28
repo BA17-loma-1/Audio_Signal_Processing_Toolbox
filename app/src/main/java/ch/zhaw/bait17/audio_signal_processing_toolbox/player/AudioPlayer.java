@@ -403,7 +403,7 @@ public final class AudioPlayer {
     private void setSampleRateInAudioEffects() {
         if (audioEffects != null) {
             for (AudioEffect audioEffect : audioEffects) {
-                audioEffect.setSampleRate(sampleRate);
+                audioEffect.setSamplingFrequency(sampleRate);
             }
         }
     }

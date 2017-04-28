@@ -19,10 +19,11 @@ import java.util.List;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.RingModulation;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Bitcrusher;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.SoftClipper;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Waveshaper;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.modulation.RingModulation;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.modulation.Tremolo;
 
 /**
  * @author georgrem, stockan1
@@ -33,6 +34,8 @@ public class SettingsFragment extends Fragment implements SeekBar.OnSeekBarChang
     private List<AudioEffect> audioEffects;
     private OnItemChangedListener listener;
     private TextView textViewRingModFreqCurrentValue;
+    private TextView textViewTremoloModFreqCurrentValue;
+    private TextView textViewTremoloModAmplCurrentValue;
     private TextView textViewBitcrusherNormFreqCurrentValue;
     private TextView textViewBitcrusherBitDepthCurrentValue;
     private TextView textViewWaveshaperThresholdCurrentValue;
@@ -87,6 +90,14 @@ public class SettingsFragment extends Fragment implements SeekBar.OnSeekBarChang
             seekBarRingModulationFrequency.setOnSeekBarChangeListener(this);
             seekBarRingModulationFrequency.setMax(Constants.RING_MODULATOR_MAX_MOD_FREQ);
 
+            SeekBar seekBarTremoloModulationFrequency = (SeekBar) view.findViewById(R.id.seekbar_tremolo_frequency);
+            seekBarTremoloModulationFrequency.setOnSeekBarChangeListener(this);
+            seekBarTremoloModulationFrequency.setMax(Constants.TREMOLO_MAX_MOD_FREQUENCY);
+
+            SeekBar seekBarTremoloModulationAmplitude = (SeekBar) view.findViewById(R.id.seekbar_tremolo_amplitude);
+            seekBarTremoloModulationAmplitude.setOnSeekBarChangeListener(this);
+            seekBarTremoloModulationAmplitude.setMax(100);
+
             SeekBar seekBarBitCrusherNormFreq = (SeekBar) view.findViewById(
                     R.id.seekbar_bitcrusher_norm_freq);
             seekBarBitCrusherNormFreq.setOnSeekBarChangeListener(this);
@@ -105,6 +116,10 @@ public class SettingsFragment extends Fragment implements SeekBar.OnSeekBarChang
 
         textViewRingModFreqCurrentValue = (TextView) view.findViewById(
                 R.id.ringmod_freq_current_value);
+        textViewTremoloModFreqCurrentValue = (TextView) view.findViewById(
+                R.id.tremolo_freq_current_value);
+        textViewTremoloModAmplCurrentValue = (TextView) view.findViewById(
+                R.id.tremolo_ampl_current_value);
         textViewBitcrusherNormFreqCurrentValue = (TextView) view.findViewById(
                 R.id.bitcrusher_norm_freq_current_value);
         textViewBitcrusherBitDepthCurrentValue = (TextView) view.findViewById(
@@ -119,14 +134,37 @@ public class SettingsFragment extends Fragment implements SeekBar.OnSeekBarChang
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         Bitcrusher bitcrusher = null;
+        Tremolo tremolo = null;
 
         switch (seekBar.getId()) {
             case R.id.seekbar_ringmod:
                 RingModulation ringMod = getRingModulator();
                 if (ringMod != null) {
-                    ringMod.setFrequency(progress);
+                    ringMod.setFrequencyModulation(progress);
                     if (textViewRingModFreqCurrentValue != null) {
                         textViewRingModFreqCurrentValue.setText(String.format("%d Hz", progress));
+                    }
+                }
+                listener.onParameterChanged(audioEffects);
+                break;
+            case R.id.seekbar_tremolo_frequency:
+                tremolo = getTremolo();
+                if (tremolo != null) {
+                    tremolo.setFrequencyModulation(progress);
+                    if (textViewTremoloModFreqCurrentValue != null) {
+                        textViewTremoloModFreqCurrentValue.setText(String.format("%d Hz", progress));
+                    }
+                }
+                listener.onParameterChanged(audioEffects);
+                break;
+            case R.id.seekbar_tremolo_amplitude:
+                tremolo = getTremolo();
+                if (tremolo != null) {
+                    tremolo.setFrequencyModulation(progress);
+                    float normAmpl = Constants.TREMOLO_MAX_AMPLITUDE * (progress / 100.0f);
+                    tremolo.setAmplitude(normAmpl);
+                    if (textViewTremoloModAmplCurrentValue != null) {
+                        textViewTremoloModAmplCurrentValue.setText(Float.toString(normAmpl));
                     }
                 }
                 listener.onParameterChanged(audioEffects);
@@ -188,6 +226,16 @@ public class SettingsFragment extends Fragment implements SeekBar.OnSeekBarChang
         for (AudioEffect fx : audioEffects) {
             if (fx instanceof RingModulation) {
                 return (RingModulation) fx;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private Tremolo getTremolo() {
+        for (AudioEffect fx : audioEffects) {
+            if (fx instanceof Tremolo) {
+                return (Tremolo) fx;
             }
         }
         return null;

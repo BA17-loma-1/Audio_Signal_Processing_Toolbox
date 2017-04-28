@@ -47,7 +47,7 @@ public abstract class AudioEffect implements Parcelable {
      *
      * @param sampleRate sample rate
      */
-    public void setSampleRate(int sampleRate) {
+    public void setSamplingFrequency(int sampleRate) {
     }
 
 }

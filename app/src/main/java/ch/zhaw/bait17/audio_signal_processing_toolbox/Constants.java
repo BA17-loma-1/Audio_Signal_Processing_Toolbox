@@ -42,7 +42,13 @@ public class Constants {
 
     // Ring modulator
     public static final int RING_MODULATOR_MIN_MOD_FREQ = 1;
-    public static final int RING_MODULATOR_MAX_MOD_FREQ = 5000;
-    public static final float RING_MODULATOR_DEFAULT_FREQUENCY = 0;
+    public static final int RING_MODULATOR_MAX_MOD_FREQ = 800;
+    public static final float RING_MODULATOR_DEFAULT_FREQUENCY = 5;
+
+    // Tremolo
+    public static final int TREMOLO_MAX_MOD_FREQUENCY = 800;
+    public static final float TREMOLO_DEFAULT_FREQUENCY = 5;
+    public static final float TREMOLO_MAX_AMPLITUDE = 1;
+    public static final float TREMOLO_DEFAULT_AMPLITUDE = 0.5f;
 
 }

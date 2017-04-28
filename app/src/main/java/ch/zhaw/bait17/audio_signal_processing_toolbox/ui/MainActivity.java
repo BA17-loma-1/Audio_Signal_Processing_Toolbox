@@ -28,11 +28,12 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.RingModulation;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Bitcrusher;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Overdrive;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FilterUtil;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.modulation.RingModulation;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.modulation.Tremolo;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.MediaListType;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
@@ -358,6 +359,7 @@ public class MainActivity extends AppCompatActivity implements
                 Constants.BITCRUSHER_DEFAULT_BITS));
         audioEffects.add(new Overdrive());
         audioEffects.add(new RingModulation(Constants.RING_MODULATOR_DEFAULT_FREQUENCY));
+        audioEffects.add(new Tremolo(Constants.TREMOLO_DEFAULT_FREQUENCY, Constants.TREMOLO_DEFAULT_AMPLITUDE));
     }
 
     private void initAudioPlayerFragment() {
