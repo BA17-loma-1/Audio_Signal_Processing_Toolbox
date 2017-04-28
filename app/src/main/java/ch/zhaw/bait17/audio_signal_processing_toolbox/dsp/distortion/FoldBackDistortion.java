@@ -9,7 +9,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
  * Simple Fold-back distortion filter. By hellfire@upb.de, MusicDSP forum (www.musicdsp.com)
  *
  */
-public class FoldBackDistortion implements AudioEffect {
+public class FoldBackDistortion extends AudioEffect {
 
     private static final String LABEL = "Fold-back distortion";
     private static final String DESCRIPTION = "";

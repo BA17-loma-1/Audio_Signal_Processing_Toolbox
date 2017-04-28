@@ -10,7 +10,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
  *
  */
 
-public class Saturation implements AudioEffect {
+public class Saturation extends AudioEffect {
 
     private static final String LABEL = "Saturation";
     private static final String DESCRIPTION = "";

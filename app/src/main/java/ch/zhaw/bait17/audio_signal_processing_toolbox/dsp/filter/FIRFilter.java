@@ -11,7 +11,7 @@ import android.support.annotation.NonNull;
  * @author georgrem, stockan1
  */
 
-public class FIRFilter implements Filter {
+public class FIRFilter extends Filter {
 
     private static final String TAG = FIRFilter.class.getSimpleName();
     private FilterSpec filterSpec;

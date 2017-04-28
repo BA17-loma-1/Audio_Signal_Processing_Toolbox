@@ -10,7 +10,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
  *
  */
 
-public class GloubiBoulga implements AudioEffect {
+public class GloubiBoulga extends AudioEffect {
 
     private static final double GLOUBI_BOULGA_CONST = 0.686306;
     private static final String LABEL = "Waveshaper";

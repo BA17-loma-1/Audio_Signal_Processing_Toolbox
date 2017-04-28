@@ -10,7 +10,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
  *
  */
 
-public class Waveshaper implements AudioEffect {
+public class Waveshaper extends AudioEffect {
 
     private static final String LABEL = "Waveshaper";
     private static final String DESCRIPTION = "";

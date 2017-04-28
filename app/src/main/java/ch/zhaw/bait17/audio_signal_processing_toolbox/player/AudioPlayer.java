@@ -269,6 +269,7 @@ public final class AudioPlayer {
      */
     public void setAudioEffects(List<AudioEffect> audioEffects) {
         this.audioEffects = audioEffects;
+        setSampleRateInAudioEffects();
     }
 
     /**
@@ -396,6 +397,14 @@ public final class AudioPlayer {
                     Toast.LENGTH_SHORT).show();
             playState = PlayState.STOP;
             listener.onCompletion();
+        }
+    }
+
+    private void setSampleRateInAudioEffects() {
+        if (audioEffects != null) {
+            for (AudioEffect audioEffect : audioEffects) {
+                audioEffect.setSampleRate(sampleRate);
+            }
         }
     }
 

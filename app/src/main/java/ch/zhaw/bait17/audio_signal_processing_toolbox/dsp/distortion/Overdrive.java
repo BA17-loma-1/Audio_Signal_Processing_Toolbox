@@ -10,7 +10,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
  *
  */
 
-public class Overdrive implements AudioEffect {
+public class Overdrive extends AudioEffect {
 
     private static final String LABEL = "Overdrive";
     private static final String DESCRIPTION = "A nonlinear system, spectral components (distortion products) appear that were not part of the original signal";

@@ -10,7 +10,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
  *
  */
 
-public class SoftClipper implements AudioEffect {
+public class SoftClipper extends AudioEffect {
 
     private static final String LABEL = "Soft clipper";
     private static final String DESCRIPTION = "";

@@ -9,20 +9,20 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
  * @author georgrem, stockan1
  */
 
-public interface Filter extends AudioEffect {
+public abstract class Filter extends AudioEffect {
 
     /**
      * Returns the order of the filter.
      *
      * @return filter order
      */
-    int getOrder();
+    abstract int getOrder();
 
     /**
      * Returns the filter specification.
      *
      * @return
      */
-    FilterSpec getFilterSpec();
+    abstract FilterSpec getFilterSpec();
 
 }

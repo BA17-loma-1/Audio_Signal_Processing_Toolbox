@@ -3,19 +3,19 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.dsp;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 
-import static ch.zhaw.bait17.audio_signal_processing_toolbox.Constants.DEFAULT_SAMPLE_RATE;
-
 /**
  * @author georgrem, stockan1
  */
 
-public class RingModulation implements AudioEffect {
+public class RingModulation extends AudioEffect {
 
     private static final String LABEL = "Ring modulation";
     private static final String DESCRIPTION = "Amplitude modulation without the original signal, duplicates and shifts the spectrum, modifies pitch and timbre";
 
     private double fMod;
     private long index = 0;
+    private int sampleRate;
+    private double frequency;
 
 
     public RingModulation(double frequency) {
@@ -23,7 +23,8 @@ public class RingModulation implements AudioEffect {
     }
 
     public void setFrequency(double frequency) {
-        this.fMod = 2. * Math.PI * frequency / (double) DEFAULT_SAMPLE_RATE;
+        this.frequency = frequency;
+        this.fMod = 2. * Math.PI * frequency / (double) sampleRate;
     }
 
     /**
@@ -52,6 +53,11 @@ public class RingModulation implements AudioEffect {
         return DESCRIPTION;
     }
 
+    @Override
+    public void setSampleRate(int sampleRate) {
+        this.sampleRate = sampleRate;
+        setFrequency(frequency);
+    }
 
     @Override
     public int describeContents() {
