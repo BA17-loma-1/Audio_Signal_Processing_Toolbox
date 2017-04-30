@@ -7,7 +7,8 @@ import android.support.annotation.Nullable;
  */
 
 public enum ViewName {
-    NO_VIEW(1, "No view"), WAVEFORM(2, "Waveform"), SPECTROGRAM(3, "Spectrogram"), SPECTRUM(4, "Spectrum");
+    NO_VIEW(1, "No view"), WAVEFORM(2, "Waveform"), SPECTROGRAM(3, "Spectrogram"),
+    SPECTRUM(4, "Spectrum");
 
     private String text;
     private int value;
@@ -29,12 +30,12 @@ public enum ViewName {
     /**
      * Looks up the text value of {@code ViewName}.
      *
-     * @param value     text value of {@code ViewName}
-     * @return          the {@code ViewName} that corresponds to {@code value}
+     * @param text      text value of {@code ViewName}
+     * @return          the {@code ViewName} that corresponds to {@code text}
      */
-    public static @Nullable ViewName fromString(String value) {
+    public static @Nullable ViewName fromString(String text) {
         for (ViewName viewName : ViewName.values()) {
-            if (viewName.toString().equalsIgnoreCase(value)) {
+            if (viewName.toString().equalsIgnoreCase(text)) {
                 return viewName;
             }
         }

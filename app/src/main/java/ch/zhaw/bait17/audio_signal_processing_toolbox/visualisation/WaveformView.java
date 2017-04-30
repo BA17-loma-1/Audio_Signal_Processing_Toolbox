@@ -34,6 +34,16 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
 
+/**
+ * <p>
+ * Based on work by Yavor Ivanov (<a href="https://github.com/yavor87">GitHub</a>)
+ * from New Venture Software. </br>
+ *
+ * Source: <a href="https://github.com/newventuresoftware/WaveformControl">GitHub repo</a>
+ * </p>
+ *
+ */
+
 public class WaveformView extends TimeView {
 
     private static final int MAX_MAP_ENTRIES = 3;
@@ -64,7 +74,6 @@ public class WaveformView extends TimeView {
 
     private void init(Context context, AttributeSet attrs, int defStyle) {
         setWillNotDraw(false);
-        // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.WaveformView, defStyle, 0);
 
@@ -148,7 +157,6 @@ public class WaveformView extends TimeView {
                     For efficiency, we don't draw all of the samples in the buffer, but only the
                     ones that align with pixel boundaries.
                  */
-                // Cannot use replace(), available only since Java 1.8
                 waveformPoints.remove(vizType);
                 if (sampleBlock.length > 0) {
                     for (int x = 0; x < width; x++) {
@@ -182,15 +190,16 @@ public class WaveformView extends TimeView {
                     case PRE_FX:
                         canvas.drawLines(points, preFilterStrokePaint);
                         preFilterStrokePaint.setStyle(Paint.Style.FILL_AND_STROKE);
-                        canvas.drawText("PRE FILTER", leftOffset, preFilterStrokePaint.getTextSize(),
-                                preFilterStrokePaint);
+                        canvas.drawText(VisualisationType.PRE_FX.toString(), leftOffset,
+                                preFilterStrokePaint.getTextSize(), preFilterStrokePaint);
                         preFilterStrokePaint.setStyle(Paint.Style.STROKE);
                         break;
                     case POST_FX:
                         canvas.drawLines(points, postFilterStrokePaint);
                         postFilterStrokePaint.setStyle(Paint.Style.FILL_AND_STROKE);
-                        canvas.drawText("POST FILTER", leftOffset, preFilterStrokePaint.getTextSize()
-                                + postFilterStrokePaint.getTextSize(), postFilterStrokePaint);
+                        canvas.drawText(VisualisationType.POST_FX.toString(), leftOffset,
+                                preFilterStrokePaint.getTextSize() + postFilterStrokePaint.getTextSize(),
+                                postFilterStrokePaint);
                         postFilterStrokePaint.setStyle(Paint.Style.STROKE);
                         break;
                     default:
