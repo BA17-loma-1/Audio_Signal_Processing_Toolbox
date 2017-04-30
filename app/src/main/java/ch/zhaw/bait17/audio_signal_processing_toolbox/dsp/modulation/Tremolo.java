@@ -7,7 +7,12 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 
 /**
- * @author georgrem, stockan1
+ * <p>
+ * Based on Professor A D Marshall's (University of Cardiff, UK) MATLAB implementation of a tremolo effect.
+ * </p>
+ * <p>
+ * Source: <a href="http://users.cs.cf.ac.uk/Dave.Marshall/CM0268/PDF/10_CM0268_Audio_FX.pdf">link</a>
+ * </p>
  */
 
 public class Tremolo extends AudioEffect {
@@ -28,8 +33,6 @@ public class Tremolo extends AudioEffect {
     }
 
     /**
-     * The (ring) modulation is a simple multiplication of the waveform with the carrier frequency.
-     *
      * @param input  an array of {@code float} containing the input samples
      *               {@code float} values must be normalised in the range [-1,1]
      * @param output an array of {@code float} of same length as the input samples array
@@ -53,10 +56,12 @@ public class Tremolo extends AudioEffect {
         return DESCRIPTION;
     }
 
-
     public void setFrequencyModulation(double carrierFrequency) {
         this.carrierFrequency = carrierFrequency;
-        frequencyModulation = 2 * Math.PI * (carrierFrequency / samplingFrequency);
+        frequencyModulation = 2 * Math.PI;
+        if (samplingFrequency > 0) {
+            frequencyModulation *= (carrierFrequency / samplingFrequency);
+        }
     }
 
     public void setAmplitude(float amplitude) {

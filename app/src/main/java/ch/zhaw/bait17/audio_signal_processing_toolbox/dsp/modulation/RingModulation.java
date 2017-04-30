@@ -20,7 +20,6 @@ public class RingModulation extends AudioEffect {
     private double frequencyModulation;
     private long index = 0;
 
-
     public RingModulation(double carrierFrequency) {
         setFrequencyModulation(carrierFrequency);
     }
@@ -53,7 +52,10 @@ public class RingModulation extends AudioEffect {
 
     public void setFrequencyModulation(double carrierFrequency) {
         this.carrierFrequency = carrierFrequency;
-        frequencyModulation = 2 * Math.PI * (carrierFrequency / samplingFrequency);
+        frequencyModulation = 2 * Math.PI;
+        if (samplingFrequency > 0) {
+            frequencyModulation *= (carrierFrequency / samplingFrequency);
+        }
     }
 
     @Override

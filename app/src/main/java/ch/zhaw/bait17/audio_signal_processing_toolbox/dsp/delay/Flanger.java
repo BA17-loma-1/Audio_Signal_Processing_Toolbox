@@ -7,7 +7,12 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 
 /**
- * @author georgrem, stockan1
+ * <p>
+ * Based on Professor A D Marshall's (University of Cardiff, UK) MATLAB implementation of a flanger.
+ * </p>
+ * <p>
+ * Source: <a href="http://users.cs.cf.ac.uk/Dave.Marshall/CM0268/PDF/10_CM0268_Audio_FX.pdf">link</a>
+ * </p>
  */
 
 public class Flanger extends AudioEffect {
@@ -59,7 +64,10 @@ public class Flanger extends AudioEffect {
 
     public void setFrequencyModulation(double carrierFrequency) {
         this.carrierFrequency = carrierFrequency;
-        frequencyModulation = 2 * Math.PI * (carrierFrequency / samplingFrequency);
+        frequencyModulation = 2 * Math.PI;
+        if (samplingFrequency > 0) {
+            frequencyModulation *= (carrierFrequency / samplingFrequency);
+        }
     }
 
     public void setMaxDelayInSamples(double maxDelayInMs) {
