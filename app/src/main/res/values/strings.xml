@@ -60,12 +60,16 @@
     <string name="band_stop_filter">Band stop filter</string>
     <string name="ring_modulation">Ring modulation</string>
     <string name="tremolo">Tremolo</string>
+    <string name="flanger">Flanger</string>
 
     <!-- Settings -->
     <string name="change_fx_params">Change audio effect parameters</string>
     <string name="ringmod_mod_freq">mod. frequency:</string>
     <string name="tremolo_mod_freq">mod. frequency:</string>
+    <string name="flanger_mod_freq">mod. frequency:</string>
     <string name="tremolo_mod_ampl">mod. amplitude:</string>
+    <string name="flanger_mod_ampl">mod. amplitude:</string>
+    <string name="flanger_mod_delay">mod. delay:</string>
     <string name="bitcrusher">Bitcrusher</string>
     <string name="bitcrusher_norm_freq">normalised frequency:</string>
     <string name="bitcrusher_bits">bits:</string>

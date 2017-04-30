@@ -216,6 +216,179 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/flanger_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/group_layout_margin"
+            android:layout_marginTop="@dimen/group_layout_margin"
+            android:orientation="vertical" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/flanger"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/primary_text" >
+            </TextView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/flanger_frequency_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:text="@string/flanger_mod_freq"
+                    android:textAlignment="gravity"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/secondary_text" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/flanger_freq_current_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text=""
+                    android:textAlignment="gravity"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/secondary_text">
+                </TextView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text=""
+                    android:textAlignment="gravity"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/secondary_text">
+                </TextView>
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/seekbar_flanger_frequency"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/seekbar_margin"
+                android:layout_marginTop="@dimen/seekbar_margin"
+                android:progressDrawable="@drawable/seekbar_progressbar"></SeekBar>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/flanger_amplitude_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:text="@string/flanger_mod_ampl"
+                    android:textAlignment="gravity"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/secondary_text"></TextView>
+
+                <TextView
+                    android:id="@+id/flanger_ampl_current_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text=""
+                    android:textAlignment="gravity"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/secondary_text"></TextView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text=""
+                    android:textAlignment="gravity"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/secondary_text">
+                </TextView>
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/seekbar_flanger_amplitude"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/seekbar_margin"
+                android:layout_marginTop="@dimen/seekbar_margin"
+                android:progressDrawable="@drawable/seekbar_progressbar"></SeekBar>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/flanger_delay_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:text="@string/flanger_mod_delay"
+                    android:textAlignment="gravity"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/secondary_text"></TextView>
+
+                <TextView
+                    android:id="@+id/flanger_delay_current_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text=""
+                    android:textAlignment="gravity"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/secondary_text"></TextView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text=""
+                    android:textAlignment="gravity"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/secondary_text">
+                </TextView>
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/seekbar_flanger_delay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/seekbar_margin"
+                android:layout_marginTop="@dimen/seekbar_margin"
+                android:progressDrawable="@drawable/seekbar_progressbar"></SeekBar>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/bitcrusher_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
