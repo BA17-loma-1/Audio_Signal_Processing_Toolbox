@@ -2,15 +2,17 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
@@ -23,10 +25,10 @@ public class LineSpectrumView extends FrequencyView {
     private static final String TAG = LineSpectrumView.class.getSimpleName();
     private static final int dB_RANGE = 140;
     private static final int db_PEAK = 50;
+    private final Map<VisualisationType, float[]> MAGNITUDES = new HashMap<>();
 
     private Paint strokePaint;
     private int width, height;
-    private float[] magnitudes;
     private float[] spectrumPoints;
 
     public LineSpectrumView(Context context) {
@@ -54,14 +56,7 @@ public class LineSpectrumView extends FrequencyView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (magnitudes != null) {
-            drawSpectrumLineShape(canvas);
-            //drawSpectrumCurveShape(amplitudes, 50);
-            //canvas.drawLines(spectrumPoints, strokePaint);
-            //drawSpectrumCurveShape(logAmplitudes, 150);
-            //canvas.drawLines(spectrumPoints, strokePaint);
-            //drawSpectrumBarShape(amplitudes, 200, canvas);
-        }
+        //drawSpectrumLineShape(canvas);
     }
 
     private void drawSpectrumCurveShape(float[] amplitudes, int ZERO_DEZ_REF) {
@@ -88,6 +83,7 @@ public class LineSpectrumView extends FrequencyView {
         }
     }
 
+    /*
     private void drawSpectrumLineShape(Canvas canvas) {
         float[] mag = new float[magnitudes.length];
         System.arraycopy(magnitudes, 0, mag, 0, magnitudes.length);
@@ -107,13 +103,6 @@ public class LineSpectrumView extends FrequencyView {
 
         for (int x = 0; x < width; x++) {
             int index = (int) (((x * 1.0f) / width) * mag.length / 2);
-            /*
-            float j = getValueFromRelativePosition(
-                    (float) (width - x) / width, 1, getSampleRate() / 2);
-            j /= getSampleRate() / 2;
-            Log.d(TAG, "index: " + j);
-            float mag = magnitudes[(int) (j * magnitudes.length / 2)];
-            */
 
             //canvas.drawLine(x, downy, strokePaint);
 
@@ -125,6 +114,7 @@ public class LineSpectrumView extends FrequencyView {
 
         canvas.drawBitmap(bitmap, 0, 0, null);
     }
+    */
 
     /**
      * Returns the value from its relative position within given boundaries.
@@ -152,7 +142,6 @@ public class LineSpectrumView extends FrequencyView {
         }
     }
 
-
     /**
      * Sets the resolution of the FFT. Sometimes called the FFT windows size.
      * The input value is usually a power of 2.
@@ -161,19 +150,33 @@ public class LineSpectrumView extends FrequencyView {
      *
      * @param fftResolution     power of 2 in the range [2^11, 2^15]
      */
+    @Override
     public void setFFTResolution(int fftResolution) {
-        magnitudes = new float[fftResolution];
+        //magnitudes = new float[fftResolution];
     }
 
     /**
      * Sets the spectral density to be displayed in the {@code FrequencyView}.
      * hMag represents the power spectrum of a time series.
+     * Use this method if you want to display the power spectrum before and after the effect chain
+     * in the same view.
      *
-     * @param hMag array of {@code float} representing magnitudes (power spectrum of a time series)
+     * @param preFilterMagnitude    array of {@code float} representing magnitudes of unfiltered data
+     *                              (power spectrum of a time series)
+     * @param postFilterMagnitude   array of {@code float} representing magnitudes of filtered data
+     *                              (power spectrum of a time series)
      */
     @Override
-    public void setSpectralDensity(@NonNull float[] hMag) {
-        System.arraycopy(hMag, 0, magnitudes, 0, hMag.length);
+    public void setSpectralDensity(@NonNull float[] preFilterMagnitude,
+                                   @NonNull float[] postFilterMagnitude) {
+        if (preFilterMagnitude.length > 0) {
+            MAGNITUDES.put(VisualisationType.PRE_FX,
+                    Arrays.copyOf(preFilterMagnitude, preFilterMagnitude.length));
+        }
+        if (postFilterMagnitude.length > 0) {
+            MAGNITUDES.put(VisualisationType.POST_FX,
+                    Arrays.copyOf(postFilterMagnitude, postFilterMagnitude.length));
+        }
         postInvalidate();
     }
 
@@ -201,5 +204,4 @@ public class LineSpectrumView extends FrequencyView {
         strokePaint.setStrokeWidth(strokeThickness);
         strokePaint.setAntiAlias(false);
     }
-
 }

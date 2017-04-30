@@ -28,8 +28,10 @@ public abstract class TimeView extends AudioView {
     /**
      * Sets the data to be displayed in the {@code TimeView}.
      *
-     * @param samples   array of {@code short}
+     * @param preFilterSamples      unfiltered samples
+     * @param postFilterSamples     filtered samples
      */
-    public abstract void setSamples(@NonNull short[] samples);
+    public abstract void setSamples(@NonNull short[] preFilterSamples,
+                                    @NonNull short[] postFilterSamples);
 
 }

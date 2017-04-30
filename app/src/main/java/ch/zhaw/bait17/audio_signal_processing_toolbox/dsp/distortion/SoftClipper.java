@@ -13,7 +13,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 public class SoftClipper extends AudioEffect {
 
     private static final String LABEL = "Soft clipper";
-    private static final String DESCRIPTION = "";
+    private static final String DESCRIPTION = "Infinite limiter, rounds the signal shape before the absolute clipping threshold";
     private float clippingFactor;
 
     /**

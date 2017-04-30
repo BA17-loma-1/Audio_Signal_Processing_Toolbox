@@ -10,6 +10,7 @@ import java.util.Arrays;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.ViewName;
 
 /**
  * @author georgrem, stockan1
@@ -17,10 +18,10 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 
 public class ViewAdapter extends BaseAdapter {
 
-    private String[] viewNames;
+    private ViewName[] viewNames;
     private LayoutInflater inflater;
 
-    public ViewAdapter(String[] viewNames) {
+    public ViewAdapter(ViewName[] viewNames) {
         this.viewNames = Arrays.copyOf(viewNames, viewNames.length);
         inflater = LayoutInflater.from(ApplicationContext.getAppContext());
     }
@@ -44,7 +45,12 @@ public class ViewAdapter extends BaseAdapter {
     public View getView(int position, View view, ViewGroup parent) {
         view = inflater.inflate(R.layout.view_spinner_items, null);
         TextView names = (TextView) view.findViewById(R.id.textView_name);
-        names.setText(viewNames[position]);
+        if (position < viewNames.length && position >= 0) {
+            ViewName viewName = viewNames[position];
+            if (viewName != null) {
+                names.setText(viewName.toString());
+            }
+        }
         return view;
     }
 }

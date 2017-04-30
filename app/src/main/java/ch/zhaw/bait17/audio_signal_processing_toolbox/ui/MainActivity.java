@@ -30,7 +30,8 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.delay.Flanger;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Bitcrusher;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Overdrive;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.SoftClipper;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.TubeDistortion;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FilterUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.modulation.RingModulation;
@@ -358,7 +359,8 @@ public class MainActivity extends AppCompatActivity implements
         audioEffects.addAll(getAllFilters());
         audioEffects.add(new Bitcrusher(Constants.BITCRUSHER_DEFAULT_NORM_FREQUENCY,
                 Constants.BITCRUSHER_DEFAULT_BITS));
-        audioEffects.add(new Overdrive());
+        audioEffects.add(new SoftClipper(Constants.SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR));
+        audioEffects.add(new TubeDistortion());
         audioEffects.add(new RingModulation(Constants.RING_MODULATOR_DEFAULT_FREQUENCY));
         audioEffects.add(new Tremolo(Constants.TREMOLO_DEFAULT_FREQUENCY,
                 Constants.TREMOLO_DEFAULT_AMPLITUDE));

@@ -3,10 +3,6 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FFFFFF</color>
-    <color name="default_waveform">#000000</color>
-    <color name="default_waveformFill">#80FFC0</color>
-    <color name="default_playback_indicator">#ffff66</color>
-    <color name="default_spectrum_freq_label">#000000</color>
     <color name="background_content">#ffffff</color>
     <color name="background_fragment">#000000</color>
 
@@ -31,6 +27,10 @@
 
     <!-- AudioView -->
     <color name="line_spectrum">#000000</color>
+    <color name="default_waveform">#333333</color>
+    <color name="pre_filter_waveform">@android:color/black</color>
+    <color name="post_filter_waveform">@android:color/holo_red_light</color>
+    <color name="default_spectrum_freq_label">#000000</color>
 
     <!-- Audio FX switch -->
     <color name="fx_switch_disable_foreground">#42221f</color>

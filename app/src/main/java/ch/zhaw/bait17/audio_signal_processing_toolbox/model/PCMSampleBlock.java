@@ -1,5 +1,7 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.model;
 
+import android.support.annotation.NonNull;
+
 import java.util.Arrays;
 
 /**
@@ -15,40 +17,48 @@ import java.util.Arrays;
 
 public final class PCMSampleBlock {
 
-    private short[] samples;
+    private short[] preFilterSamples;
+    private short[] postFilterSamples;
     private final int SAMPLE_RATE;
     private final int CHANNELS;
-    private final boolean PRE_FILTER_SAMPLES;
 
     /**
      * Creates a new {@code PCMSampleBlock}.
      *
-     * @param samples
-     * @param sampleRate
-     * @param channels
-     * @param preFilterSamples
+     * @param preFilterSamples      unfiltered samples
+     * @param postFilterSamples     filtered samples
+     * @param sampleRate            sample rate
+     * @param channels              number of channels
      */
-    public PCMSampleBlock(short[] samples, final int sampleRate, final int channels,
-                          final boolean preFilterSamples) {
-        this.samples = Arrays.copyOf(samples, samples.length);
+    public PCMSampleBlock(@NonNull short[] preFilterSamples, @NonNull short[] postFilterSamples,
+                          final int sampleRate, final int channels) {
+        this.preFilterSamples = Arrays.copyOf(preFilterSamples, preFilterSamples.length);
+        this.postFilterSamples = Arrays.copyOf(postFilterSamples, postFilterSamples.length);
         this.SAMPLE_RATE = sampleRate;
         this.CHANNELS = channels;
-        this.PRE_FILTER_SAMPLES = preFilterSamples;
     }
 
     /**
-     * Returns the samples.
+     * Returns the unfiltered samples.
      *
-     * @return  an array of {@code short}
+     * @return      an array of {@code short}
      */
-    public short[] getSamples() {
-        return Arrays.copyOf(samples, samples.length);
+    public short[] getPreFilterSamples() {
+        return Arrays.copyOf(preFilterSamples, preFilterSamples.length);
     }
+
+    /**
+     * Retuns the filtered samples.
+     *
+     * @return      an array of {@code short}
+     */
+    public short[] getPostFilterSamples() {
+        return Arrays.copyOf(postFilterSamples, postFilterSamples.length); }
 
     /**
      * Returns the sample rate.
      *
-     * @return  sample rate in Hertz
+     * @return      sample rate in Hertz
      */
     public int getSampleRate() {
         return SAMPLE_RATE;
@@ -57,28 +67,10 @@ public final class PCMSampleBlock {
     /**
      * Returns the channels.
      *
-     * @return  the number of channels
+     * @return      the number of channels
      */
     public int getChannels() {
         return CHANNELS;
-    }
-
-    /**
-     * Returns true if the samples are pre-filter.
-     *
-     * @return
-     */
-    public boolean isPreFilterSamples() {
-        return PRE_FILTER_SAMPLES;
-    }
-
-    /**
-     * Returns the size of the sample block.
-     *
-     * @return  size of the sample block
-     */
-    public int getSize() {
-        return samples.length;
     }
 
 }

@@ -3,6 +3,8 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,105 +24,135 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ui.custom.ViewAdapter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.LineSpectrumView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.ViewName;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.VisualisationType;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView;
 
 /**
  * @author georgrem, stockan1
  */
 
-public class ViewFragment extends Fragment implements
-        AdapterView.OnItemSelectedListener, RadioGroup.OnCheckedChangeListener {
+public class ViewFragment extends Fragment
+        implements AdapterView.OnItemSelectedListener, RadioGroup.OnCheckedChangeListener {
 
-    private static final String TAG = ViewFragment.class.getSimpleName();
+    private static final int NUMBER_OF_AUDIO_VIEWS = 2;
 
-    private static Map<String, AudioView> views = new HashMap<>();
-
-    private RadioGroup radioGroupTop;
-    private RadioGroup radioGroupBottom;
-    private Spinner spinnerTop;
-    private Spinner spinnerBottom;
+    private static Map<ViewName, AudioView> views = new HashMap<>();
+    private RadioGroup radioGroup1;
+    private RadioGroup radioGroup2;
+    private RadioButton radioButtonView1PreAudioEffect;
+    private RadioButton radioButtonView2PreAudioEffect;
+    private RadioButton radioButtonView1PreAndPostAudioEffect;
+    private RadioButton radioButtonView2PreAndPostAudioEffect;
+    private Spinner spinner1;
+    private Spinner spinner2;
     private List<AudioView> activeViews;
-    private boolean isPreFilterViewTop;
-    private boolean isPreFilterViewBottom;
+    private VisualisationType currentVisualisationTypeView1 = VisualisationType.PRE_FX;
+    private VisualisationType currentVisualisationTypeView2 = VisualisationType.PRE_FX;
 
     static {
-        views.put("No view", null);
-        views.put("Waveform", new WaveformView(ApplicationContext.getAppContext()));
-        views.put("Spectrogram", new SpectrogramView(ApplicationContext.getAppContext()));
-        //views.put("Line Spectrum", new LineSpectrumView(ApplicationContext.getAppContext()));
-        //views.put("Spectrum", new SpectrumView(ApplicationContext.getAppContext()));
+        views.put(ViewName.NO_VIEW, null);
+        views.put(ViewName.WAVEFORM, new WaveformView(ApplicationContext.getAppContext()));
+        views.put(ViewName.SPECTROGRAM, new SpectrogramView(ApplicationContext.getAppContext()));
+        views.put(ViewName.SPECTRUM, new LineSpectrumView(ApplicationContext.getAppContext()));
     }
 
-    // The onCreateView method is called when Fragment should create its View object hierarchy,
-    // either dynamically or via XML layout inflation.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.view_config_view, container, false);
+        View rootView = inflater.inflate(R.layout.view_config_view, container, false);
 
-        Set<String> keys = views.keySet();
-        String[] viewNames = keys.toArray(new String[keys.size()]);
+        Set<ViewName> keys = views.keySet();
+        ViewName[] viewNames = keys.toArray(new ViewName[views.size()]);
         Arrays.sort(viewNames);
         ViewAdapter viewAdapter = new ViewAdapter(viewNames);
+        activeViews = new ArrayList<>(NUMBER_OF_AUDIO_VIEWS);
 
-        spinnerTop = (Spinner) view.findViewById(R.id.spinner_first_view);
-        spinnerTop.setAdapter(viewAdapter);
-        spinnerTop.setSelection(2);
-        spinnerTop.setOnItemSelectedListener(this);
+        spinner1 = (Spinner) rootView.findViewById(R.id.spinner_view1);
+        spinner1.setAdapter(viewAdapter);
+        spinner1.setSelection(2);
+        spinner1.setOnItemSelectedListener(this);
 
-        spinnerBottom = (Spinner) view.findViewById(R.id.spinner_second_view);
-        spinnerBottom.setAdapter(viewAdapter);
-        spinnerBottom.setSelection(1);
-        spinnerBottom.setOnItemSelectedListener(this);
+        spinner2 = (Spinner) rootView.findViewById(R.id.spinner_view2);
+        spinner2.setAdapter(viewAdapter);
+        spinner2.setSelection(0);
+        spinner2.setOnItemSelectedListener(this);
 
-        radioGroupTop = (RadioGroup) view.findViewById(R.id.radioGroup_first_view);
-        radioGroupTop.setOnCheckedChangeListener(this);
+        radioGroup1 = (RadioGroup) rootView.findViewById(R.id.radioGroup_view1);
+        radioGroup1.setOnCheckedChangeListener(this);
+        radioGroup2 = (RadioGroup) rootView.findViewById(R.id.radioGroup_view2);
+        radioGroup2.setOnCheckedChangeListener(this);
 
-        radioGroupBottom = (RadioGroup) view.findViewById(R.id.radioGroup_second_view);
-        radioGroupBottom.setOnCheckedChangeListener(this);
+        radioButtonView1PreAudioEffect = (RadioButton) rootView.findViewById(
+                R.id.radioButton_pre_filter_view1);
+        final RadioButton radioButtonView1PostAudioEffect = (RadioButton) rootView.findViewById(
+                R.id.radioButton_post_filter_view1);
+        radioButtonView1PreAndPostAudioEffect = (RadioButton) rootView.findViewById(
+                R.id.radioButton_pre_and_post_view1);
 
-        final RadioButton radioButtonViewOnePreAudioEffect = (RadioButton) view.findViewById(
-                R.id.radioButton_preFilter_first_view);
-        final RadioButton radioButtonViewOnePostAudioEffect = (RadioButton) view.findViewById(
-                R.id.radioButton_postFilter_first_view);
-        final RadioButton radioButtonViewTwoPreAudioEffect = (RadioButton) view.findViewById(
-                R.id.radioButton_preFilter_second_view);
-        final RadioButton radioButtonViewTwoPostAudioEffect = (RadioButton) view.findViewById(
-                R.id.radioButton_postFilter_second_view);
-
-        radioButtonViewOnePreAudioEffect.setOnClickListener(new View.OnClickListener() {
+        radioButtonView2PreAudioEffect = (RadioButton) rootView.findViewById(
+                R.id.radioButton_pre_filter_view2);
+        final RadioButton radioButtonView2PostAudioEffect = (RadioButton) rootView.findViewById(
+                R.id.radioButton_post_filter_view2);
+        radioButtonView2PreAndPostAudioEffect = (RadioButton) rootView.findViewById(
+                R.id.radioButton_pre_and_post_view2);
+        /*
+        radioButtonView1PreAudioEffect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                radioButtonViewOnePreAudioEffect.setChecked(true);
-                radioButtonViewOnePostAudioEffect.setChecked(false);
+                radioButtonView1PreAudioEffect.setChecked(true);
+                radioButtonView1PostAudioEffect.setChecked(false);
+                radioButtonView1PreAndPostAudioEffect.setChecked(false);
             }
         });
 
-        radioButtonViewOnePostAudioEffect.setOnClickListener(new View.OnClickListener() {
+        radioButtonView1PostAudioEffect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                radioButtonViewOnePostAudioEffect.setChecked(true);
-                radioButtonViewOnePreAudioEffect.setChecked(false);
+                radioButtonView1PreAudioEffect.setChecked(false);
+                radioButtonView1PostAudioEffect.setChecked(true);
+                radioButtonView1PreAndPostAudioEffect.setChecked(false);
             }
         });
 
-        radioButtonViewTwoPreAudioEffect.setOnClickListener(new View.OnClickListener() {
+        radioButtonView1PreAndPostAudioEffect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                radioButtonViewTwoPreAudioEffect.setChecked(true);
-                radioButtonViewTwoPostAudioEffect.setChecked(false);
+                radioButtonView1PreAudioEffect.setChecked(false);
+                radioButtonView1PostAudioEffect.setChecked(false);
+                radioButtonView1PreAndPostAudioEffect.setChecked(true);
             }
         });
 
-        radioButtonViewTwoPostAudioEffect.setOnClickListener(new View.OnClickListener() {
+        radioButtonView2PreAudioEffect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                radioButtonViewTwoPostAudioEffect.setChecked(true);
-                radioButtonViewTwoPreAudioEffect.setChecked(false);
+                radioButtonView2PreAudioEffect.setChecked(true);
+                radioButtonView2PostAudioEffect.setChecked(false);
+                radioButtonView2PreAndPostAudioEffect.setChecked(false);
             }
         });
 
-        return view;
+        radioButtonView2PostAudioEffect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                radioButtonView2PreAudioEffect.setChecked(false);
+                radioButtonView2PostAudioEffect.setChecked(true);
+                radioButtonView2PreAndPostAudioEffect.setChecked(false);
+            }
+        });
+
+        radioButtonView2PreAndPostAudioEffect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                radioButtonView2PreAudioEffect.setChecked(false);
+                radioButtonView2PostAudioEffect.setChecked(false);
+                radioButtonView2PreAndPostAudioEffect.setChecked(true);
+            }
+        });
+        */
+        return rootView;
     }
 
     @Override
@@ -128,12 +160,18 @@ public class ViewFragment extends Fragment implements
         super.onCreate(savedInstanceState);
     }
 
-    public List<AudioView> getActiveViews() {
-        return activeViews;
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 
     /**
-     * to dynamically add the same view to a wrapper layout we have to use the inflate of this views
+     * To dynamically add the same view to a wrapper layout we have to use the inflate of this views
      * because the inflate makes the view unique in the ViewGroup then the view object self is not unique
      * From <a href="http://androblip.huiges.nl/2010/05/14/add-a-view-to-a-wrapper-multiple-times-with-inflate/">androblip.huiges.nl</a>
      *
@@ -144,23 +182,29 @@ public class ViewFragment extends Fragment implements
      */
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        activeViews = new ArrayList<>();
+        activeViews.clear();
 
-        AudioView audioView = views.get(spinnerTop.getSelectedItem());
-        if (audioView != null) {
-            audioView = audioView.getInflatedView();
-            isPreFilterViewTop = radioGroupTop.getCheckedRadioButtonId() == R.id.radioButton_preFilter_first_view;
-            audioView.setPreFilterView(isPreFilterViewTop);
-            activeViews.add(audioView);
+        Object selected = spinner1.getSelectedItem();
+        if (selected instanceof ViewName) {
+            AudioView audioView = views.get(selected);
+            if (audioView != null) {
+                audioView = audioView.getInflatedView();
+                audioView.setVisualisationType(currentVisualisationTypeView1);
+                activeViews.add(audioView);
+            }
         }
 
-        audioView = views.get(spinnerBottom.getSelectedItem());
-        if (audioView != null) {
-            audioView = audioView.getInflatedView();
-            isPreFilterViewBottom = radioGroupBottom.getCheckedRadioButtonId() == R.id.radioButton_preFilter_second_view;
-            audioView.setPreFilterView(isPreFilterViewBottom);
-            activeViews.add(audioView);
+        selected = spinner2.getSelectedItem();
+        if (selected instanceof ViewName) {
+            AudioView audioView = views.get(selected);
+            if (audioView != null) {
+                audioView = audioView.getInflatedView();
+                audioView.setVisualisationType(currentVisualisationTypeView2);
+                activeViews.add(audioView);
+            }
         }
+
+        handleRadioButtonsVisibility();
     }
 
     @Override
@@ -168,24 +212,78 @@ public class ViewFragment extends Fragment implements
 
     }
 
-    @Override
-    public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
-        switch (checkedId) {
-            case R.id.radioButton_preFilter_first_view:
-                isPreFilterViewTop = true;
-                break;
-            case R.id.radioButton_postFilter_first_view:
-                isPreFilterViewTop = false;
-                break;
-            case R.id.radioButton_preFilter_second_view:
-                isPreFilterViewBottom = true;
-                break;
-            case R.id.radioButton_postFilter_second_view:
-                isPreFilterViewBottom = false;
-                break;
-            default:
-                break;
-        }
+    public List<AudioView> getActiveViews() {
+        return activeViews;
     }
 
+    private void hideRadioButton(@NonNull RadioButton radioButton) {
+        radioButton.setVisibility(View.GONE);
+    }
+
+    private void showRadioButton(@NonNull RadioButton radioButton) {
+        radioButton.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+        VisualisationType visualisationType;
+        switch (checkedId) {
+            case R.id.radioButton_pre_filter_view1:
+                visualisationType = VisualisationType.PRE_FX;
+                break;
+            case R.id.radioButton_post_filter_view1:
+                visualisationType = VisualisationType.POST_FX;
+                break;
+            case R.id.radioButton_pre_and_post_view1:
+                visualisationType = VisualisationType.BOTH;
+                break;
+            case R.id.radioButton_pre_filter_view2:
+                visualisationType = VisualisationType.PRE_FX;
+                break;
+            case R.id.radioButton_post_filter_view2:
+                visualisationType = VisualisationType.POST_FX;
+                break;
+            case R.id.radioButton_pre_and_post_view2:
+                visualisationType = VisualisationType.BOTH;
+                break;
+            default:
+                visualisationType = null;
+        }
+
+        if (visualisationType != null) {
+            if (group == radioGroup1) {
+                currentVisualisationTypeView1 = visualisationType;
+                if (activeViews.size() > 0) {
+                    activeViews.get(0).setVisualisationType(visualisationType);
+                }
+            } else if (group == radioGroup2) {
+                currentVisualisationTypeView2 = visualisationType;
+                if (activeViews.size() > 1) {
+                    activeViews.get(1).setVisualisationType(visualisationType);
+                }
+            }
+        }
+
+        handleRadioButtonsVisibility();
+    }
+
+    private void handleRadioButtonsVisibility() {
+        if (activeViews.size() > 0 && activeViews.get(0) instanceof SpectrogramView) {
+            hideRadioButton(radioButtonView1PreAndPostAudioEffect);
+            if (radioGroup1.getCheckedRadioButtonId() == R.id.radioButton_pre_and_post_view1) {
+                radioButtonView1PreAudioEffect.callOnClick();
+            }
+        } else {
+            showRadioButton(radioButtonView1PreAndPostAudioEffect);
+        }
+
+        if (activeViews.size() > 1 && activeViews.get(1) instanceof SpectrogramView) {
+            hideRadioButton(radioButtonView2PreAndPostAudioEffect);
+            if (radioGroup1.getCheckedRadioButtonId() == R.id.radioButton_pre_and_post_view2) {
+                radioButtonView2PreAudioEffect.callOnClick();
+            }
+        } else {
+            showRadioButton(radioButtonView2PreAndPostAudioEffect);
+        }
+    }
 }

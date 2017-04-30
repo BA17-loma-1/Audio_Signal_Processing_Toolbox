@@ -36,10 +36,14 @@ public abstract class FrequencyView extends AudioView {
     public abstract void setFFTResolution(int fftResolution);
 
     /**
-     * Sets the spectral density to be displayed in the {@code FrequencyView}.
+     * Sets the power spectral density to be displayed in the {@code FrequencyView}.
+     * {@code preFilterMagnitude} represents the power spectral density of the unfiltered samples.
+     * {@code postFilterMagnitude} represents the power spectral density of the filtered samples.
      *
-     * @param hMag    an array of {@code float}
+     * @param preFilterMagnitude        unfiltered magnitude data
+     * @param postFilterMagnitude       filtered magnitude data
      */
-    public abstract void setSpectralDensity(@NonNull float[] hMag);
+    public abstract void setSpectralDensity(@NonNull float[] preFilterMagnitude,
+                                            @NonNull float[] postFilterMagnitude);
 
 }

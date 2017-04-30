@@ -160,7 +160,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/seekbar_margin"
                 android:layout_marginTop="@dimen/seekbar_margin"
-                android:progressDrawable="@drawable/seekbar_progressbar"></SeekBar>
+                android:progressDrawable="@drawable/seekbar_progressbar" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -177,7 +177,7 @@
                     android:text="@string/tremolo_mod_ampl"
                     android:textAlignment="gravity"
                     android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@color/secondary_text"></TextView>
+                    android:textColor="@color/secondary_text" />
 
                 <TextView
                     android:id="@+id/tremolo_ampl_current_value"
@@ -189,7 +189,7 @@
                     android:text=""
                     android:textAlignment="gravity"
                     android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@color/secondary_text"></TextView>
+                    android:textColor="@color/secondary_text" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -211,7 +211,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/seekbar_margin"
                 android:layout_marginTop="@dimen/seekbar_margin"
-                android:progressDrawable="@drawable/seekbar_progressbar"></SeekBar>
+                android:progressDrawable="@drawable/seekbar_progressbar" />
 
         </LinearLayout>
 
@@ -219,6 +219,7 @@
             android:id="@+id/bitcrusher_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/group_layout_margin"
             android:layout_marginBottom="@dimen/group_layout_margin"
             android:orientation="vertical" >
 
@@ -336,7 +337,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/waveshaper_layout"
+            android:id="@+id/soft_clipper_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/group_layout_margin"
@@ -346,10 +347,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/waveshaper"
+                android:text="@string/soft_clipper"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/primary_text">
-            </TextView>
+                android:textColor="@color/primary_text" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -357,20 +357,20 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/waveshaper_threshold"
+                    android:id="@+id/soft_clipper_clipping_factor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
                     android:layout_weight="1"
                     android:gravity="start"
-                    android:text="@string/waveshaper_threshold"
+                    android:text="@string/soft_clipper_clipping_factor"
                     android:textAlignment="gravity"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@color/secondary_text">
                 </TextView>
 
                 <TextView
-                    android:id="@+id/waveshaper_threshold_current_value"
+                    android:id="@+id/soft_clipper_clipping_factor_current_value"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -398,7 +398,129 @@
             </LinearLayout>
 
             <SeekBar
-                android:id="@+id/seekbar_waveshaper_threshold"
+                android:id="@+id/seekbar_soft_clipper_clipping_factor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/seekbar_margin"
+                android:layout_marginTop="@dimen/seekbar_margin"
+                android:progressDrawable="@drawable/seekbar_progressbar">
+            </SeekBar>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tube_distortion_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/group_layout_margin"
+            android:layout_marginTop="@dimen/group_layout_margin"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tube_distortion"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/primary_text" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tube_distortion_gain"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:text="@string/tube_distortion_gain"
+                    android:textAlignment="gravity"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/secondary_text">
+                </TextView>
+
+                <TextView
+                    android:id="@+id/tube_distortion_gain_current_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text=""
+                    android:textAlignment="gravity"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/secondary_text">
+                </TextView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text=""
+                    android:textAlignment="gravity"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/secondary_text">
+
+                </TextView>
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/seekbar_tube_distortion_gain"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/seekbar_margin"
+                android:layout_marginTop="@dimen/seekbar_margin"
+                android:progressDrawable="@drawable/seekbar_progressbar">
+            </SeekBar>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tube_distortion_mix"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:text="@string/tube_distortion_mix"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/secondary_text">
+                </TextView>
+
+                <TextView
+                    android:id="@+id/tube_distortion_mix_current_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:text=""
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/secondary_text">
+                </TextView>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text=""
+                    android:textAlignment="gravity"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/secondary_text">
+                </TextView>
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/seekbar_tube_distortion_mix"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/seekbar_margin"

@@ -2,6 +2,7 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
 import android.app.Fragment;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,18 +24,17 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.FrequencyView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.TimeView;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.VisualisationType;
 
 /**
  * @author georgrem, stockan1
  */
 public class VisualisationFragment extends Fragment {
 
-    private static final String TAG = VisualisationFragment.class.getSimpleName();
     private static final String BUNDLE_ARGUMENT_AUDIOVIEWS =
             VisualisationFragment.class.getSimpleName() + ".AUDIOVIEWS";
 
     private FFT fft;
-    private int fftResolution = Constants.DEFAULT_FFT_RESOLUTION;
     private List<AudioView> views;
 
     // Creates a new fragment given a array
@@ -93,24 +93,16 @@ public class VisualisationFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        //TextView frequency = (TextView) spectrogramView.findViewById(R.id.textview_spectrogram_header);
-        //frequency.setText("FFT size: " + fftResolution);
-    }
-
-
-    @Override
     public void onStart() {
         super.onStart();
         // Register to EventBus
         EventBus.getDefault().register(this);
 
-        fft = new FFT(fftResolution);
-
+        fft = new FFT(Constants.DEFAULT_FFT_RESOLUTION);
         if (views != null) {
             for (AudioView view : views) {
                 if (view instanceof SpectrogramView) {
-                    ((SpectrogramView) view).setFFTResolution(fftResolution);
+                    ((SpectrogramView) view).setFFTResolution(Constants.DEFAULT_FFT_RESOLUTION);
                 }
             }
         }
@@ -118,9 +110,9 @@ public class VisualisationFragment extends Fragment {
 
     @Override
     public void onStop() {
+        super.onStop();
         // Unregister from EventBus
         EventBus.getDefault().unregister(this);
-        super.onStop();
     }
 
     /**
@@ -133,9 +125,8 @@ public class VisualisationFragment extends Fragment {
     public void onPCMSampleBlockReceived(PCMSampleBlock sampleBlock) {
         if (sampleBlock != null && views != null) {
             for (AudioView view : views) {
-                if ((view.isPreFilterView() && sampleBlock.isPreFilterSamples())
-                        || (!view.isPreFilterView() && !sampleBlock.isPreFilterSamples())){
-                    setViewParameters(view, sampleBlock);
+                if (view != null) {
+                    setAudioViewParameters(view, sampleBlock);
                 }
             }
         }
@@ -151,28 +142,84 @@ public class VisualisationFragment extends Fragment {
     }
 
     /**
-     * Sets the view parameters: </br>
+     * <p>
+     * Sets the {@code AudioView} parameters: </br>
      * <ul>
      *     <li>sample rate</li>
      *     <li>channels</li>
-     *     <li>PCM samples or magnitude data</li>
      * </ul>
+     * </p>
+     * <p>
+     * Furthermore this method sets the samples or power spectral density according
+     * to the type of {code view}.
+     * </p>
      *
-     * @param view          a view
+     * @param view          an {@code AudioView}
      * @param sampleBlock   a {@code PCMSampleBlock}
      */
-    private void setViewParameters(AudioView view, PCMSampleBlock sampleBlock) {
+    private void setAudioViewParameters(@NonNull AudioView view, @NonNull PCMSampleBlock sampleBlock) {
         view.setSampleRate(sampleBlock.getSampleRate());
-        view.setChannels(sampleBlock.getSampleRate());
-
-        if (view instanceof FrequencyView) {
-            ((FrequencyView) view).setSpectralDensity(fft.getPowerSpectrum(sampleBlock.getSamples(),
-                    sampleBlock.getChannels()));
-        }
-
+        view.setChannels(sampleBlock.getChannels());
         if (view instanceof TimeView) {
-            ((TimeView) view).setSamples(sampleBlock.getSamples());
+            setTimeViewParameters((TimeView) view, sampleBlock);
+        }
+        if (view instanceof FrequencyView) {
+            setFrequencyViewParameters((FrequencyView) view, sampleBlock);
         }
     }
 
+    /**
+     * Sets the samples to the {@code TimeView}.
+     *
+     * @param timeView          a {@code TimeView}
+     * @param sampleBlock       a {@code SampleBlock}
+     */
+    private void setTimeViewParameters(@NonNull TimeView timeView,
+                                       @NonNull PCMSampleBlock sampleBlock) {
+        VisualisationType visualisationType = timeView.getVisualisationType();
+        switch (visualisationType) {
+            case PRE_FX:
+                timeView.setSamples(sampleBlock.getPreFilterSamples(), new short[0]);
+                break;
+            case POST_FX:
+                timeView.setSamples(new short[0], sampleBlock.getPostFilterSamples());
+                break;
+            default:
+                timeView.setSamples(sampleBlock.getPreFilterSamples(),
+                        sampleBlock.getPostFilterSamples());
+        }
+    }
+
+    /**
+     * <p>
+     * Transforms the sample data into the frequency domain and sets the computed
+     * power spectral density to the {@code FrequencyView}.
+     * </p>
+     * <p>
+     * The FFT resolution is controlled via the {@code FFT} instance.
+     * </p>
+     *
+     * @param frequencyView     a {@code FrequencyView}
+     * @param sampleBlock       a {@code SampleBlock}
+     */
+    private void setFrequencyViewParameters(@NonNull FrequencyView frequencyView,
+                                            @NonNull PCMSampleBlock sampleBlock) {
+        VisualisationType visualisationType = frequencyView.getVisualisationType();
+        switch (visualisationType) {
+            case PRE_FX:
+                frequencyView.setSpectralDensity(
+                        fft.getPowerSpectrum(sampleBlock.getPreFilterSamples(), sampleBlock.getChannels()),
+                        new float[0]);
+                break;
+            case POST_FX:
+                frequencyView.setSpectralDensity(
+                        new float[0],
+                        fft.getPowerSpectrum(sampleBlock.getPostFilterSamples(), sampleBlock.getChannels()));
+                break;
+            default:
+                frequencyView.setSpectralDensity(
+                        fft.getPowerSpectrum(sampleBlock.getPreFilterSamples(), sampleBlock.getChannels()),
+                        fft.getPowerSpectrum(sampleBlock.getPostFilterSamples(), sampleBlock.getChannels()));
+        }
+    }
 }

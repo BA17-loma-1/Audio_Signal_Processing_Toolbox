@@ -35,10 +35,11 @@ public class Constants {
     public static final int SOFT_CLIPPER_MAX_CLIPPING_FACTOR = 1000;
     public static final float SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR = 120f;
 
-    // Waveshaper
-    public static final float WAVESHAPER_MIN_CLIPPING_FACTOR = 0f;
-    public static final float WAVESHAPER_MAX_CLIPPING_FACTOR = 1.0f;
-    public static final float WAVESHAPER_DEFAULT_THRESHOLD = 1.0f;
+    // Tube distortion
+    public static final float TUBE_DISTORTION_MIN_GAIN = 0;
+    public static final float TUBE_DISTORTION_MAX_GAIN = 10;
+    public static final float TUBE_DISTORTION_DEFAULT_GAIN = 1.5f;
+    public static final float TUBE_DISTORTION_DEFAULT_MIX = 0.5f;
 
     // Ring modulator
     public static final int RING_MODULATOR_MIN_MOD_FREQ = 1;

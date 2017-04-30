@@ -1,6 +1,7 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
@@ -13,8 +14,8 @@ import android.view.View;
 
 public abstract class AudioView extends View {
 
+    private VisualisationType visualisationType = VisualisationType.PRE_FX;
     private int sampleRate, channels;
-    private boolean preFilterView = true;
 
     public AudioView(Context context) {
         super(context);
@@ -65,23 +66,23 @@ public abstract class AudioView extends View {
     }
 
     /**
-     * Configures the view to show visualisation prior to filtering.
+     * Returns the {@code VisualisationType} of this view.
+     * See {@link VisualisationType}
      *
-     * @param preFilterView true defines the view as a pre-audio_effect_view view
+     * @return      type of visualisation
      */
-    public void setPreFilterView(boolean preFilterView) {
-        this.preFilterView = preFilterView;
+    public VisualisationType getVisualisationType() {
+        return visualisationType;
     }
 
     /**
-     * Returns true if the view is defined as a pre-audio_effect_view view.
+     * Sets the {@code VisualisationType} of this view.
      *
-     * @return
+     * @param visualisationType     the type of visualisation
      */
-    public boolean isPreFilterView() {
-        return preFilterView;
+    public void setVisualisationType(@NonNull VisualisationType visualisationType) {
+        this.visualisationType = visualisationType;
     }
-
 
     /**
      * "Inflating" a view means taking the layout XML and parsing it to create the view object

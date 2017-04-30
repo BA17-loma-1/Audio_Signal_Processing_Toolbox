@@ -2,9 +2,6 @@
     <declare-styleable name="WaveformView">
         <attr name="waveformStrokeThickness" format="float" />
         <attr name="waveformColor" format="color" />
-        <attr name="waveformFillColor" format="color" />
-        <attr name="playbackIndicatorColor" format="color" />
-        <attr name="timecodeColor" format="color" />
     </declare-styleable>
 
     <declare-styleable name="SpectrumView">

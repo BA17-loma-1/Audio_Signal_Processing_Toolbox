@@ -39,7 +39,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
  *
  * @author georgrem, stockan1
  */
-public class SpectrumView extends FrequencyView {
+public class SpectrumView extends View {
 
     private static final String TAG = SpectrumView.class.getSimpleName();
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("##.0K");
@@ -130,18 +130,15 @@ public class SpectrumView extends FrequencyView {
      *
      * @param hMag array of {@code float} representing magnitudes (power spectrum of a time series)
      */
-    @Override
     public void setSpectralDensity(@NonNull float[] hMag) {
         System.arraycopy(hMag, 0, magnitudes, 0, hMag.length);
         postInvalidate();
     }
 
-    @Override
     public void setSampleRate(int sampleRate) {
         this.sampleRate = sampleRate;
     }
 
-    @Override
     public AudioView getInflatedView() {
         return (AudioView) View.inflate(ApplicationContext.getAppContext(),
                 R.layout.spectrum_view, null);
@@ -177,7 +174,7 @@ public class SpectrumView extends FrequencyView {
 
             Map<Double, RectF> magnitudeBars = new LinkedHashMap<>();
             // DC -> bin m[0]
-            magnitudeBars.put(0d, new RectF(0, height - (height / dB_RANGE * dcMagnitude),
+            magnitudeBars.put(0d, new RectF(0, height - (height / (float) (dB_RANGE * dcMagnitude)),
                     barWidth, height - 40));
 
             double frequency = 0;

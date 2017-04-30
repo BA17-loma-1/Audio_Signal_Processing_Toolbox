@@ -287,7 +287,7 @@ public final class AudioPlayer {
      * @param track a {@code Track}
      * @param is    {@code InputStream} to read from
      */
-    private void initialiseDecoder(@NonNull Track track, InputStream is) {
+    private void initialiseDecoder(@NonNull Track track, @NonNull InputStream is) {
         try {
             if (track.getAudioFormat() == SupportedAudioFormat.MP3) {
                 decoder = MP3Decoder.getInstance();
@@ -357,13 +357,10 @@ public final class AudioPlayer {
                                         0, filteredSamples.length) < filteredSamples.length) {
                                     Log.d(TAG, "Dropped samples.");
                                 }
-                                // Broadcast pre applyAudioEffect sample block using event bus
-                                eventBus.post(new PCMSampleBlock(decodedSamples, sampleRate,
-                                        channels, true));
-                                // Broadcast post applyAudioEffect sample block using event bus
-                                eventBus.post(new PCMSampleBlock(
-                                        PCMUtil.float2ShortArray(filteredSamples), sampleRate,
-                                        channels, false));
+                                // Broadcast pre and post filter sample blocks the event bus
+                                eventBus.post(new PCMSampleBlock(decodedSamples,
+                                        PCMUtil.float2ShortArray(filteredSamples),
+                                        sampleRate, channels));
                             } else {
                                 // No more frames to decode, we reached the end of the InputStream.
                                 // --> quit
@@ -502,13 +499,15 @@ public final class AudioPlayer {
         @Override
         protected void onPostExecute(InputStream inputStream) {
             super.onPostExecute(inputStream);
-            initialiseDecoder(currentTrack, inputStream);
-            if (isDecoderInitialised()
-                    && (!isAudioTrackInitialised() || sampleRateHasChanged || channelsHasChanged)) {
-                audioTrack = null;
-                createAudioTrack();
+            if (inputStream != null) {
+                initialiseDecoder(currentTrack, inputStream);
+                if (isDecoderInitialised()
+                        && (!isAudioTrackInitialised() || sampleRateHasChanged || channelsHasChanged)) {
+                    audioTrack = null;
+                    createAudioTrack();
+                }
+                startPlayback();
             }
-            startPlayback();
         }
     }
 

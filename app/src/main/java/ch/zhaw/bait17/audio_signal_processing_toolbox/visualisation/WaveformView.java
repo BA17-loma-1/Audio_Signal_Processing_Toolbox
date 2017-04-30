@@ -25,17 +25,27 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
 
 public class WaveformView extends TimeView {
 
-    private Paint strokePaint;
-    private int width, height;
+    private static final int MAX_MAP_ENTRIES = 3;
+    private static final float WAVEFORM_PRE_FILTER_STROKE_THICKNESS = 2.0f;
+    private static final float WAVEFORM_POST_FILTER_STROKE_THICKNESS = 2.0f;
+    private final Map<VisualisationType, short[]> SAMPLES = new HashMap<>(MAX_MAP_ENTRIES );
+    private final ConcurrentMap<VisualisationType, float[]> waveformPoints
+            = new ConcurrentHashMap<>(MAX_MAP_ENTRIES);
+
+    private Paint preFilterStrokePaint, postFilterStrokePaint;
+    private int width;
     private float centerY;
-    private short[] samples;
-    private float[] waveformPoints;
 
     public WaveformView(Context context) {
         super(context);
@@ -58,69 +68,58 @@ public class WaveformView extends TimeView {
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.WaveformView, defStyle, 0);
 
-        float strokeThickness = a.getFloat(R.styleable.WaveformView_waveformStrokeThickness, 2f);
-        int strokeColor = a.getColor(R.styleable.WaveformView_waveformColor,
-                ContextCompat.getColor(context, R.color.default_waveform));
+        float strokeThicknessPreFilter = a.getFloat(R.styleable.WaveformView_waveformStrokeThickness,
+                WAVEFORM_PRE_FILTER_STROKE_THICKNESS);
+        float strokeThicknessPostFilter = a.getFloat(R.styleable.WaveformView_waveformStrokeThickness,
+                WAVEFORM_POST_FILTER_STROKE_THICKNESS);
+        int preFilterStrokeColor = a.getColor(R.styleable.WaveformView_waveformColor,
+                ContextCompat.getColor(context, R.color.pre_filter_waveform));
+        int postFilterStrokeColor = a.getColor(R.styleable.WaveformView_waveformColor,
+                ContextCompat.getColor(context, R.color.post_filter_waveform));
         a.recycle();
 
-        strokePaint = new Paint();
-        strokePaint.setColor(strokeColor);
-        strokePaint.setStyle(Paint.Style.STROKE);
-        strokePaint.setStrokeWidth(strokeThickness);
-        strokePaint.setAntiAlias(false);
+        final float fontSize = Util.getFontSize(android.R.attr.textAppearanceMedium);
+
+        preFilterStrokePaint = new Paint();
+        preFilterStrokePaint.setColor(preFilterStrokeColor);
+        preFilterStrokePaint.setStyle(Paint.Style.STROKE);
+        preFilterStrokePaint.setStrokeWidth(strokeThicknessPreFilter);
+        preFilterStrokePaint.setAntiAlias(false);
+        preFilterStrokePaint.setTextSize(fontSize);
+
+        postFilterStrokePaint = new Paint();
+        postFilterStrokePaint.setColor(postFilterStrokeColor);
+        postFilterStrokePaint.setStyle(Paint.Style.STROKE);
+        postFilterStrokePaint.setStrokeWidth(strokeThicknessPostFilter);
+        postFilterStrokePaint.setAntiAlias(false);
+        postFilterStrokePaint.setTextSize(fontSize);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         width = getMeasuredWidth();
-        height = getMeasuredHeight();
-        centerY = height / 2f;
+        int height = getMeasuredHeight();
+        centerY = height / 2.0f;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (waveformPoints != null) {
-            canvas.drawLines(waveformPoints, strokePaint);
-        }
+        drawWaveforms(canvas);
     }
 
+    /**
+     * Sets the data to be displayed in the {@code TimeView}.
+     *
+     * @param preFilterSamples      unfiltered samples
+     * @param postFilterSamples     filtered samples
+     */
     @Override
-    public void setSamples(@NonNull short[] samples) {
-        this.samples = Arrays.copyOf(samples, samples.length);
+    public void setSamples(@NonNull short[] preFilterSamples, @NonNull short[] postFilterSamples) {
+        SAMPLES.put(VisualisationType.PRE_FX, Arrays.copyOf(preFilterSamples, preFilterSamples.length));
+        SAMPLES.put(VisualisationType.POST_FX, Arrays.copyOf(postFilterSamples, postFilterSamples.length));
         onSamplesChanged();
-    }
-
-    private void onSamplesChanged() {
-        waveformPoints = new float[width * 4];
-        drawWaveform(samples);
-        postInvalidate();
-    }
-
-    private void drawWaveform(short[] samples) {
-        float lastX = -1;
-        float lastY = -1;
-        int pointIndex = 0;
-        float max = Short.MAX_VALUE;
-
-        /* For efficiency, we don't draw all of the samples in the buffer, but only the ones
-           that align with pixel boundaries. */
-        for (int x = 0; x < width; x++) {
-            int index = (int) (((x * 1.0f) / width) * samples.length);
-            short sample = samples[index];
-            float y = centerY - ((sample / max) * centerY);
-
-            if (lastX != -1) {
-                waveformPoints[pointIndex++] = lastX;
-                waveformPoints[pointIndex++] = lastY;
-                waveformPoints[pointIndex++] = x;
-                waveformPoints[pointIndex++] = y;
-            }
-
-            lastX = x;
-            lastY = y;
-        }
     }
 
     @Override
@@ -129,4 +128,74 @@ public class WaveformView extends TimeView {
                 R.layout.waveform_view, null);
     }
 
+    private void onSamplesChanged() {
+        createWaveformPoints();
+        postInvalidate();
+    }
+
+    private void createWaveformPoints() {
+        if (SAMPLES != null) {
+            final float max = Short.MAX_VALUE;
+            for (Map.Entry<VisualisationType, short[]> entry : SAMPLES.entrySet()) {
+                VisualisationType vizType = entry.getKey();
+                short[] sampleBlock = entry.getValue();
+                float[] points = new float[width * 4];
+                float lastX = -1;
+                float lastY = -1;
+                int pointIndex = 0;
+
+                /*
+                    For efficiency, we don't draw all of the samples in the buffer, but only the
+                    ones that align with pixel boundaries.
+                 */
+                // Cannot use replace(), available only since Java 1.8
+                waveformPoints.remove(vizType);
+                if (sampleBlock.length > 0) {
+                    for (int x = 0; x < width; x++) {
+                        int index = (int) (((x * 1.0f) / width) * sampleBlock.length);
+                        short sample = sampleBlock[index];
+                        float y = centerY - ((sample / max) * centerY);
+
+                        if (lastX != -1) {
+                            points[pointIndex++] = lastX;
+                            points[pointIndex++] = lastY;
+                            points[pointIndex++] = x;
+                            points[pointIndex++] = y;
+                        }
+
+                        lastX = x;
+                        lastY = y;
+                    }
+                    waveformPoints.put(vizType, points);
+                }
+            }
+        }
+    }
+
+    private void drawWaveforms(Canvas canvas) {
+        final int leftOffset = 20;
+        for (Map.Entry<VisualisationType, float[]> entry : waveformPoints.entrySet()) {
+            VisualisationType vizType = entry.getKey();
+            final float[] points = entry.getValue();
+            if (points != null && points.length > 0) {
+                switch (vizType) {
+                    case PRE_FX:
+                        canvas.drawLines(points, preFilterStrokePaint);
+                        preFilterStrokePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+                        canvas.drawText("PRE FILTER", leftOffset, preFilterStrokePaint.getTextSize(),
+                                preFilterStrokePaint);
+                        preFilterStrokePaint.setStyle(Paint.Style.STROKE);
+                        break;
+                    case POST_FX:
+                        canvas.drawLines(points, postFilterStrokePaint);
+                        postFilterStrokePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+                        canvas.drawText("POST FILTER", leftOffset, preFilterStrokePaint.getTextSize()
+                                + postFilterStrokePaint.getTextSize(), postFilterStrokePaint);
+                        postFilterStrokePaint.setStyle(Paint.Style.STROKE);
+                        break;
+                    default:
+                }
+            }
+        }
+    }
 }

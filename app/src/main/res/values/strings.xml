@@ -42,8 +42,9 @@
     <!-- View config -->
     <string name="view_config_view1">View 1</string>
     <string name="view_config_view2">View 2</string>
-    <string name="view_config_pre_audio_effect">pre audio effect</string>
-    <string name="view_config_post_audio_effect">post audio effect</string>
+    <string name="view_config_pre_fx">pre audio effect</string>
+    <string name="view_config_post_fx">post audio effect</string>
+    <string name="view_config_pre_and_post_fx">both</string>
 
     <!-- FX section -->
     <string name="audio_fx_chain_title">Select insert effects</string>
@@ -62,14 +63,16 @@
 
     <!-- Settings -->
     <string name="change_fx_params">Change audio effect parameters</string>
-    <string name="bitcrusher">Bitcrusher</string>
-    <string name="soft_clipper">Soft clipper</string>
-    <string name="waveshaper">Waveshaper</string>
     <string name="ringmod_mod_freq">mod. frequency:</string>
     <string name="tremolo_mod_freq">mod. frequency:</string>
     <string name="tremolo_mod_ampl">mod. amplitude:</string>
+    <string name="bitcrusher">Bitcrusher</string>
     <string name="bitcrusher_norm_freq">normalised frequency:</string>
     <string name="bitcrusher_bits">bits:</string>
-    <string name="waveshaper_threshold">threshold:</string>
+    <string name="soft_clipper">Soft clipper</string>
+    <string name="soft_clipper_clipping_factor">clipping factor:</string>
+    <string name="tube_distortion">Tube distortion</string>
+    <string name="tube_distortion_gain">gain:</string>
+    <string name="tube_distortion_mix">mix:</string>
 
 </resources>

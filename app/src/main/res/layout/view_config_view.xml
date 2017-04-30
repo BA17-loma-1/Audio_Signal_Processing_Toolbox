@@ -20,174 +20,107 @@
         </TextView>
 
         <Spinner
-            android:id="@+id/spinner_first_view"
+            android:id="@+id/spinner_view1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <RadioGroup
-            android:id="@+id/radioGroup_first_view"
+            android:id="@+id/radioGroup_view1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/end_text_margin"
             android:orientation="vertical" >
 
-            <LinearLayout
+            <RadioButton
+                android:id="@+id/radioButton_pre_filter_view1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:text="@string/view_config_pre_fx"
+                android:layout_gravity="center"
+                android:textAlignment="gravity"
+                android:layout_weight="1"
+                android:button="@drawable/radio_selector"
+                android:checked="true"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/secondary_text" />
 
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:src="@drawable/filter_off" >
-                </ImageView>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textAlignment="gravity"
-                    android:layout_weight="1"
-                    android:text="@string/view_config_pre_audio_effect" >
-                </TextView>
-
-                <RadioButton
-                    android:id="@+id/radioButton_preFilter_first_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textAlignment="gravity"
-                    android:layout_weight="1"
-                    android:button="@drawable/radio_selector"
-                    android:checked="true"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@color/secondary_text" >
-                </RadioButton>
-            </LinearLayout>
-
-            <LinearLayout
+            <RadioButton
+                android:id="@+id/radioButton_post_filter_view1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:text="@string/view_config_post_fx"
+                android:layout_gravity="center"
+                android:button="@drawable/radio_selector"
+                android:textAlignment="gravity"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/secondary_text" />
 
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:src="@drawable/lowpass_ir" >
-                </ImageView>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textAlignment="gravity"
-                    android:layout_weight="1"
-                    android:text="@string/view_config_post_audio_effect" >
-                </TextView>
-
-                <RadioButton
-                    android:id="@+id/radioButton_postFilter_first_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textAlignment="gravity"
-                    android:layout_weight="1"
-                    android:button="@drawable/radio_selector"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@color/secondary_text" >
-                </RadioButton>
-            </LinearLayout>
+            <RadioButton
+                android:id="@+id/radioButton_pre_and_post_view1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/view_config_pre_and_post_fx"
+                android:layout_gravity="center"
+                android:textAlignment="gravity"
+                android:button="@drawable/radio_selector"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/secondary_text" />
         </RadioGroup>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/view_config_view2"
-            android:textAppearance="?android:attr/textAppearanceLarge" >
-        </TextView>
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <Spinner
-            android:id="@+id/spinner_second_view"
+            android:id="@+id/spinner_view2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <RadioGroup
-            android:id="@+id/radioGroup_second_view"
+            android:id="@+id/radioGroup_view2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/end_text_margin"
             android:orientation="vertical" >
 
-            <LinearLayout
+            <RadioButton
+                android:id="@+id/radioButton_pre_filter_view2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:text="@string/view_config_pre_fx"
+                android:layout_gravity="center"
+                android:textAlignment="gravity"
+                android:layout_weight="1"
+                android:button="@drawable/radio_selector"
+                android:checked="true"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/secondary_text" />
 
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:src="@drawable/filter_off" >
-                </ImageView>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textAlignment="gravity"
-                    android:layout_weight="1"
-                    android:text="@string/view_config_pre_audio_effect" >
-                </TextView>
-
-                <RadioButton
-                    android:id="@+id/radioButton_preFilter_second_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textAlignment="gravity"
-                    android:layout_weight="1"
-                    android:button="@drawable/radio_selector"
-                    android:checked="true"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@color/secondary_text" >
-                </RadioButton>
-
-            </LinearLayout>
-
-            <LinearLayout
+            <RadioButton
+                android:id="@+id/radioButton_post_filter_view2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:text="@string/view_config_post_fx"
+                android:layout_gravity="center"
+                android:textAlignment="gravity"
+                android:layout_weight="1"
+                android:button="@drawable/radio_selector"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/secondary_text" />
 
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:src="@drawable/lowpass_ir">
-                </ImageView>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:text="@string/view_config_post_audio_effect"
-                    android:textAlignment="gravity">
-                </TextView>
-
-                <RadioButton
-                    android:id="@+id/radioButton_postFilter_second_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textAlignment="gravity"
-                    android:layout_weight="1"
-                    android:button="@drawable/radio_selector"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@color/secondary_text" />
-            </LinearLayout>
+            <RadioButton
+                android:id="@+id/radioButton_pre_and_post_view2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/view_config_pre_and_post_fx"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:button="@drawable/radio_selector"
+                android:textAlignment="gravity"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/secondary_text" />
         </RadioGroup>
     </LinearLayout>
 

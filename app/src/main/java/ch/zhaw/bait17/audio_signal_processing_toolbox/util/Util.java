@@ -1,8 +1,10 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.util;
 
+import android.content.res.TypedArray;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.TypedValue;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
@@ -62,4 +64,21 @@ public class Util {
         }
     }
 
+    /**
+     * Computes the font size based on the text appearance.
+     *
+     * @param textAppearance    a text appearance value
+     * @return                  font size expressed as a {@code float} value
+     */
+    public static float getFontSize(int textAppearance) {
+        TypedValue typedValue = new TypedValue();
+        ApplicationContext.getAppContext().getTheme().resolveAttribute(
+                textAppearance, typedValue, true);
+        int[] textSizeAttr = new int[]{android.R.attr.textSize};
+        TypedArray arr = ApplicationContext.getAppContext().obtainStyledAttributes(
+                typedValue.data, textSizeAttr);
+        float fontSize = arr.getDimensionPixelSize(0, -1);
+        arr.recycle();
+        return fontSize;
+    }
 }
