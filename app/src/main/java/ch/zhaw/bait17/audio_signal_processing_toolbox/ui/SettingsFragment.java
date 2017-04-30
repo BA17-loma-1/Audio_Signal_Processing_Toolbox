@@ -160,7 +160,6 @@ public class SettingsFragment extends Fragment implements SeekBar.OnSeekBarChang
             case R.id.seekbar_tremolo_amplitude:
                 tremolo = getTremolo();
                 if (tremolo != null) {
-                    tremolo.setFrequencyModulation(progress);
                     float normAmpl = Constants.TREMOLO_MAX_AMPLITUDE * (progress / 100.0f);
                     tremolo.setAmplitude(normAmpl);
                     if (textViewTremoloModAmplCurrentValue != null) {

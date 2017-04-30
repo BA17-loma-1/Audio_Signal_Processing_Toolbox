@@ -28,6 +28,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.delay.Flanger;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Bitcrusher;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Overdrive;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
@@ -359,7 +360,10 @@ public class MainActivity extends AppCompatActivity implements
                 Constants.BITCRUSHER_DEFAULT_BITS));
         audioEffects.add(new Overdrive());
         audioEffects.add(new RingModulation(Constants.RING_MODULATOR_DEFAULT_FREQUENCY));
-        audioEffects.add(new Tremolo(Constants.TREMOLO_DEFAULT_FREQUENCY, Constants.TREMOLO_DEFAULT_AMPLITUDE));
+        audioEffects.add(new Tremolo(Constants.TREMOLO_DEFAULT_FREQUENCY,
+                Constants.TREMOLO_DEFAULT_AMPLITUDE));
+        audioEffects.add(new Flanger(Constants.FLANGER_DEFAULT_FREQUENCY,
+                Constants.FLANGER_DEFAULT_AMPLITUDE, Constants.FLANGER_DEFAULT_DELAY));
     }
 
     private void initAudioPlayerFragment() {

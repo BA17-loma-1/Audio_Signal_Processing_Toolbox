@@ -47,8 +47,15 @@ public class Constants {
 
     // Tremolo
     public static final int TREMOLO_MAX_MOD_FREQUENCY = 800;
-    public static final float TREMOLO_DEFAULT_FREQUENCY = 5;
+    public static final int TREMOLO_DEFAULT_FREQUENCY = 5;
     public static final float TREMOLO_MAX_AMPLITUDE = 1;
     public static final float TREMOLO_DEFAULT_AMPLITUDE = 0.5f;
 
+    // Flanger
+    public static final int FLANGER_MAX_MOD_FREQUENCY = 800;
+    public static final int FLANGER_DEFAULT_FREQUENCY = 1;
+    public static final float FLANGER_MAX_AMPLITUDE = 1;
+    public static final float FLANGER_DEFAULT_AMPLITUDE = 0.7f;
+    public static final double FLANGER_MAX_DELAY = 0.015;
+    public static final double FLANGER_DEFAULT_DELAY = 0.003;
 }
