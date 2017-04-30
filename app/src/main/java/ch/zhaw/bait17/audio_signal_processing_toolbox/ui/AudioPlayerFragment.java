@@ -246,12 +246,16 @@ public class AudioPlayerFragment extends Fragment {
                 playPauseButton.setImageResource(R.drawable.uamp_ic_pause_white_48dp);
 
                 if (recyclerView.isAttachedToWindow()) {
-                    currentMediaListItemView = recyclerView.findViewHolderForAdapterPosition(trackPosNr).itemView;
-                    if (previousMediaListItemView != null) {
-                        resetDrawablesOnPlay();
-                    }
-                    if (currentMediaListItemView != null) {
-                        setDrawablesOnPlay();
+                    try {
+                        currentMediaListItemView = recyclerView.findViewHolderForAdapterPosition(trackPosNr).itemView;
+                        if (previousMediaListItemView != null) {
+                            resetDrawablesOnPlay();
+                        }
+                        if (currentMediaListItemView != null) {
+                            setDrawablesOnPlay();
+                        }
+                    } catch (Exception ex) {
+                        Log.e(TAG, ex.getMessage());
                     }
                 }
             }
