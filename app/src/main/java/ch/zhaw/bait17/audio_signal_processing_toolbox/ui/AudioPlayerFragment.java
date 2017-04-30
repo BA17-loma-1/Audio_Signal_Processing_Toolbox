@@ -145,20 +145,22 @@ public class AudioPlayerFragment extends Fragment {
      * @param trackPosNr the {@code Track} id from the tracks list
      */
     public void setTrack(final int trackPosNr) {
-        this.trackPosNr = trackPosNr % tracks.size();
-        if (this.trackPosNr < 0) {
-            this.trackPosNr += tracks.size();
+        if (tracks.size() > 0) {
+            this.trackPosNr = trackPosNr % tracks.size();
+            if (this.trackPosNr < 0) {
+                this.trackPosNr += tracks.size();
+            }
+            Track track = tracks.get(this.trackPosNr);
+            if (currentTrack == null) {
+                // First time a track is selected.
+                currentTrack = track;
+                nextTrack = currentTrack;
+            } else {
+                nextTrack = track;
+            }
+            audioPlayer.selectTrack(track);
+            playPauseTrack();
         }
-        Track track = tracks.get(this.trackPosNr);
-        if (currentTrack == null) {
-            // First time a track is selected.
-            currentTrack = track;
-            nextTrack = currentTrack;
-        } else {
-            nextTrack = track;
-        }
-        audioPlayer.selectTrack(track);
-        playPauseTrack();
     }
 
     /**
@@ -207,14 +209,14 @@ public class AudioPlayerFragment extends Fragment {
      * Starts playback of previous track in the track list.
      */
     public void playPreviousTrack() {
-        if (trackPosNr > 0) setTrack(--trackPosNr);
+        setTrack(--trackPosNr);
     }
 
     /**
      * Starts playback of next track in the track list.
      */
     public void playNextTrack() {
-        if (trackPosNr < tracks.size() - 1) setTrack(++trackPosNr);
+        setTrack(++trackPosNr);
     }
 
     /**

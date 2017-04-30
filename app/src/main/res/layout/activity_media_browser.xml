@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:label="@string/title_activity_media_browser"
-    tools:context=".ui.MediaBrowserActivity" >
+    tools:context=".ui.MainActivity" >
 
     <ListView
         android:id="@+id/mediumType_list"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
-    </ListView>
-</LinearLayout>
+        android:layout_height="wrap_content" />
+
+</android.support.design.widget.CoordinatorLayout>

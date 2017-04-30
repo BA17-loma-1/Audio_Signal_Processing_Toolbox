@@ -16,7 +16,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
+import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -151,12 +151,6 @@ public class MediaListFragment extends Fragment implements SearchView.OnQueryTex
         recyclerView.setAdapter(trackAdapter);
     }
 
-
-    /*
-        This method is not being called by requestReadExternalStoragePermission().
-        It requires API level 21 and above.
-        Needs a fix to work around.
-     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
                                            @NonNull int[] grantResults) {
@@ -273,20 +267,20 @@ public class MediaListFragment extends Fragment implements SearchView.OnQueryTex
     }
 
     private void requestReadExternalStoragePermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+        if (FragmentCompat.shouldShowRequestPermissionRationale(MediaListFragment.this,
                 Manifest.permission.READ_EXTERNAL_STORAGE)) {
             Snackbar.make(rootView.findViewById(R.id.media_list),
                     "Read permission to external storage is required in order to access your audio files.",
                     Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ActivityCompat.requestPermissions(getActivity(),
+                    FragmentCompat.requestPermissions(MediaListFragment.this,
                             new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                             REQUEST_READ_EXTERNAL_STORAGE);
                 }
             }).show();
         } else {
-            ActivityCompat.requestPermissions(getActivity(),
+            FragmentCompat.requestPermissions(MediaListFragment.this,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                     REQUEST_READ_EXTERNAL_STORAGE);
         }

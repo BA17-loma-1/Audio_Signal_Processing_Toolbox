@@ -379,5 +379,4 @@ public class MainActivity extends AppCompatActivity implements
             audioPlayerFragment.setMediaListType(mediaListType);
         }
     }
-
 }
