@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="?selectableItemBackgroundBorderless"
-    android:padding="@dimen/playback_controls_padding">
+    android:padding="@dimen/playback_controls_padding" >
 
     <ImageView
         android:id="@+id/play_pause"

@@ -246,16 +246,12 @@ public class AudioPlayerFragment extends Fragment {
 
                 RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(trackPosNr);
                 if (recyclerView.isAttachedToWindow() && viewHolder != null) {
-                    try {
-                        currentMediaListItemView = viewHolder.itemView;
-                        if (previousMediaListItemView != null) {
-                            resetDrawablesOnPlay();
-                        }
-                        if (currentMediaListItemView != null) {
-                            setDrawablesOnPlay();
-                        }
-                    } catch (Exception ex) {
-                        Log.e(TAG, ex.getMessage());
+                    currentMediaListItemView = viewHolder.itemView;
+                    if (previousMediaListItemView != null) {
+                        resetDrawablesOnPlay();
+                    }
+                    if (currentMediaListItemView != null) {
+                        setDrawablesOnPlay();
                     }
                 }
             }
