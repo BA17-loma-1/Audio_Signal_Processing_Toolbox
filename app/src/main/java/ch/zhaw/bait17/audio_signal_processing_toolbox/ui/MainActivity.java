@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements
     private AudioPlayerFragment audioPlayerFragment;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private ArrayList<AudioEffect> audioEffects;
+    private Toast backToast;
 
 
     @Override
@@ -97,6 +98,22 @@ public class MainActivity extends AppCompatActivity implements
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+            Fragment fragment = getFragmentByTag(TAG_MEDIA_LIST_FRAGMENT);
+            if (fragment.isVisible()) {
+                if (backToast != null && backToast.getView().getWindowToken() != null) {
+                    System.exit(1);
+                } else {
+                    backToast = Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT);
+                    backToast.show();
+                }
+            } else {
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                if (fragment != null) {
+                    ft.replace(R.id.content_frame, fragment, TAG_MEDIA_LIST_FRAGMENT);
+                    ft.addToBackStack(TAG_MEDIA_LIST_FRAGMENT);
+                }
+                ft.commit();
+            }
             // Problem: AudioPlayerFragment disappears when back button is pushed.
             // Needs a more elegant solution.
             /*
@@ -332,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements
      * Finds all filter spec files in the raw resources folder and returns a list of {@code Filter}
      * objects.
      *
-     * @return  a list of {@code Filter}s
+     * @return a list of {@code Filter}s
      */
     private List<Filter> getAllFilters() {
         List<Filter> filters = new ArrayList<>();
