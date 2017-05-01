@@ -123,6 +123,9 @@ public class MediaListFragment extends Fragment implements SearchView.OnQueryTex
             rootView = inflater.inflate(R.layout.media_list_view, container, false);
             init();
             loadTrackList();
+        } else {
+            // replace the adapter to reset the views
+            recyclerView.setAdapter(trackAdapter);
         }
         return rootView;
     }
