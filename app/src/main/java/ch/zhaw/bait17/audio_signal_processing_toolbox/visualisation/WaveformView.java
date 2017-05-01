@@ -47,8 +47,8 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
 public class WaveformView extends TimeView {
 
     private static final int MAX_MAP_ENTRIES = 3;
-    private static final float WAVEFORM_PRE_FILTER_STROKE_THICKNESS = 2.0f;
-    private static final float WAVEFORM_POST_FILTER_STROKE_THICKNESS = 2.0f;
+    private static final float WAVEFORM_PRE_FILTER_STROKE_THICKNESS = 1.0f;
+    private static final float WAVEFORM_POST_FILTER_STROKE_THICKNESS = 1.0f;
     private final Map<VisualisationType, short[]> SAMPLES = new HashMap<>(MAX_MAP_ENTRIES );
     private final ConcurrentMap<VisualisationType, float[]> waveformPoints
             = new ConcurrentHashMap<>(MAX_MAP_ENTRIES);
@@ -95,6 +95,7 @@ public class WaveformView extends TimeView {
         preFilterStrokePaint.setStrokeWidth(strokeThicknessPreFilter);
         preFilterStrokePaint.setAntiAlias(false);
         preFilterStrokePaint.setTextSize(fontSize);
+        preFilterStrokePaint.setAntiAlias(true);
 
         postFilterStrokePaint = new Paint();
         postFilterStrokePaint.setColor(postFilterStrokeColor);
@@ -102,6 +103,7 @@ public class WaveformView extends TimeView {
         postFilterStrokePaint.setStrokeWidth(strokeThicknessPostFilter);
         postFilterStrokePaint.setAntiAlias(false);
         postFilterStrokePaint.setTextSize(fontSize);
+        postFilterStrokePaint.setAntiAlias(true);
     }
 
     @Override
