@@ -1,7 +1,6 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
 import android.app.Fragment;
-import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -286,11 +285,11 @@ public class AudioPlayerFragment extends Fragment {
     }
 
     private void setDrawablesOnPlay() {
-        AnimationDrawable animation = (AnimationDrawable)
-                ContextCompat.getDrawable(ApplicationContext.getAppContext(), R.drawable.ic_equalizer_white_36dp);
-        animation.start();
-        ImageView equalizerImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_eq);
-        equalizerImage.setImageDrawable(animation);
+//        AnimationDrawable animation = (AnimationDrawable)
+//                ContextCompat.getDrawable(ApplicationContext.getAppContext(), R.drawable.ic_equalizer_white_36dp);
+//        animation.start();
+//        ImageView equalizerImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_eq);
+//        equalizerImage.setImageDrawable(animation);
 
         if (mediaListType == MediaListType.MY_MUSIC) {
             Drawable pauseDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
@@ -320,10 +319,10 @@ public class AudioPlayerFragment extends Fragment {
                 playPauseImage.setImageDrawable(playDrawable);
             }
 
-            Drawable equalizeDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
-                    R.drawable.ic_equalizer1_white_36dp);
-            ImageView equalizerImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_eq);
-            equalizerImage.setImageDrawable(equalizeDrawable);
+//            Drawable equalizeDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
+//                    R.drawable.ic_equalizer1_white_36dp);
+//            ImageView equalizerImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_eq);
+//            equalizerImage.setImageDrawable(equalizeDrawable);
         }
     }
 

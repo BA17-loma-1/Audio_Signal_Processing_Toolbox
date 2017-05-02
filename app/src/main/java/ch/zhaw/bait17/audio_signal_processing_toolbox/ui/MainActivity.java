@@ -245,7 +245,6 @@ public class MainActivity extends AppCompatActivity implements
     private void initFragments() {
         Fragment visualisationConfigurationFragment = new ViewFragment();
         audioPlayerFragment = new AudioPlayerFragment();
-        ((ViewFragment) visualisationConfigurationFragment).preDefineActiveViews();
         List<AudioView> activeViews = ((ViewFragment) visualisationConfigurationFragment).getActiveViews();
         MediaListFragment mediaListFragment = new MediaListFragment();
         mediaListFragment.setMediaListType(MediaListType.MY_MUSIC);

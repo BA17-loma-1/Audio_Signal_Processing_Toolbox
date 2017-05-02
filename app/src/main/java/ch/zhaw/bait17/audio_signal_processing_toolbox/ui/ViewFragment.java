@@ -233,19 +233,4 @@ public class ViewFragment extends Fragment
             }
         }
     }
-
-    public void preDefineActiveViews() {
-        if (activeViews == null) activeViews = new ArrayList<>(NUMBER_OF_AUDIO_VIEWS);
-
-        AudioView waveformView = new WaveformView(ApplicationContext.getAppContext());
-        waveformView.getInflatedView();
-        waveformView.setVisualisationType(VisualisationType.BOTH);
-
-        AudioView spectrogramView = new SpectrogramView(ApplicationContext.getAppContext());
-        spectrogramView.getInflatedView();
-        spectrogramView.setVisualisationType(VisualisationType.POST_FX);
-
-        activeViews.add(waveformView);
-        activeViews.add(spectrogramView);
-    }
 }
