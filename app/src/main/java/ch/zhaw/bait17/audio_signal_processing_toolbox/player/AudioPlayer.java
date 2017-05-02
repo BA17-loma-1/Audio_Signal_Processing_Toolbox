@@ -20,7 +20,6 @@ import java.util.List;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.PostAsyncTaskListener;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.MediaListType;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PCMSampleBlock;
@@ -117,7 +116,13 @@ public final class AudioPlayer {
                     try {
                         InputStream inputStream = Util.getInputStreamFromURI(currentTrack.getUri());
                         if (inputStream != null) {
-                            initialiseDecoderAndAudioTrack(inputStream);
+                            initialiseDecoder(currentTrack, inputStream);
+                            if (isDecoderInitialised()
+                                    && (!isAudioTrackInitialised() || sampleRateHasChanged || channelsHasChanged)) {
+                                audioTrack = null;
+                                createAudioTrack();
+                            }
+                            startPlayback();
                         } else {
                             Toast.makeText(ApplicationContext.getAppContext(),
                                     "Unsupported audio format", Toast.LENGTH_SHORT).show();
@@ -128,28 +133,13 @@ public final class AudioPlayer {
 
                     break;
                 case STREAM:
-                    new GetInputStreamFromURL(new PostAsyncTaskListener<InputStream>() {
-                        @Override
-                        public void onPostAsyncTask(InputStream inputStream) {
-                            initialiseDecoderAndAudioTrack(inputStream);
-                        }
-                    }).execute(currentTrack.getUri());
+                    new GetInputStreamFromURL().execute(currentTrack.getUri());
                     break;
                 default:
                     break;
             }
 
         }
-    }
-
-    private void initialiseDecoderAndAudioTrack(InputStream inputStream) {
-        initialiseDecoder(currentTrack, inputStream);
-        if (isDecoderInitialised()
-                && (!isAudioTrackInitialised() || sampleRateHasChanged || channelsHasChanged)) {
-            audioTrack = null;
-            createAudioTrack();
-        }
-        startPlayback();
     }
 
     /**
@@ -493,12 +483,6 @@ public final class AudioPlayer {
 
     private class GetInputStreamFromURL extends AsyncTask<String, Void, InputStream> {
 
-        private PostAsyncTaskListener<InputStream> onPostAsyncTaskListener;
-
-        public GetInputStreamFromURL(PostAsyncTaskListener<InputStream> onPostAsyncTaskListener) {
-            this.onPostAsyncTaskListener = onPostAsyncTaskListener;
-        }
-
         @Override
         protected InputStream doInBackground(String... str) {
             InputStream inputStream = null;
@@ -515,8 +499,15 @@ public final class AudioPlayer {
         @Override
         protected void onPostExecute(InputStream inputStream) {
             super.onPostExecute(inputStream);
-            if (inputStream != null && onPostAsyncTaskListener != null)
-                onPostAsyncTaskListener.onPostAsyncTask(inputStream);
+            if (inputStream != null) {
+                initialiseDecoder(currentTrack, inputStream);
+                if (isDecoderInitialised()
+                        && (!isAudioTrackInitialised() || sampleRateHasChanged || channelsHasChanged)) {
+                    audioTrack = null;
+                    createAudioTrack();
+                }
+                startPlayback();
+            }
         }
     }
 
