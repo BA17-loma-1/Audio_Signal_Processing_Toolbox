@@ -14,7 +14,7 @@ public class SplashScreen extends Activity {
         super.onCreate(icicle);
         setContentView(R.layout.splash_activity);
         final int SPLASH_DISPLAY_LENGTH = 3000;
-        new Handler().postDelayed(new Runnable(){
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 Intent mainIntent = new Intent(SplashScreen.this, MainActivity.class);
@@ -22,6 +22,11 @@ public class SplashScreen extends Activity {
                 SplashScreen.this.finish();
             }
         }, SPLASH_DISPLAY_LENGTH);
+    }
+
+    @Override
+    public void onBackPressed() {
+        System.exit(0);
     }
 
 }

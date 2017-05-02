@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements
     private AudioPlayerFragment audioPlayerFragment;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private ArrayList<AudioEffect> audioEffects;
-    private Toast backToast;
+    private Toast onBackPressedToast;
 
 
     @Override
@@ -100,11 +100,11 @@ public class MainActivity extends AppCompatActivity implements
         } else {
             Fragment fragment = getFragmentByTag(TAG_MEDIA_LIST_FRAGMENT);
             if (fragment.isVisible()) {
-                if (backToast != null && backToast.getView().getWindowToken() != null) {
-                    System.exit(1);
+                if (onBackPressedToast != null && onBackPressedToast.getView().getWindowToken() != null) {
+                    System.exit(0);
                 } else {
-                    backToast = Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT);
-                    backToast.show();
+                    onBackPressedToast = Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT);
+                    onBackPressedToast.show();
                 }
             } else {
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -245,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements
     private void initFragments() {
         Fragment visualisationConfigurationFragment = new ViewFragment();
         audioPlayerFragment = new AudioPlayerFragment();
+        ((ViewFragment) visualisationConfigurationFragment).preDefineActiveViews();
         List<AudioView> activeViews = ((ViewFragment) visualisationConfigurationFragment).getActiveViews();
         MediaListFragment mediaListFragment = new MediaListFragment();
         mediaListFragment.setMediaListType(MediaListType.MY_MUSIC);
