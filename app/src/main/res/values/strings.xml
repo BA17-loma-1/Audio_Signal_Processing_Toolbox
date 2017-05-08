@@ -8,7 +8,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="navigation_header_faculty">ZHAW School of Engineering</string>
-    <string name="navigation_header_institute">Zentrum für Signalverarbeitung und Nachrichtentechnik (ZSN)</string>
+    <string name="navigation_header_institute">Centre for Signal Processing/Communications Engineering</string>
 
     <!-- Drawer menu item titles -->
     <string name="drawer_menu_item_music">My music</string>
