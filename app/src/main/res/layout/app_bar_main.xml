@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
+    android:background="@color/colorAccent"
     tools:context="ch.zhaw.bait17.audio_signal_processing_toolbox.ui.MainActivity">
 
     <include
