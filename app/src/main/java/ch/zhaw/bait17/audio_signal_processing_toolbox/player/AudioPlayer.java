@@ -18,13 +18,16 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.decoder.AudioDecoder;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.decoder.DecoderException;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.decoder.MP3Decoder;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.decoder.PlaybackListener;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.decoder.WaveDecoder;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.MediaListType;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PCMSampleBlock;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.SupportedAudioFormat;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.pcm.PCMSampleBlock;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.MediaListType;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.PCMUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
 

@@ -16,14 +16,14 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.decoder.PlaybackListener;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.MediaListType;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.player.AudioPlayer;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.player.PlaybackListener;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.player.Track;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.MediaListType;
 
 /**
  * @author georgrem, stockan1

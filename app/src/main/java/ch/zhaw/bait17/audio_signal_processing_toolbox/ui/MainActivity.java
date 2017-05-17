@@ -24,8 +24,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.delay.Flanger;
@@ -36,8 +34,10 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FilterUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.modulation.RingModulation;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.modulation.Tremolo;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.MediaListType;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.Track;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.player.Track;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.MediaListType;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
 
 /**

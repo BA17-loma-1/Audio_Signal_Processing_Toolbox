@@ -3,8 +3,8 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
 
 /**
  * Quantizer / decimator with smooth control. By David Lowenfels, MusicDSP forum (www.musicdsp.com)

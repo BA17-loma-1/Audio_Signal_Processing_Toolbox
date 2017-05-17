@@ -4,7 +4,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.google.common.primitives.Floats;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,8 +15,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
+
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
 
 /**
  * <p>

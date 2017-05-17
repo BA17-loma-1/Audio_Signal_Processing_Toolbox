@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Bitcrusher;
@@ -18,6 +17,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.SoftClipper
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.TubeDistortion;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FIRFilter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.modulation.RingModulation;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
 
 /**
  * @author georgrem, stockan1

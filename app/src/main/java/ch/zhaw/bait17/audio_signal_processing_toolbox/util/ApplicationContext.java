@@ -1,4 +1,4 @@
-package ch.zhaw.bait17.audio_signal_processing_toolbox;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.util;
 
 import android.app.Application;
 import android.content.Context;

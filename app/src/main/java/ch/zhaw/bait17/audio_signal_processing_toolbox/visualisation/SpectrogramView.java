@@ -27,8 +27,8 @@ import android.view.View;
 
 import java.util.Arrays;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Colour;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.HeatMap;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;

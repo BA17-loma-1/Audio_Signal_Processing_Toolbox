@@ -1,4 +1,4 @@
-package ch.zhaw.bait17.audio_signal_processing_toolbox.player;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.decoder;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -7,7 +7,7 @@ import android.widget.Toast;
 
 import java.io.InputStream;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
 import javazoom.jl.decoder.Bitstream;
 import javazoom.jl.decoder.BitstreamException;
 import javazoom.jl.decoder.Decoder;

@@ -3,8 +3,8 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.modulation;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
 
 /**
  * <p>

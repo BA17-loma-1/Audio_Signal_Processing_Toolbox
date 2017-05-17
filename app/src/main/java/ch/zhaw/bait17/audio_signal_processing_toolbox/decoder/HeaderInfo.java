@@ -1,4 +1,4 @@
-package ch.zhaw.bait17.audio_signal_processing_toolbox;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.decoder;
 
 /**
  * An interface representing a header of an audio file.

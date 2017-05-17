@@ -16,10 +16,10 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.FFT;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.model.PCMSampleBlock;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.fft.FFT;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.pcm.PCMSampleBlock;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.FrequencyView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView;

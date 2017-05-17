@@ -11,7 +11,8 @@ import org.junit.runners.Parameterized;
 import java.util.Arrays;
 import java.util.Collection;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.player.WaveDecoder;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.decoder.AudioCodingFormat;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.decoder.WaveDecoder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -21,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Instrumented tests of the {@code WaveDecoder} class.
- * See class under test: {@link ch.zhaw.bait17.audio_signal_processing_toolbox.player.WaveDecoder}
+ * See class under test: {@link WaveDecoder}
  *
  * @author georgrem, stockan1
  */

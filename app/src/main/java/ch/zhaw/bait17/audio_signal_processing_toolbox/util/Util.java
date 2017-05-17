@@ -10,8 +10,6 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.ApplicationContext;
-
 /**
  * <p>
  *     A general utility class.

@@ -4,17 +4,25 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.fft.Window;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.fft.WindowType;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Created by georgrem, stockan1 on 18.02.2017.
  *
  * Local unit tests of the Window class.
- * @see ch.zhaw.bait17.audio_signal_processing_toolbox.Window
+ * @see Window
  */
 
 @RunWith(Parameterized.class)

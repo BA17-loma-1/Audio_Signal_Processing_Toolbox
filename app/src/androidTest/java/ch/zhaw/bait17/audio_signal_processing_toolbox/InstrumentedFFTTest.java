@@ -3,9 +3,11 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -14,7 +16,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.fft.FFT;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.fft.WindowType;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Instrumentation test, which will execute on an Android device (emulator).

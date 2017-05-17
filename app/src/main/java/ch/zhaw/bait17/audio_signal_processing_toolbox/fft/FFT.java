@@ -1,9 +1,10 @@
-package ch.zhaw.bait17.audio_signal_processing_toolbox;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.fft;
 
 import android.support.annotation.NonNull;
 
 import org.jtransforms.fft.FloatFFT_1D;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.PCMUtil;
 
 /**

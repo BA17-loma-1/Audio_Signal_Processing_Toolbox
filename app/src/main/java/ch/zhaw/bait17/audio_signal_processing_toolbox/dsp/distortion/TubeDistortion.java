@@ -3,8 +3,8 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
 
 /***
  * Tube distortion simulation effect. From DAFX Digital Audio Effects, second edition.

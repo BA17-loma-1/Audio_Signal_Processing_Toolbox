@@ -1,12 +1,12 @@
-package ch.zhaw.bait17.audio_signal_processing_toolbox;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.fft;
 
 import java.util.Arrays;
 
 /**
  * Creates a window used in the Fast Fourier Transform.
- *  @see ch.zhaw.bait17.audio_signal_processing_toolbox.FFT
+ *  @see FFT
  *
- * Consult enum {@link ch.zhaw.bait17.audio_signal_processing_toolbox.WindowType} for all supported
+ * Consult enum {@link WindowType} for all supported
  * window types.
  *
  * @author georgrem, stockan1

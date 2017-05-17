@@ -1,4 +1,4 @@
-package ch.zhaw.bait17.audio_signal_processing_toolbox.model;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.player;
 
 import android.os.Parcel;
 import android.os.Parcelable;
