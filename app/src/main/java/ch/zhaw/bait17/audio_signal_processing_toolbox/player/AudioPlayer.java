@@ -21,7 +21,6 @@ import java.util.List;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.decoder.AudioDecoder;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.decoder.DecoderException;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.decoder.MP3Decoder;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.decoder.PlaybackListener;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.decoder.WaveDecoder;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.pcm.PCMSampleBlock;

@@ -1,4 +1,4 @@
-package ch.zhaw.bait17.audio_signal_processing_toolbox.decoder;
+package ch.zhaw.bait17.audio_signal_processing_toolbox.player;
 
 /**
  * @author georgrem, stockan1
