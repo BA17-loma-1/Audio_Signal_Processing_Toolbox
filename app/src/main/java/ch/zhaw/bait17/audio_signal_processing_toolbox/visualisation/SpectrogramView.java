@@ -233,6 +233,7 @@ public class SpectrogramView extends FrequencyView {
      */
     private void initialiseView() {
         setWillNotDraw(false);
+        paint.setAntiAlias(true);
     }
 
     private float getValueFromRelativePosition(float position, float minValue, float maxValue) {
@@ -252,7 +253,6 @@ public class SpectrogramView extends FrequencyView {
         if (dB >= db_PEAK || Double.compare(dB, Double.POSITIVE_INFINITY) == 0) {
             dB = db_PEAK;
         }
-        // Scaled dB
         double dbScaled = dB + Math.abs(dB_FLOOR);
         int index = (int) ((dbScaled / dB_RANGE) * (gradient.length - 1));
         return gradient[index];
