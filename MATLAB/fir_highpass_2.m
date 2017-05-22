@@ -1,16 +1,16 @@
 % BAIT17 - Audio Signal Processing Toolbox for Android
 % author: georgrem, stockan1
-% version: March 2017
+% version: May 2017
 % 
 % FIR filter design: high pass
 
-function [b_fir] = fir_highpass()
+function [b_fir] = fir_highpass_2()
 
 fs = 48e3;                  % Sample rate (not relevant) [Hz]
-fpass = 2000;               % Durchlassbereich (pass band) [Hz]
-Apass = 0.01;               % Rippel im Durchlassbereich [dB]
+fpass = 2500;               % Durchlassbereich (pass band) [Hz]
+Apass = 0.02;               % Rippel im Durchlassbereich [dB]
 fstop = 1000;               % Sperrbereich (stop band) [Hz]
-Astop = 100;                % min. Dämpfung im Sperrbereich [dB]
+Astop = 60;                 % min. Dämpfung im Sperrbereich [dB]
 
 % Optimale Bestimmung des FIR-Filters
 h = fdesign.highpass(fstop, fpass, Astop, Apass, fs);
@@ -21,11 +21,11 @@ fprintf('DC gain\t\t\t\t\t\t\t: %d\n', sum(b_fir))
 
 
 % Write filter spec and coefficients to text file
-fd = fopen('output/b_fir_highpass.txt', 'w+');
+fd = fopen('output/b_fir_highpass2.txt', 'w+');
 fprintf(fd, 'highpass,order %d,fstop1 %5.3d,Astop1 %3.0d,fpass1 %5.3d,Apass1 %1.3f\n', ...
     length(b_fir)-1, fstop, Astop, fpass, Apass);
 fclose(fd);
-dlmwrite('output/b_fir_highpass.txt', b_fir, '-append', 'delimiter', ',', ...
+dlmwrite('output/b_fir_highpass2.txt', b_fir, '-append', 'delimiter', ',', ...
     'precision', '%1.12f');
 
 

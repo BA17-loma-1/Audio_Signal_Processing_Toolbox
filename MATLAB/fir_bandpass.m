@@ -4,15 +4,15 @@
 % 
 % FIR filter design: band pass
 
-format compact; format short; clear; close all; clc;
+function [b_fir] = fir_bandpass()
 
 fs = 48e3;                  % Sample rate (not relevant) [Hz]
-Apass = 0.02;               % Rippel im Durchlassbereich [dB]
-fpass1 = 2.5e3;             % Durchlassbereich links (pass band 1) [Hz]
-fstop1 = 2e3;               % Sperrbereich links (stop band1 ) [Hz]
-fpass2 = 3e3;               % Durchlassbereich rechts (pass band 2) [Hz]
-fstop2 = 3.5e3;             % Sperrbereich rechts (stop band 2) [Hz]
-Astop = 90;                 % min. Dämpfung in Sperrbereichen [dB]
+Apass = 0.01;               % Rippel im Durchlassbereich [dB]
+fpass1 = 2000;              % Durchlassbereich links (pass band 1) [Hz]
+fstop1 = 1000;              % Sperrbereich links (stop band1 ) [Hz]
+fpass2 = 4000;              % Durchlassbereich rechts (pass band 2) [Hz]
+fstop2 = 5000;              % Sperrbereich rechts (stop band 2) [Hz]
+Astop = 100;                % min. Dämpfung in Sperrbereichen [dB]
 
 % Optimale Bestimmung des FIR-Filters
 h = fdesign.bandpass(fstop1,fpass1,fpass2,fstop2,Astop,Apass,Astop,fs);
@@ -32,16 +32,18 @@ dlmwrite('output/b_fir_bandpass.txt', b_fir, '-append', 'delimiter', ',', ...
 
 
 figure(1);
-stem(b_fir, 'filled'), grid minor;
+subplot(1,2,1), stem(b_fir, 'filled'), grid minor;
 title('Impulse response (coefficients of the FIR filter)');
 xlabel('Samples i');
 ylabel('Amplitude b[i]');
+xlim([1 length(b_fir + 1)]);
 
-figure(2);
 [H,W] = freqz(b_fir, 1, 2^13);
-plot(W/2/pi*fs, 20*log10(abs(H))), grid minor;
+subplot(1,2,2), plot(W/2/pi*fs, 20*log10(abs(H))), grid minor;
 title('Frequency response of the FIR filter');
 xlabel('Frequency [Hz]');
 ylabel('Magnitude [dB]');
 
 fvtool(b_fir)
+
+end

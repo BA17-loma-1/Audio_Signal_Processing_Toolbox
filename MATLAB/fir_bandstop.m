@@ -4,7 +4,7 @@
 % 
 % FIR filter design: band stop
 
-format compact; format short; clear; close all; clc;
+function [b_fir] = fir_bandstop()
 
 fs = 48e3;                  % Sample rate (not relevant) [Hz]
 Apass = 0.02;               % Rippel in Durchlassbereichen [dB]
@@ -32,16 +32,18 @@ dlmwrite('output/b_fir_bandstop.txt', b_fir, '-append', 'delimiter', ',', ...
 
 
 figure(1);
-stem(b_fir, 'filled'), grid minor;
+subplot(1,2,1), stem(b_fir, 'filled'), grid minor;
 title('Impulse response (coefficients of the FIR filter)');
 xlabel('Samples i');
 ylabel('Amplitude b[i]');
+xlim([1 length(b_fir + 1)]);
 
-figure(2);
 [H,W] = freqz(b_fir, 1, 2^13);
-plot(W/2/pi*fs, 20*log10(abs(H))), grid minor;
+subplot(1,2,2), plot(W/2/pi*fs, 20*log10(abs(H))), grid minor;
 title('Frequency response of the FIR filter');
 xlabel('Frequency [Hz]');
 ylabel('Magnitude [dB]');
 
 fvtool(b_fir)
+
+end
