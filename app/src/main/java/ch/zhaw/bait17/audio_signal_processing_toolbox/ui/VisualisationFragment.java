@@ -19,6 +19,7 @@ import java.util.List;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.fft.FFT;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.pcm.PCMSampleBlock;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.FrequencyView;
@@ -36,6 +37,7 @@ public class VisualisationFragment extends Fragment {
 
     private FFT fft;
     private List<AudioView> views;
+    private View rootView;
 
     // Creates a new fragment given a array
     // VisualisationFragment.newInstance(views);
@@ -61,7 +63,17 @@ public class VisualisationFragment extends Fragment {
     // either dynamically or via XML layout inflation.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.content_visualisation, container, false);
+        if (rootView == null) {
+            rootView = inflater.inflate(R.layout.content_visualisation, container, false);
+            // set default view on startup
+            if (views == null) {
+                views = new ArrayList<>();
+                AudioView spectrogramView = new SpectrogramView(ApplicationContext.getAppContext());
+                spectrogramView.getInflatedView();
+                spectrogramView.setVisualisationType(VisualisationType.PRE_FX);
+                views.add(spectrogramView);
+            }
+        }
 
         // we have to wait for the drawing phase for the actual measurements
         rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -119,7 +131,7 @@ public class VisualisationFragment extends Fragment {
      * EventBus subscriber - receives {@code PCMSampleBlock}s from the publisher
      * {@link ch.zhaw.bait17.audio_signal_processing_toolbox.player.AudioPlayer}
      *
-     * @param sampleBlock   a {@code PCMSampleBlock}
+     * @param sampleBlock a {@code PCMSampleBlock}
      */
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onPCMSampleBlockReceived(PCMSampleBlock sampleBlock) {
@@ -135,7 +147,7 @@ public class VisualisationFragment extends Fragment {
     /**
      * Sets the views to be displayed in the fragment.
      *
-     * @param views     a list of views
+     * @param views a list of views
      */
     public void setViews(List<AudioView> views) {
         this.views = views;
@@ -145,8 +157,8 @@ public class VisualisationFragment extends Fragment {
      * <p>
      * Sets the {@code AudioView} parameters: </br>
      * <ul>
-     *     <li>sample rate</li>
-     *     <li>channels</li>
+     * <li>sample rate</li>
+     * <li>channels</li>
      * </ul>
      * </p>
      * <p>
@@ -154,8 +166,8 @@ public class VisualisationFragment extends Fragment {
      * to the type of {code view}.
      * </p>
      *
-     * @param view          an {@code AudioView}
-     * @param sampleBlock   a {@code PCMSampleBlock}
+     * @param view        an {@code AudioView}
+     * @param sampleBlock a {@code PCMSampleBlock}
      */
     private void setAudioViewParameters(@NonNull AudioView view, @NonNull PCMSampleBlock sampleBlock) {
         view.setSampleRate(sampleBlock.getSampleRate());
@@ -171,8 +183,8 @@ public class VisualisationFragment extends Fragment {
     /**
      * Sets the samples to the {@code TimeView}.
      *
-     * @param timeView          a {@code TimeView}
-     * @param sampleBlock       a {@code SampleBlock}
+     * @param timeView    a {@code TimeView}
+     * @param sampleBlock a {@code SampleBlock}
      */
     private void setTimeViewParameters(@NonNull TimeView timeView,
                                        @NonNull PCMSampleBlock sampleBlock) {
@@ -199,8 +211,8 @@ public class VisualisationFragment extends Fragment {
      * The FFT resolution is controlled via the {@code FFT} instance.
      * </p>
      *
-     * @param frequencyView     a {@code FrequencyView}
-     * @param sampleBlock       a {@code SampleBlock}
+     * @param frequencyView a {@code FrequencyView}
+     * @param sampleBlock   a {@code SampleBlock}
      */
     private void setFrequencyViewParameters(@NonNull FrequencyView frequencyView,
                                             @NonNull PCMSampleBlock sampleBlock) {
