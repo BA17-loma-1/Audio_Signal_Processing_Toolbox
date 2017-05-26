@@ -63,17 +63,16 @@ public class VisualisationFragment extends Fragment {
     // either dynamically or via XML layout inflation.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (rootView == null) {
-            rootView = inflater.inflate(R.layout.content_visualisation, container, false);
-            // set default view on startup
-            if (views == null) {
-                views = new ArrayList<>();
-                AudioView spectrogramView = new SpectrogramView(ApplicationContext.getAppContext());
-                spectrogramView.getInflatedView();
-                spectrogramView.setVisualisationType(VisualisationType.PRE_FX);
-                views.add(spectrogramView);
-            }
+        // set default view on startup
+        if (rootView == null && views == null) {
+            views = new ArrayList<>();
+            AudioView spectrogramView = new SpectrogramView(ApplicationContext.getAppContext());
+            spectrogramView.getInflatedView();
+            spectrogramView.setVisualisationType(VisualisationType.PRE_FX);
+            views.add(spectrogramView);
         }
+
+        rootView = inflater.inflate(R.layout.content_visualisation, container, false);
 
         // we have to wait for the drawing phase for the actual measurements
         rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
