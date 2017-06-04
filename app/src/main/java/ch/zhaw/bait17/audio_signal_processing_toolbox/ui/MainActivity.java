@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -30,6 +31,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.delay.Flanger;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Bitcrusher;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.SoftClipper;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.TubeDistortion;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Waveshaper;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FilterUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.modulation.RingModulation;
@@ -49,8 +51,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         MediaListFragment.OnTrackSelectedListener,
-        AudioEffectFragment.OnItemSelectedListener,
-        SettingsFragment.OnItemChangedListener {
+        AudioEffectFragment.OnItemSelectedListener {
 
     private static final String TAG_AUDIO_PLAYER_FRAGMENT = "AUDIO_PLAYER";
     private static final String TAG_FILTER_FRAGMENT = "FILTER";
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements
     private static final String TAG_SETTINGS_FRAGMENT = "SETTINGS";
     private static final String TAG_VISUALISATION_CONFIGURATION_FRAGMENT = "VISUALISATION_CONFIGURATION";
     private static final String TAG_VISUALISATION_FRAGMENT = "VISUALISATION";
+    private static final String TAG_APROPOS_FRAGMENT = "APROPOS";
 
     private AudioPlayerFragment audioPlayerFragment;
     private ActionBarDrawerToggle actionBarDrawerToggle;
@@ -108,21 +110,10 @@ public class MainActivity extends AppCompatActivity implements
                 }
             } else {
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
-                if (fragment != null) {
-                    ft.replace(R.id.content_frame, fragment, TAG_MEDIA_LIST_FRAGMENT);
-                    ft.addToBackStack(TAG_MEDIA_LIST_FRAGMENT);
-                }
+                ft.replace(R.id.content_frame, fragment, TAG_MEDIA_LIST_FRAGMENT);
+                ft.addToBackStack(TAG_MEDIA_LIST_FRAGMENT);
                 ft.commit();
             }
-            // Problem: AudioPlayerFragment disappears when back button is pushed.
-            // Needs a more elegant solution.
-            /*
-            if (getFragmentManager().getBackStackEntryCount() > 0) {
-                getFragmentManager().popBackStack();
-            } else {
-                super.onBackPressed();
-            }
-            */
         }
     }
 
@@ -154,23 +145,6 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        /*
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        */
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -207,15 +181,6 @@ public class MainActivity extends AppCompatActivity implements
         if (audioPlayerFragment != null) {
             audioPlayerFragment.setAudioEffects(audioEffects);
         }
-        Fragment sf = getFragmentByTag(TAG_SETTINGS_FRAGMENT);
-        ((SettingsFragment) sf).setAudioEffects(audioEffects);
-    }
-
-    @Override
-    public void onParameterChanged(List<AudioEffect> audioEffects) {
-        if (audioPlayerFragment != null) {
-            audioPlayerFragment.setAudioEffects(audioEffects);
-        }
     }
 
     // Layout: onClick event
@@ -240,6 +205,36 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
+     * Sets the gain.
+     *
+     * @param gain  linear gain
+     */
+    public void setGain(float gain) {
+        if (audioPlayerFragment != null) {
+            audioPlayerFragment.setGain(gain);
+        }
+    }
+
+    /**
+     * Returns a list of all available audio effects and filter within the application.
+     *
+     * @return  list of audio effects and filters
+     */
+    public List<AudioEffect> getAudioEffects() {
+        return audioEffects;
+    }
+
+    @Nullable
+    public AudioEffect getAudioEffectFromType(Class<? extends AudioEffect> clazz) {
+        for (AudioEffect fx : audioEffects) {
+            if (fx != null && fx.getClass().isAssignableFrom(clazz)) {
+                return fx;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Loads all fragments into the {@code FrameLayout} placeholders.
      */
     private void initFragments() {
@@ -256,6 +251,7 @@ public class MainActivity extends AppCompatActivity implements
                 TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
         ft.replace(R.id.content_frame, VisualisationFragment.newInstance(activeViews),
                 TAG_VISUALISATION_FRAGMENT);
+        ft.replace(R.id.content_frame, new AproposFragment(), TAG_APROPOS_FRAGMENT);
         ft.replace(R.id.content_frame, new SettingsFragment(), TAG_SETTINGS_FRAGMENT);
         ft.replace(R.id.content_frame, mediaListFragment, TAG_MEDIA_LIST_FRAGMENT);
         ft.replace(R.id.audio_player_fragment, audioPlayerFragment, TAG_AUDIO_PLAYER_FRAGMENT);
@@ -270,12 +266,12 @@ public class MainActivity extends AppCompatActivity implements
     /*
         Handle navigation view item clicks here.
         Swap fragments in the main content view.
+        Stores containerViewId and associated Fragment
     */
     private boolean selectMenuItem(@NonNull MenuItem item) {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        // Store containerViewId and associated Fragment
         Fragment fragment = null;
-        String title = "";
+        String title = getString(R.string.app_name);
         String tagFragmentName = "";
         MediaListType mediaListType;
 
@@ -326,10 +322,11 @@ public class MainActivity extends AppCompatActivity implements
                 tagFragmentName = TAG_SETTINGS_FRAGMENT;
                 break;
             case R.id.nav_about:
-                title = getString(R.string.app_name);
+                fragment = getFragmentByTag(TAG_APROPOS_FRAGMENT);
+                title = getString(R.string.drawer_menu_item_about_app);
+                tagFragmentName = TAG_APROPOS_FRAGMENT;
                 break;
             default:
-                title = getString(R.string.app_name);
                 break;
         }
 
@@ -346,8 +343,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     * Finds all filter spec files in the raw resources folder and returns a list of {@code Filter}
-     * objects.
+     * Finds all filter spec files in the raw resources folder and returns a list of
+     * {@code Filter} objects.
      *
      * @return a list of {@code Filter}s
      */
@@ -376,12 +373,13 @@ public class MainActivity extends AppCompatActivity implements
         audioEffects.addAll(getAllFilters());
         audioEffects.add(new Bitcrusher(Constants.BITCRUSHER_DEFAULT_NORM_FREQUENCY,
                 Constants.BITCRUSHER_DEFAULT_BITS));
+        audioEffects.add(new Waveshaper(Constants.WAVESHAPER_DEFAULT_THRESHOLD));
         audioEffects.add(new SoftClipper(Constants.SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR));
         audioEffects.add(new TubeDistortion());
         audioEffects.add(new RingModulation(Constants.RING_MODULATOR_DEFAULT_FREQUENCY));
-        audioEffects.add(new Tremolo(Constants.TREMOLO_DEFAULT_FREQUENCY,
+        audioEffects.add(new Tremolo(Constants.TREMOLO_DEFAULT_MOD_FREQUENCY,
                 Constants.TREMOLO_DEFAULT_AMPLITUDE));
-        audioEffects.add(new Flanger(Constants.FLANGER_DEFAULT_FREQUENCY,
+        audioEffects.add(new Flanger(Constants.FLANGER_DEFAULT_RATE,
                 Constants.FLANGER_DEFAULT_AMPLITUDE, Constants.FLANGER_DEFAULT_DELAY));
     }
 

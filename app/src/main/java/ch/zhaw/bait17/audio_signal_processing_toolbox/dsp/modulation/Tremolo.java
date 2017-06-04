@@ -20,16 +20,21 @@ public class Tremolo extends AudioEffect {
     private static final String LABEL = "Tremolo";
     private static final String DESCRIPTION = "Amplitude modulation";
 
-    private double carrierFrequency;
-    private double samplingFrequency = Constants.DEFAULT_SAMPLE_RATE;
-    private double frequencyModulation;
-    private float amplitude = 0.5f;
+    private int samplingFrequency = Constants.DEFAULT_SAMPLE_RATE;
+    private float modulationFrequency;
+    private float amplitude = Constants.TREMOLO_DEFAULT_AMPLITUDE;
     private long index = 0;
 
-
-    public Tremolo(double carrierFrequency, float amplitude) {
+    public Tremolo(float modulationFrequency, float amplitude) {
         this.amplitude = amplitude;
-        setFrequencyModulation(carrierFrequency);
+        setModulationFrequency(modulationFrequency);
+    }
+
+    protected Tremolo(Parcel in) {
+        this.samplingFrequency = in.readInt();
+        this.modulationFrequency = in.readFloat();
+        this.amplitude = in.readFloat();
+        this.index = in.readLong();
     }
 
     /**
@@ -40,8 +45,9 @@ public class Tremolo extends AudioEffect {
     @Override
     public void apply(@NonNull float[] input, @NonNull float[] output) {
         if (input.length == output.length) {
-            for (int i = 0; i < input.length; ++i) {
-                output[i] *= 1 + amplitude * Math.cos(frequencyModulation * index++);
+            for (int i = 0; i < input.length; i++) {
+                output[i] = input[i] * (float) (1 + amplitude * Math.sin(2 * Math.PI * index++ *
+                        (modulationFrequency / (float) samplingFrequency)));
             }
         }
     }
@@ -56,12 +62,8 @@ public class Tremolo extends AudioEffect {
         return DESCRIPTION;
     }
 
-    public void setFrequencyModulation(double carrierFrequency) {
-        this.carrierFrequency = carrierFrequency;
-        frequencyModulation = 2 * Math.PI;
-        if (samplingFrequency > 0) {
-            frequencyModulation *= (carrierFrequency / samplingFrequency);
-        }
+    public void setModulationFrequency(float modulationFrequency) {
+        this.modulationFrequency = modulationFrequency;
     }
 
     public void setAmplitude(float amplitude) {
@@ -70,8 +72,9 @@ public class Tremolo extends AudioEffect {
 
     @Override
     public void setSamplingFrequency(int sampleRate) {
-        samplingFrequency = sampleRate;
-        setFrequencyModulation(carrierFrequency);
+        if (sampleRate > 0) {
+            samplingFrequency = sampleRate;
+        }
     }
 
     @Override
@@ -81,19 +84,10 @@ public class Tremolo extends AudioEffect {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeDouble(this.carrierFrequency);
-        dest.writeDouble(this.samplingFrequency);
-        dest.writeDouble(this.frequencyModulation);
+        dest.writeInt(this.samplingFrequency);
+        dest.writeFloat(this.modulationFrequency);
         dest.writeFloat(this.amplitude);
         dest.writeLong(this.index);
-    }
-
-    protected Tremolo(Parcel in) {
-        this.carrierFrequency = in.readDouble();
-        this.samplingFrequency = in.readDouble();
-        this.frequencyModulation = in.readDouble();
-        this.amplitude = in.readFloat();
-        this.index = in.readLong();
     }
 
     public static final Creator<Tremolo> CREATOR = new Creator<Tremolo>() {

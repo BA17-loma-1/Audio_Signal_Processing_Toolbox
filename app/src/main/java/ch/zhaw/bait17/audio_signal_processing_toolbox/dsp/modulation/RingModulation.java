@@ -7,6 +7,8 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
 
 /**
+ * Ring modulation is a multiplication of the input signal with a carrier signal.
+ *
  * @author georgrem, stockan1
  */
 
@@ -15,18 +17,21 @@ public class RingModulation extends AudioEffect {
     private static final String LABEL = "Ring modulation";
     private static final String DESCRIPTION = "Amplitude modulation without the original signal, duplicates and shifts the spectrum, modifies pitch and timbre";
 
-    private double carrierFrequency;
-    private double samplingFrequency = Constants.DEFAULT_SAMPLE_RATE;
-    private double frequencyModulation;
+    private int samplingFrequency = Constants.DEFAULT_SAMPLE_RATE;
+    private double modulationFrequency;
     private long index = 0;
 
     public RingModulation(double carrierFrequency) {
-        setFrequencyModulation(carrierFrequency);
+        setModulationFrequency(carrierFrequency);
+    }
+
+    protected RingModulation(Parcel in) {
+        this.samplingFrequency = in.readInt();
+        this.modulationFrequency = in.readDouble();
+        this.index = in.readLong();
     }
 
     /**
-     * The (ring) modulation is a simple multiplication of the waveform with the carrier frequency.
-     *
      * @param input  an array of {@code float} containing the input samples
      *               {@code float} values must be normalised in the range [-1,1]
      * @param output an array of {@code float} of same length as the input samples array
@@ -34,8 +39,12 @@ public class RingModulation extends AudioEffect {
     @Override
     public void apply(@NonNull float[] input, @NonNull float[] output) {
         if (input.length == output.length) {
-            for (int i = 0; i < input.length; ++i) {
-                output[i] *= Math.cos(frequencyModulation * index++);
+            for (int i = 0; i < input.length; i++) {
+                output[i] = (float) (input[i] * Math.cos(2 * Math.PI * modulationFrequency *
+                        (index++ / (float) samplingFrequency)));
+                if (index == samplingFrequency) {
+                    index = 0;
+                }
             }
         }
     }
@@ -50,18 +59,15 @@ public class RingModulation extends AudioEffect {
         return DESCRIPTION;
     }
 
-    public void setFrequencyModulation(double carrierFrequency) {
-        this.carrierFrequency = carrierFrequency;
-        frequencyModulation = 2 * Math.PI;
-        if (samplingFrequency > 0) {
-            frequencyModulation *= (carrierFrequency / samplingFrequency);
-        }
+    public void setModulationFrequency(double modFreq) {
+        modulationFrequency = modFreq;
     }
 
     @Override
     public void setSamplingFrequency(int samplingFrequency) {
-        this.samplingFrequency = samplingFrequency;
-        setFrequencyModulation(carrierFrequency);
+        if (samplingFrequency > 0) {
+            this.samplingFrequency = samplingFrequency;
+        }
     }
 
     @Override
@@ -71,17 +77,9 @@ public class RingModulation extends AudioEffect {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeDouble(this.carrierFrequency);
-        dest.writeDouble(this.samplingFrequency);
-        dest.writeDouble(this.frequencyModulation);
+        dest.writeInt(this.samplingFrequency);
+        dest.writeDouble(this.modulationFrequency);
         dest.writeLong(this.index);
-    }
-
-    protected RingModulation(Parcel in) {
-        this.carrierFrequency = in.readDouble();
-        this.samplingFrequency = in.readDouble();
-        this.frequencyModulation = in.readDouble();
-        this.index = in.readLong();
     }
 
     public static final Creator<RingModulation> CREATOR = new Creator<RingModulation>() {

@@ -6,10 +6,12 @@ import android.support.annotation.NonNull;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
 
-/***
- * Tube distortion simulation effect. From DAFX Digital Audio Effects, second edition.
- *
- * @author Bendiksen, Dutilleux, Zölzer
+/**
+ * <p>
+ * Tube distortion simulation effect. From DAFX Digital Audio Effects, second edition, page 122.
+ * </br>
+ * Authors: Bendiksen, Dutilleux, Zölzer
+ * </p>
  */
 
 public class TubeDistortion extends AudioEffect {
@@ -40,6 +42,13 @@ public class TubeDistortion extends AudioEffect {
 
     public TubeDistortion() {
 
+    }
+
+    protected TubeDistortion(Parcel in) {
+        this.q = in.readFloat();
+        this.dist = in.readInt();
+        this.mix = in.readFloat();
+        this.gain = in.readFloat();
     }
 
     /**
@@ -136,13 +145,6 @@ public class TubeDistortion extends AudioEffect {
         dest.writeInt(this.dist);
         dest.writeFloat(this.mix);
         dest.writeFloat(this.gain);
-    }
-
-    protected TubeDistortion(Parcel in) {
-        this.q = in.readFloat();
-        this.dist = in.readInt();
-        this.mix = in.readFloat();
-        this.gain = in.readFloat();
     }
 
     public static final Creator<TubeDistortion> CREATOR = new Creator<TubeDistortion>() {

@@ -18,7 +18,7 @@
     <string name="drawer_menu_item_view_configuration">View configuration</string>
     <string name="drawer_menu_item_audio_effects_filter">Filters and audio effects</string>
     <string name="drawer_menu_item_settings">Settings</string>
-    <string name="drawer_menu_item_about_app">About</string>
+    <string name="drawer_menu_item_about_app">About the app</string>
 
     <!-- Media browser -->
     <string name="title_activity_media_browser">Media Browser</string>
@@ -62,21 +62,36 @@
     <string name="tremolo">Tremolo</string>
     <string name="flanger">Flanger</string>
 
-    <!-- Settings -->
-    <string name="change_fx_params">Change audio effect parameters</string>
+    <!-- Other settings -->
+    <string name="post_fx_gain">Post FX Gain</string>
+    <string name="linear_gain">Linear</string>
+
+    <!-- FX Settings -->
     <string name="ringmod_mod_freq">mod. frequency:</string>
     <string name="tremolo_mod_freq">mod. frequency:</string>
-    <string name="flanger_mod_freq">mod. frequency:</string>
+    <string name="flanger_rate">rate:</string>
     <string name="tremolo_mod_ampl">mod. amplitude:</string>
     <string name="flanger_mod_ampl">mod. amplitude:</string>
     <string name="flanger_mod_delay">mod. delay:</string>
     <string name="bitcrusher">Bitcrusher</string>
-    <string name="bitcrusher_norm_freq">normalised frequency:</string>
+    <string name="bitcrusher_norm_freq">norm. frequency (freq / sample rate):</string>
     <string name="bitcrusher_bits">bits:</string>
     <string name="soft_clipper">Soft clipper</string>
     <string name="soft_clipper_clipping_factor">clipping factor:</string>
+    <string name="waveshaper">Waveshaper</string>
+    <string name="waveshaper_threshold">threshold:</string>
     <string name="tube_distortion">Tube distortion</string>
     <string name="tube_distortion_gain">gain:</string>
     <string name="tube_distortion_mix">mix:</string>
+
+    <!-- A propos -->
+    <string name="uni_name">Zurich University of Applied Sciences</string>
+    <string name="uni_city">Winterthur, Switzerland</string>
+    <string name="uni_url">www.zhaw.ch/engineering/</string>
+    <string name="bachelor_thesis">2017 bachelor thesis in computer science</string>
+    <string name="app_dev">Application development</string>
+    <string name="devs">Rémi Georgiou, André Stocker</string>
+    <string name="supervision">Guidance and supervision</string>
+    <string name="profs">Dr. Martin Loeser, Dr. Sigisbert Wyrsch</string>
 
 </resources>

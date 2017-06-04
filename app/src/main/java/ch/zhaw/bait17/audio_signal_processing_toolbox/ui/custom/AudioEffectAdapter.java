@@ -12,9 +12,9 @@ import java.util.List;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Bitcrusher;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Overdrive;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.SoftClipper;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.TubeDistortion;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Waveshaper;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FIRFilter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.modulation.RingModulation;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
@@ -79,7 +79,7 @@ public class AudioEffectAdapter extends BaseAdapter {
                 icon.setImageResource(R.mipmap.icon_bitcrusher);
             } else if (audioEffect instanceof RingModulation) {
                 icon.setImageResource(R.mipmap.icon_ringmod);
-            } else if (audioEffect instanceof SoftClipper || audioEffect instanceof Overdrive) {
+            } else if (audioEffect instanceof SoftClipper || audioEffect instanceof Waveshaper) {
                 icon.setImageResource(R.mipmap.icon_waveshaper);
             } else if (audioEffect instanceof TubeDistortion) {
                 icon.setImageResource(R.mipmap.icon_tubedistortion);

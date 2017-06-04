@@ -29,6 +29,11 @@ public class Bitcrusher extends AudioEffect {
         this.bits = bits;
     }
 
+    protected Bitcrusher(Parcel in) {
+        this.normFrequency = in.readFloat();
+        this.bits = in.readInt();
+    }
+
     /**
      * Sets the normalised frequency.
      *
@@ -47,7 +52,7 @@ public class Bitcrusher extends AudioEffect {
     /**
      * Returns the normalised frequency.
      *
-     * @return      normalised frequency
+     * @return      normalised frequency (freq. / fs)
      */
     public float getNormalisedFrequency() {
         return normFrequency;
@@ -120,11 +125,6 @@ public class Bitcrusher extends AudioEffect {
         dest.writeInt(this.bits);
     }
 
-    protected Bitcrusher(Parcel in) {
-        this.normFrequency = in.readFloat();
-        this.bits = in.readInt();
-    }
-
     public static final Creator<Bitcrusher> CREATOR = new Creator<Bitcrusher>() {
         @Override
         public Bitcrusher createFromParcel(Parcel source) {
@@ -136,5 +136,4 @@ public class Bitcrusher extends AudioEffect {
             return new Bitcrusher[size];
         }
     };
-
 }

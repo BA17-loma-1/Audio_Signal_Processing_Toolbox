@@ -13,7 +13,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 public class Waveshaper extends AudioEffect {
 
     private static final String LABEL = "Waveshaper";
-    private static final String DESCRIPTION = "";
+    private static final String DESCRIPTION = "Basic waveshaper algorithm with shaping function f(x,a) = x*(abs(x) + a)/(x^2 + (a-1)*abs(x) + 1)";
     private float threshold;
 
     /**
@@ -23,6 +23,10 @@ public class Waveshaper extends AudioEffect {
      */
     public Waveshaper(float threshold) {
         this.threshold = threshold;
+    }
+
+    protected Waveshaper(Parcel in) {
+        this.threshold = in.readFloat();
     }
 
     /**
@@ -46,15 +50,8 @@ public class Waveshaper extends AudioEffect {
     public void apply(@NonNull float[] input, @NonNull float[] output) {
         if (input.length == output.length) {
             for (int i = 0; i < input.length; i++) {
-                if (Math.abs(input[i]) >= threshold) {
-                    if (input[i] > 0f) {
-                        output[i] = threshold + (1f - threshold) *
-                                (float) (Math.tanh((input[i] - threshold) / (1 - threshold)));
-                    } else {
-                        output[i] = -(threshold + (1f - threshold) *
-                                (float) Math.tanh((-input[i] - threshold) / (1 - threshold)));
-                    }
-                }
+                output[i] = input[i] * (Math.abs(input[i]) + threshold) /
+                        ((input[i] * input[i]) + (threshold - 1) * Math.abs(input[i]) + 1);
             }
         }
     }
@@ -79,10 +76,6 @@ public class Waveshaper extends AudioEffect {
         dest.writeFloat(this.threshold);
     }
 
-    protected Waveshaper(Parcel in) {
-        this.threshold = in.readFloat();
-    }
-
     public static final Creator<Waveshaper> CREATOR = new Creator<Waveshaper>() {
         @Override
         public Waveshaper createFromParcel(Parcel source) {
@@ -94,5 +87,4 @@ public class Waveshaper extends AudioEffect {
             return new Waveshaper[size];
         }
     };
-
 }

@@ -46,7 +46,6 @@ public class AudioPlayerFragment extends Fragment {
     private RecyclerView recyclerView;
     private MediaListType mediaListType;
 
-
     /*
         In certain cases, your fragment may want to accept certain arguments.
         A common pattern is to create a static newInstance method for creating
@@ -229,6 +228,17 @@ public class AudioPlayerFragment extends Fragment {
         }
     }
 
+    /**
+     * Sets the post fx gain.
+     *
+     * @param gain
+     */
+    public void setGain(float gain) {
+        if (audioPlayer != null) {
+            audioPlayer.setGain(gain);
+        }
+    }
+
     private void updateTrackPropertiesOnUI() {
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -285,11 +295,6 @@ public class AudioPlayerFragment extends Fragment {
     }
 
     private void setDrawablesOnPlay() {
-//        AnimationDrawable animation = (AnimationDrawable)
-//                ContextCompat.getDrawable(ApplicationContext.getAppContext(), R.drawable.ic_equalizer_white_36dp);
-//        animation.start();
-//        ImageView equalizerImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_eq);
-//        equalizerImage.setImageDrawable(animation);
 
         if (mediaListType == MediaListType.MY_MUSIC) {
             Drawable pauseDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
@@ -318,11 +323,6 @@ public class AudioPlayerFragment extends Fragment {
                 ImageView playPauseImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_pause);
                 playPauseImage.setImageDrawable(playDrawable);
             }
-
-//            Drawable equalizeDrawable = ContextCompat.getDrawable(ApplicationContext.getAppContext(),
-//                    R.drawable.ic_equalizer1_white_36dp);
-//            ImageView equalizerImage = (ImageView) currentMediaListItemView.findViewById(R.id.play_eq);
-//            equalizerImage.setImageDrawable(equalizeDrawable);
         }
     }
 

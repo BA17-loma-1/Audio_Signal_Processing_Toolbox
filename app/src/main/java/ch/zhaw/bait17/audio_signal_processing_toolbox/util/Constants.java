@@ -8,7 +8,6 @@ public class Constants {
 
     // Decoder and audio player
     public static final int DEFAULT_SAMPLE_RATE = 44100;
-    public static final int DEFAULT_BITS_PER_SAMPLE = 16;
     public static final int DEFAULT_CHANNELS = 2;
     public static final int DEFAULT_FFT_RESOLUTION = 8192;
 
@@ -27,13 +26,18 @@ public class Constants {
     public static final float BITCRUSHER_MAX_NORM_FREQ = 1;
     public static final int BITCRUSHER_MIN_BIT_DEPTH = 1;
     public static final int BITCRUSHER_MAX_BIT_DEPTH = 16;
-    public static final float BITCRUSHER_DEFAULT_NORM_FREQUENCY = 1.0f;
-    public static final int BITCRUSHER_DEFAULT_BITS = 16;
+    public static final float BITCRUSHER_DEFAULT_NORM_FREQUENCY = 0.1f;
+    public static final int BITCRUSHER_DEFAULT_BITS = 8;
+
+    //  Waveshaper
+    public static final int WAVESHAPER_DEFAULT_THRESHOLD = 5;
+    public static final int WAVESHAPER_MIN_THRESHOLD = 1;
+    public static final int WAVESHAPER_MAX_THRESHOLD = 25;
 
     // Soft clipper
     public static final int SOFT_CLIPPER_MIN_CLIPPING_FACTOR = 1;
-    public static final int SOFT_CLIPPER_MAX_CLIPPING_FACTOR = 1000;
-    public static final float SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR = 120f;
+    public static final int SOFT_CLIPPER_MAX_CLIPPING_FACTOR = 100;
+    public static final float SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR = 20f;
 
     // Tube distortion
     public static final float TUBE_DISTORTION_MIN_GAIN = 0;
@@ -44,19 +48,23 @@ public class Constants {
 
     // Ring modulator
     public static final int RING_MODULATOR_MAX_MOD_FREQUENCY = 800;
-    public static final int RING_MODULATOR_DEFAULT_FREQUENCY = 5;
+    public static final int RING_MODULATOR_DEFAULT_FREQUENCY = 50;
 
     // Tremolo
-    public static final int TREMOLO_MAX_MOD_FREQUENCY = 800;
-    public static final int TREMOLO_DEFAULT_FREQUENCY = 5;
-    public static final float TREMOLO_MAX_AMPLITUDE = 1;
+    public static final float TREMOLO_MAX_MOD_FREQUENCY = 20.0f;
+    public static final float TREMOLO_DEFAULT_MOD_FREQUENCY = 5.0f;
+    public static final float TREMOLO_MAX_AMPLITUDE = 1.0f;
     public static final float TREMOLO_DEFAULT_AMPLITUDE = 0.5f;
 
     // Flanger
-    public static final int FLANGER_MAX_MOD_FREQUENCY = 10;
-    public static final int FLANGER_DEFAULT_FREQUENCY = 1;
+    public static final float FLANGER_MAX_RATE = 1.0f;
+    public static final float FLANGER_DEFAULT_RATE = 0.5f;
     public static final float FLANGER_MAX_AMPLITUDE = 1;
     public static final float FLANGER_DEFAULT_AMPLITUDE = 0.7f;
-    public static final double FLANGER_MAX_DELAY = 0.03;
-    public static final double FLANGER_DEFAULT_DELAY = 0.003;
+    public static final float FLANGER_MAX_DELAY = 0.015f;
+    public static final float FLANGER_DEFAULT_DELAY = 0.003f;
+
+    // Gain
+    public static final float GAIN_DEFAULT = 1.0f;
+    public static final float GAIN_MAX = 2.0f;
 }

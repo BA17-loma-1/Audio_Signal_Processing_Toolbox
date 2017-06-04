@@ -33,7 +33,7 @@
         android:src="@drawable/android_music"
         android:layout_gravity="center_horizontal"
         android:layout_weight="1"
-        android:gravity="center_horizontal"
-        android:contentDescription="application logo" />
+        android:visibility="gone"
+        android:gravity="center_horizontal" />
 
 </LinearLayout>

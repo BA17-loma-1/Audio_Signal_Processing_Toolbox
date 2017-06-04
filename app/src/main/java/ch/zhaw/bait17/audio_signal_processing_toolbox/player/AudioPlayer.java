@@ -23,6 +23,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.decoder.DecoderException;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.decoder.MP3Decoder;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.decoder.WaveDecoder;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.Limiter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.pcm.PCMSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
@@ -49,6 +50,7 @@ public final class AudioPlayer {
     private static AudioDecoder decoder;
     private static AudioTrack audioTrack;
     private List<AudioEffect> audioEffects;
+    private Limiter limiter;
     private static EventBus eventBus;
     private PlaybackListener listener;
     private Track currentTrack;
@@ -60,14 +62,16 @@ public final class AudioPlayer {
     private boolean sampleRateHasChanged = false;
     private boolean channelsHasChanged = false;
     private boolean overrideFXChain = false;
+    private float gain = Constants.GAIN_DEFAULT;
 
     private enum PlayState {
-        PLAY, STOP, PAUSE;
+        PLAY, STOP, PAUSE
     }
 
     private AudioPlayer() {
         sampleRate = Constants.DEFAULT_SAMPLE_RATE;
         channels = Constants.DEFAULT_CHANNELS;
+        limiter = new Limiter();
         buildEventBus();
 
         // TODO: remove when bug in GetInputStreamFromURL is fixed
@@ -96,7 +100,7 @@ public final class AudioPlayer {
     /**
      * Selects the {@code Track} to be played.
      *
-     * @param track
+     * @param track     Sets the track to be played
      */
     public void selectTrack(@NonNull Track track) {
         currentTrack = track;
@@ -284,6 +288,18 @@ public final class AudioPlayer {
     }
 
     /**
+     * <p>
+     * Sets the post fx gain. </br>
+     * Clipping is avoided by limiter.
+     * </p>
+     *
+     * @param gain  linear gain
+     */
+    public void setGain(float gain) {
+        this.gain = gain;
+    }
+
+    /**
      * Initialises the decoder.
      *
      * @param track a {@code Track}
@@ -355,11 +371,12 @@ public final class AudioPlayer {
                                     applyAudioEffects(PCMUtil.short2FloatArray(decodedSamples),
                                             filteredSamples);
                                 }
+                                limiter.apply(filteredSamples, gain);
                                 if (audioTrack.write(PCMUtil.float2ShortArray(filteredSamples),
                                         0, filteredSamples.length) < filteredSamples.length) {
                                     Log.d(TAG, "Dropped samples.");
                                 }
-                                // Broadcast pre and post filter sample blocks the event bus
+                                // Broadcast pre and post filter sample blocks on the event bus
                                 eventBus.post(new PCMSampleBlock(decodedSamples,
                                         PCMUtil.float2ShortArray(filteredSamples),
                                         sampleRate, channels));
@@ -371,7 +388,7 @@ public final class AudioPlayer {
                         }
                     }
                     Log.d(TAG, "Finished decoding");
-                    // Wait some time and let AudioTrack output the frames in its buffer.
+                    // Wait some time and let AudioTrack output the remaining frames in its buffer.
                     long then = System.nanoTime();
                     while (System.nanoTime() < then + 7e8) {
                         try {
