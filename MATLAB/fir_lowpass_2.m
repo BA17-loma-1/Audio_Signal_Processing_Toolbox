@@ -6,11 +6,13 @@
 
 function [b_fir] = fir_lowpass_2()
 
-fs = 48e3;                  % Sample rate (not relevant) [Hz]
-fpass = 1000;               % Durchlassbereich (pass band), Matrize [Hz]
-Apass = 0.02;               % Rippel im Durchlassbereich [dB]
-fstop = 2500;               % Sperrbereich (stop band), Stempel [Hz]
-Astop = 60;                 % min. Dämpfung im Sperrbereich [dB]
+clear; clc;
+
+fs = 48e3;                 % Sample rate (not relevant) [Hz]
+fpass = 500;               % Durchlassbereich (pass band), Matrize [Hz]
+Apass = 0.02;              % Rippel im Durchlassbereich [dB]
+fstop = 1500;              % Sperrbereich (stop band), Stempel [Hz]
+Astop = 50;                % min. Dämpfung im Sperrbereich [dB]
 
 % Optimale Bestimmung des FIR-Filters
 h = fdesign.lowpass(fpass, fstop, Apass, Astop, fs);

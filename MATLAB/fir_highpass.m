@@ -30,17 +30,17 @@ dlmwrite('output/b_fir_highpass.txt', b_fir, '-append', 'delimiter', ',', ...
 
 
 figure(1);
-subplot(1,2,1), stem(b_fir, 'filled'), grid minor;
-title('Impulse response (coefficients of the FIR filter)');
+[H,W] = freqz(b_fir, 1, 2^13);
+subplot(1,2,1), plot(W/2/pi*fs, 20*log10(abs(H))), grid minor;
+title('Frequency response');
+xlabel('Frequency [Hz]');
+ylabel('Magnitude [dB]');
+
+subplot(1,2,2), stem(b_fir, 'filled'), grid minor;
+title('Impulse response');
 xlabel('Samples i');
 ylabel('Amplitude b[i]');
 xlim([1 length(b_fir + 1)]);
-
-[H,W] = freqz(b_fir, 1, 2^13);
-subplot(1,2,2), plot(W/2/pi*fs, 20*log10(abs(H))), grid minor;
-title('Frequency response of the FIR filter');
-xlabel('Frequency [Hz]');
-ylabel('Magnitude [dB]');
 
 fvtool(b_fir)
 
