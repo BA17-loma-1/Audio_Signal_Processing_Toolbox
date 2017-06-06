@@ -91,7 +91,7 @@ public class MP3Decoder implements AudioDecoder {
                 return null;
             }
             bitstream.closeFrame();
-        } catch (BitstreamException | DecoderException | ArrayIndexOutOfBoundsException ex) {
+        } catch (Exception ex) {
             /*
                 ArrayIndexOutOfBoundsException: weird error happens sometimes with MP3Decoder
              */
