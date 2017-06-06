@@ -13,13 +13,17 @@ b_fir_highpass = fir_highpass();
 
 
 figure('name', 'Chirps');
-[x, fs] = audioread('output/chirp_quad_up.wav');
-subplot(1,2,1), spectrogram(x(:,1), window, 0, NFFT, fs, 'yaxis'), grid minor;
-title('Quadratic concave upsweep');
+%[x, fs] = audioread('output/chirp_quad_up.wav');
+%subplot(1,2,1), spectrogram(x(:,1), window, 0, NFFT, fs, 'yaxis'), grid minor;
+%title('Quadratic concave upsweep');
 
 [x, fs] = audioread('output/chirp_quad_convex.wav');
-subplot(1,2,2), spectrogram(x(:,1), window, 0, NFFT, fs, 'yaxis'), grid minor;
+subplot(1,2,1), spectrogram(x(:,1), window, 0, NFFT, fs, 'yaxis'), grid minor;
 title('Symmetric convex quadratic chirp');
+
+[x, fs] = audioread('output/cosine.wav');
+subplot(1,2,2), spectrogram(x(:,1), window, 0, NFFT, fs, 'yaxis'), grid minor;
+title('Cosine');
 
 
 figure('name', 'sinusoidal signals');
@@ -40,7 +44,7 @@ figure('name', 'Filtered signals');
 [x, fs] = audioread('output/chirp_quad_up.wav');
 y = filter(b_fir_lowpass, 1, x);
 subplot(1,2,1); spectrogram(y(:,1), window, 0, NFFT, fs, 'yaxis'), grid minor;
-title('Low pass filtered');
+title('Upsweep low pass filtered');
 
 [x, fs] = audioread('output/cosine.wav');
 y = filter(b_fir_highpass, 1, x);
