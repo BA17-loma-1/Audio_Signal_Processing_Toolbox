@@ -6,20 +6,20 @@ import android.support.annotation.NonNull;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.AudioEffect;
 
 /**
- * Waveshaper effect.
+ * Waveshaper algorithm. By Bram de Jong, MusicDSP forum (www.musicdsp.com)
  *
  */
 
 public class Waveshaper extends AudioEffect {
 
     private static final String LABEL = "Waveshaper";
-    private static final String DESCRIPTION = "Basic waveshaper algorithm with shaping function f(x,a) = x*(abs(x) + a)/(x^2 + (a-1)*abs(x) + 1)";
+    private static final String DESCRIPTION = "Shaping function f(x,a) = x*(abs(x) + a)/(x^2 + (a-1)*abs(x) + 1)";
     private float threshold;
 
     /**
      * Creates a new {@code Waveshaper} instance.
      *
-     * @param threshold     value > 1.0
+     * @param threshold     value >= 1.0
      */
     public Waveshaper(float threshold) {
         this.threshold = threshold;
