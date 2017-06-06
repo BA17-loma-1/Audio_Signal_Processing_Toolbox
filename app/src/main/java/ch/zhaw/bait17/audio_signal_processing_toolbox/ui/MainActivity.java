@@ -41,6 +41,8 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.MediaListType;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.VisualisationType;
 
 /**
  * The application's entry point.
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements
     private static final String TAG_VISUALISATION_CONFIGURATION_FRAGMENT = "VISUALISATION_CONFIGURATION";
     private static final String TAG_VISUALISATION_FRAGMENT = "VISUALISATION";
     private static final String TAG_APROPOS_FRAGMENT = "APROPOS";
+    private static final int NUMBER_OF_AUDIO_VIEWS = 2;
 
     private AudioPlayerFragment audioPlayerFragment;
     private ActionBarDrawerToggle actionBarDrawerToggle;
@@ -207,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * Sets the gain.
      *
-     * @param gain  linear gain
+     * @param gain linear gain
      */
     public void setGain(float gain) {
         if (audioPlayerFragment != null) {
@@ -218,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * Returns a list of all available audio effects and filter within the application.
      *
-     * @return  list of audio effects and filters
+     * @return list of audio effects and filters
      */
     public List<AudioEffect> getAudioEffects() {
         return audioEffects;
@@ -238,16 +241,22 @@ public class MainActivity extends AppCompatActivity implements
      * Loads all fragments into the {@code FrameLayout} placeholders.
      */
     private void initFragments() {
-        Fragment visualisationConfigurationFragment = new ViewFragment();
         audioPlayerFragment = new AudioPlayerFragment();
-        List<AudioView> activeViews = ((ViewFragment) visualisationConfigurationFragment).getActiveViews();
+
+        // set default view on startup
+        List<AudioView> activeViews = new ArrayList<>(NUMBER_OF_AUDIO_VIEWS);
+        AudioView spectrogramView = new SpectrogramView(ApplicationContext.getAppContext());
+        spectrogramView.getInflatedView();
+        spectrogramView.setVisualisationType(VisualisationType.POST_FX);
+        activeViews.add(spectrogramView);
+
         MediaListFragment mediaListFragment = new MediaListFragment();
         mediaListFragment.setMediaListType(MediaListType.MY_MUSIC);
 
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.content_frame, AudioEffectFragment.newInstance(audioEffects),
                 TAG_FILTER_FRAGMENT);
-        ft.replace(R.id.content_frame, visualisationConfigurationFragment,
+        ft.replace(R.id.content_frame, ViewFragment.newInstance(activeViews),
                 TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
         ft.replace(R.id.content_frame, VisualisationFragment.newInstance(activeViews),
                 TAG_VISUALISATION_FRAGMENT);
@@ -299,10 +308,7 @@ public class MainActivity extends AppCompatActivity implements
                 tagFragmentName = TAG_MEDIA_LIST_FRAGMENT;
                 break;
             case R.id.nav_visualisation:
-                Fragment vcf = getFragmentByTag(TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
-                List<AudioView> activeViews = ((ViewFragment) vcf).getActiveViews();
                 fragment = getFragmentByTag(TAG_VISUALISATION_FRAGMENT);
-                ((VisualisationFragment) fragment).setViews(activeViews);
                 title = getString(R.string.drawer_menu_item_visualisation);
                 tagFragmentName = TAG_VISUALISATION_FRAGMENT;
                 break;

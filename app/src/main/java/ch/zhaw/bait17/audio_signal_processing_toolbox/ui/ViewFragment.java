@@ -36,7 +36,8 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView
 public class ViewFragment extends Fragment
         implements AdapterView.OnItemSelectedListener, RadioGroup.OnCheckedChangeListener {
 
-    private static final int NUMBER_OF_AUDIO_VIEWS = 2;
+    private static final String BUNDLE_ARGUMENT_AUDIOVIEWS =
+            ViewFragment.class.getSimpleName() + ".AUDIOVIEWS";
 
     private static Map<ViewName, AudioView> views = new HashMap<>();
     private RadioGroup radioGroup1;
@@ -48,14 +49,34 @@ public class ViewFragment extends Fragment
     private Spinner spinner1;
     private Spinner spinner2;
     private List<AudioView> activeViews;
-    private VisualisationType currentVisualisationTypeView1 = VisualisationType.PRE_FX;
+    private VisualisationType currentVisualisationTypeView1 = VisualisationType.POST_FX;
     private VisualisationType currentVisualisationTypeView2 = VisualisationType.PRE_FX;
 
     static {
         views.put(ViewName.NO_VIEW, null);
         views.put(ViewName.WAVEFORM, new WaveformView(ApplicationContext.getAppContext()));
         views.put(ViewName.SPECTROGRAM, new SpectrogramView(ApplicationContext.getAppContext()));
-        //views.put(ViewName.SPECTRUM, new LineSpectrumView(ApplicationContext.getAppContext()));
+    }
+
+    // Creates a new fragment given a array
+    // ViewFragment.newInstance(views);
+    public static ViewFragment newInstance(List<AudioView> views) {
+        ViewFragment fragment = new ViewFragment();
+        Bundle arguments = new Bundle();
+        arguments.putSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS, (ArrayList<AudioView>) views);
+        fragment.setArguments(arguments);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Get back arguments
+        Bundle arguments = this.getArguments();
+        if (arguments.getSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS) != null)
+            activeViews = (List<AudioView>) arguments.getSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS);
+
     }
 
     @Override
@@ -66,7 +87,6 @@ public class ViewFragment extends Fragment
         ViewName[] viewNames = keys.toArray(new ViewName[views.size()]);
         Arrays.sort(viewNames);
         ViewAdapter viewAdapter = new ViewAdapter(viewNames);
-        activeViews = new ArrayList<>(NUMBER_OF_AUDIO_VIEWS);
 
         spinner1 = (Spinner) rootView.findViewById(R.id.spinner_view1);
         spinner1.setAdapter(viewAdapter);
@@ -94,11 +114,6 @@ public class ViewFragment extends Fragment
                 R.id.radioButton_pre_and_post_view2);
 
         return rootView;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override

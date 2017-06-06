@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/view_config_layout"
@@ -10,14 +9,13 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorAccent"
         android:orientation="vertical"
-        android:padding="@dimen/activity_vertical_padding" >
+        android:padding="@dimen/activity_vertical_padding">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/view_config_view1"
-            android:textAppearance="?android:attr/textAppearanceLarge" >
-        </TextView>
+            android:textAppearance="?android:attr/textAppearanceLarge"></TextView>
 
         <Spinner
             android:id="@+id/spinner_view1"
@@ -29,18 +27,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/end_text_margin"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <RadioButton
                 android:id="@+id/radioButton_pre_filter_view1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/view_config_pre_fx"
                 android:layout_gravity="center"
-                android:textAlignment="gravity"
                 android:layout_weight="1"
                 android:button="@drawable/radio_selector"
-                android:checked="true"
+                android:text="@string/view_config_pre_fx"
+                android:textAlignment="gravity"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/secondary_text" />
 
@@ -48,9 +45,10 @@
                 android:id="@+id/radioButton_post_filter_view1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/view_config_post_fx"
                 android:layout_gravity="center"
                 android:button="@drawable/radio_selector"
+                android:checked="true"
+                android:text="@string/view_config_post_fx"
                 android:textAlignment="gravity"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/secondary_text" />
@@ -59,10 +57,10 @@
                 android:id="@+id/radioButton_pre_and_post_view1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/view_config_pre_and_post_fx"
                 android:layout_gravity="center"
-                android:textAlignment="gravity"
                 android:button="@drawable/radio_selector"
+                android:text="@string/view_config_pre_and_post_fx"
+                android:textAlignment="gravity"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/secondary_text" />
         </RadioGroup>
@@ -83,18 +81,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/end_text_margin"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <RadioButton
                 android:id="@+id/radioButton_pre_filter_view2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/view_config_pre_fx"
                 android:layout_gravity="center"
-                android:textAlignment="gravity"
                 android:layout_weight="1"
                 android:button="@drawable/radio_selector"
                 android:checked="true"
+                android:text="@string/view_config_pre_fx"
+                android:textAlignment="gravity"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/secondary_text" />
 
@@ -102,11 +100,11 @@
                 android:id="@+id/radioButton_post_filter_view2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/view_config_post_fx"
                 android:layout_gravity="center"
-                android:textAlignment="gravity"
                 android:layout_weight="1"
                 android:button="@drawable/radio_selector"
+                android:text="@string/view_config_post_fx"
+                android:textAlignment="gravity"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/secondary_text" />
 
@@ -114,10 +112,10 @@
                 android:id="@+id/radioButton_pre_and_post_view2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/view_config_pre_and_post_fx"
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:button="@drawable/radio_selector"
+                android:text="@string/view_config_pre_and_post_fx"
                 android:textAlignment="gravity"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/secondary_text" />
