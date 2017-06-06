@@ -90,8 +90,10 @@
     <string name="uni_url">www.zhaw.ch/engineering/</string>
     <string name="bachelor_thesis">2017 bachelor thesis in computer science</string>
     <string name="app_dev">Application development</string>
-    <string name="devs">Rémi Georgiou, André Stocker</string>
+    <string name="dev1">Rémi Georgiou</string>
+    <string name="dev2">André Stocker</string>
     <string name="supervision">Guidance and supervision</string>
-    <string name="profs">Dr. Martin Loeser, Dr. Sigisbert Wyrsch</string>
+    <string name="prof1">Dr. Martin Loeser</string>
+    <string name="prof2">Dr. Sigi Wyrsch</string>
 
 </resources>
