@@ -13,7 +13,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
@@ -38,24 +37,10 @@ public class VisualisationFragment extends Fragment {
     private List<AudioView> views;
     private View rootView;
 
-    // Creates a new fragment given a array
-    // VisualisationFragment.newInstance(views);
-    public static VisualisationFragment newInstance(List<AudioView> views) {
-        VisualisationFragment fragment = new VisualisationFragment();
-        Bundle arguments = new Bundle();
-        arguments.putSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS, (ArrayList<AudioView>) views);
-        fragment.setArguments(arguments);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Get back arguments
-        Bundle arguments = this.getArguments();
-        if (arguments.getSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS) != null)
-            views = (List<AudioView>) arguments.getSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS);
     }
 
     // The onCreateView method is called when Fragment should create its View object hierarchy,

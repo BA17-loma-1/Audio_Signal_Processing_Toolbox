@@ -13,7 +13,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -58,25 +57,9 @@ public class ViewFragment extends Fragment
         views.put(ViewName.SPECTROGRAM, new SpectrogramView(ApplicationContext.getAppContext()));
     }
 
-    // Creates a new fragment given a array
-    // ViewFragment.newInstance(views);
-    public static ViewFragment newInstance(List<AudioView> views) {
-        ViewFragment fragment = new ViewFragment();
-        Bundle arguments = new Bundle();
-        arguments.putSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS, (ArrayList<AudioView>) views);
-        fragment.setArguments(arguments);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Get back arguments
-        Bundle arguments = this.getArguments();
-        if (arguments.getSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS) != null)
-            activeViews = (List<AudioView>) arguments.getSerializable(BUNDLE_ARGUMENT_AUDIOVIEWS);
-
     }
 
     @Override
@@ -168,8 +151,8 @@ public class ViewFragment extends Fragment
 
     }
 
-    public List<AudioView> getActiveViews() {
-        return activeViews;
+    public void setActiveViews(List<AudioView> activeViews) {
+        this.activeViews = activeViews;
     }
 
     private void hideRadioButton(@NonNull RadioButton radioButton) {

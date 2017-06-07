@@ -253,12 +253,18 @@ public class MainActivity extends AppCompatActivity implements
         MediaListFragment mediaListFragment = new MediaListFragment();
         mediaListFragment.setMediaListType(MediaListType.MY_MUSIC);
 
+        ViewFragment viewFragment = new ViewFragment();
+        viewFragment.setActiveViews(activeViews);
+
+        VisualisationFragment visualisationFragment = new VisualisationFragment();
+        visualisationFragment.setViews(activeViews);
+
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.content_frame, AudioEffectFragment.newInstance(audioEffects),
                 TAG_FILTER_FRAGMENT);
-        ft.replace(R.id.content_frame, ViewFragment.newInstance(activeViews),
+        ft.replace(R.id.content_frame, viewFragment,
                 TAG_VISUALISATION_CONFIGURATION_FRAGMENT);
-        ft.replace(R.id.content_frame, VisualisationFragment.newInstance(activeViews),
+        ft.replace(R.id.content_frame, visualisationFragment,
                 TAG_VISUALISATION_FRAGMENT);
         ft.replace(R.id.content_frame, new AproposFragment(), TAG_APROPOS_FRAGMENT);
         ft.replace(R.id.content_frame, new SettingsFragment(), TAG_SETTINGS_FRAGMENT);
