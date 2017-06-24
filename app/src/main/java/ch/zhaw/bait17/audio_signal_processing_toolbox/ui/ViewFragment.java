@@ -23,6 +23,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ui.custom.ViewAdapter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.LineSpectrumGraphView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.ViewName;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.VisualisationType;
@@ -55,6 +56,7 @@ public class ViewFragment extends Fragment
         views.put(ViewName.NO_VIEW, null);
         views.put(ViewName.WAVEFORM, new WaveformView(ApplicationContext.getAppContext()));
         views.put(ViewName.SPECTROGRAM, new SpectrogramView(ApplicationContext.getAppContext()));
+        views.put(ViewName.SPECTRUM, new LineSpectrumGraphView(ApplicationContext.getAppContext()));
     }
 
     @Override

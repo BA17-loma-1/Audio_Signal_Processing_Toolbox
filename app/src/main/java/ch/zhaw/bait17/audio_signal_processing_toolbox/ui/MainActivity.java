@@ -41,6 +41,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.MediaListType;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.LineSpectrumGraphView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.VisualisationType;
 
@@ -249,6 +250,11 @@ public class MainActivity extends AppCompatActivity implements
         spectrogramView.getInflatedView();
         spectrogramView.setVisualisationType(VisualisationType.POST_FX);
         activeViews.add(spectrogramView);
+
+        // TODO: remove this part later
+        AudioView lineSpectrumView = new LineSpectrumGraphView(ApplicationContext.getAppContext());
+        lineSpectrumView.setVisualisationType(VisualisationType.POST_FX);
+        activeViews.add(lineSpectrumView);
 
         MediaListFragment mediaListFragment = new MediaListFragment();
         mediaListFragment.setMediaListType(MediaListType.MY_MUSIC);

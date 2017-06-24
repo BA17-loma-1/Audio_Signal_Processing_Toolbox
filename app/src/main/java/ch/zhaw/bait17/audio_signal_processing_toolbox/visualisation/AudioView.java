@@ -89,6 +89,8 @@ public abstract class AudioView extends View {
      *
      * @return AudioView
      */
-    public abstract AudioView getInflatedView();
+    public AudioView getInflatedView() {
+        return null;
+    };
 
 }

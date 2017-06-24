@@ -21,6 +21,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.pcm.PCMSampleBlock;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.FrequencyView;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.LineSpectrumGraphView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.TimeView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.VisualisationType;
@@ -64,10 +65,14 @@ public class VisualisationFragment extends Fragment {
                             viewWidth - 2 * margin, viewHeight - 2 * margin);
                     layoutParams.setMargins(margin, margin, margin, margin);
 
-                    for (AudioView view : views) {
+                    for (View view : views) {
                         // replace identical instances
                         if (view.getParent() != null)
                             ((ViewGroup) view.getParent()).removeView(view);
+
+                        if (view instanceof LineSpectrumGraphView)
+                            view = ((LineSpectrumGraphView) view).getGraphView();
+
                         linearLayout.addView(view, layoutParams);
                     }
                 }
