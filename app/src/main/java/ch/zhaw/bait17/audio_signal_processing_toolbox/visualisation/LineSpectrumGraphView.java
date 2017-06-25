@@ -55,7 +55,6 @@ public class LineSpectrumGraphView extends FrequencyView {
         // styling series
         preFilterSeries.setTitle("PRE_FX");
         preFilterSeries.setColor(Color.BLACK);
-        //preFilterSeries.setDrawDataPoints(true);
     }
 
     private void initPostFilterSeries() {
@@ -67,9 +66,10 @@ public class LineSpectrumGraphView extends FrequencyView {
     @Override
     public void setSpectralDensity(@NonNull float[] preFilterMagnitude, @NonNull float[] postFilterMagnitude) {
         if (preFilterMagnitude.length > 0) {
-            //preFilterSeries = new LineGraphSeries(getDataPoints(preFilterMagnitude));
-            //initPreFilterSeries();
-        } else if (postFilterMagnitude.length > 0) {
+            preFilterSeries = new LineGraphSeries(getDataPoints(preFilterMagnitude));
+            initPreFilterSeries();
+        }
+        if (postFilterMagnitude.length > 0) {
             postFilterSeries = new LineGraphSeries(getDataPoints(postFilterMagnitude));
             initPostFilterSeries();
         }

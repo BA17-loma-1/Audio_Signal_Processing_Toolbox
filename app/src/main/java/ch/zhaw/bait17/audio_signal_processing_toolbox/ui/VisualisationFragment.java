@@ -66,12 +66,12 @@ public class VisualisationFragment extends Fragment {
                     layoutParams.setMargins(margin, margin, margin, margin);
 
                     for (View view : views) {
+                        if (view instanceof LineSpectrumGraphView)
+                            view = ((LineSpectrumGraphView) view).getGraphView();
+
                         // replace identical instances
                         if (view.getParent() != null)
                             ((ViewGroup) view.getParent()).removeView(view);
-
-                        if (view instanceof LineSpectrumGraphView)
-                            view = ((LineSpectrumGraphView) view).getGraphView();
 
                         linearLayout.addView(view, layoutParams);
                     }

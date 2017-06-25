@@ -253,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements
 
         // TODO: remove this part later
         AudioView lineSpectrumView = new LineSpectrumGraphView(ApplicationContext.getAppContext());
-        lineSpectrumView.setVisualisationType(VisualisationType.POST_FX);
+        lineSpectrumView.setVisualisationType(VisualisationType.BOTH);
         activeViews.add(lineSpectrumView);
 
         MediaListFragment mediaListFragment = new MediaListFragment();
