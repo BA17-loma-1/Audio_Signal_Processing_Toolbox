@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
@@ -29,6 +30,9 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.common.base.Joiner;
+import com.spotify.sdk.android.authentication.AuthenticationClient;
+import com.spotify.sdk.android.authentication.AuthenticationRequest;
+import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,10 +45,12 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.player.SupportedAudioFormat;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.player.Track;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.spotify.CredentialsHandler;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ui.custom.TrackAdapter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.HttpHandler;
@@ -58,6 +64,12 @@ public class MediaListFragment extends Fragment implements SearchView.OnQueryTex
 
     private static final String TAG = MediaListFragment.class.getSimpleName();
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
+    // Information for an authentication with Sppotify
+    @SuppressWarnings("SpellCheckingInspection")
+    private static final String CLIENT_ID = "8a91678afa49446c9aff1beaabe9c807";
+    @SuppressWarnings("SpellCheckingInspection")
+    private static final String REDIRECT_URI = "testschema://callback";
+    private static final int REQUEST_CODE = 1337;
 
     private View rootView;
     private Context context;
@@ -70,6 +82,7 @@ public class MediaListFragment extends Fragment implements SearchView.OnQueryTex
     private MediaListType mediaListType;
     // URL to get tracks JSON
     private String url;
+    private String spotifyAccessToken;
 
     public interface OnTrackSelectedListener {
         void onTrackSelected(int trackPos);
@@ -174,11 +187,56 @@ public class MediaListFragment extends Fragment implements SearchView.OnQueryTex
                 loadTrackList();
                 break;
             case STREAM:
+                spotifyAccessToken = CredentialsHandler.getToken(context);
+                if (spotifyAccessToken == null)
+                    spotifyAuthorization();
                 searchView.setVisibility(View.VISIBLE);
                 init();
                 break;
             default:
                 break;
+        }
+    }
+
+
+    private void spotifyAuthorization() {
+        final AuthenticationRequest request = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI)
+                .setScopes(new String[]{"user-read-private", "playlist-read", "playlist-read-private", "streaming"})
+                .build();
+
+        // To start LoginActivity from a Fragment:
+        Intent intent = AuthenticationClient.createLoginActivityIntent(getActivity(), request);
+        startActivityForResult(intent, REQUEST_CODE);
+
+        // To close LoginActivity
+        //AuthenticationClient.stopLoginActivity(getActivity(), REQUEST_CODE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        // Check if result comes from the correct activity
+        if (requestCode == REQUEST_CODE) {
+            AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
+            switch (response.getType()) {
+                // Response was successful and contains auth token
+                case TOKEN:
+                    Log.d(TAG, "Got token: " + response.getAccessToken());
+                    CredentialsHandler.setToken(context, response.getAccessToken(), response.getExpiresIn(), TimeUnit.SECONDS);
+                    AuthenticationClient.stopLoginActivity(getActivity(), REQUEST_CODE);
+                    spotifyAccessToken = CredentialsHandler.getToken(context);
+                    break;
+                // Auth flow returned an error
+                case ERROR:
+                    Toast.makeText(context, "Error: Auth result: " + response.getType(), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Auth result: " + response.getType());
+                    break;
+                // Most likely auth flow was cancelled
+                default:
+                    Toast.makeText(context, "Error: Auth result: " + response.getType(), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Auth result: " + response.getType());
+            }
         }
     }
 
@@ -348,7 +406,7 @@ public class MediaListFragment extends Fragment implements SearchView.OnQueryTex
             HttpHandler sh = new HttpHandler();
 
             // Making a request to url and getting response
-            String jsonStr = sh.makeServiceCall(url);
+            String jsonStr = sh.makeServiceCall(url, spotifyAccessToken);
 
             Log.e(TAG, "Response from url: " + jsonStr);
 
