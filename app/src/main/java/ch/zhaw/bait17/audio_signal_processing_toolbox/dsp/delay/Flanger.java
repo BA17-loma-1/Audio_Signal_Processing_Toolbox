@@ -21,23 +21,35 @@ public class Flanger extends AudioEffect {
     private static final String DESCRIPTION = "A single FIR delay with an oscillating delay time";
 
     private float rate = Constants.FLANGER_DEFAULT_RATE;
-    private int samplingFrequency = Constants.DEFAULT_SAMPLE_RATE;
     private float amplitude = Constants.FLANGER_DEFAULT_AMPLITUDE;
-    private float maxDelayInMs = Constants.FLANGER_DEFAULT_DELAY;
+    private float maxDelay = Constants.FLANGER_DEFAULT_DELAY;
     private int maxDelayInSamples;
     private long index = 0;
 
-    public Flanger(float rate, float amplitude, float maxDelayInMs) {
+    /**
+     * * Creates an instance of {@code Flanger}.
+     *
+     * @param rate                      the flanger rate must be >= 0
+     * @param amplitude                 the modulation amplitude
+     * @param maxDelay                  the maximum delay in seconds must be >= 0
+     * @throws IllegalArgumentException if rate < 0 or maxDelay < 0
+     */
+    public Flanger(float rate, float amplitude, float maxDelay) throws IllegalArgumentException {
+        if (rate < 0) {
+            throw new IllegalArgumentException("Flanger rate must be >= 0.");
+        }
+        if (maxDelay < 0) {
+            throw new IllegalArgumentException("Maximum delay in seconds must be >= 0.");
+        }
         this.amplitude = amplitude;
         setRate(rate);
-        setMaxDelayInMs(maxDelayInMs);
+        setMaxDelay(maxDelay);
     }
 
     protected Flanger(Parcel in) {
         this.rate = in.readFloat();
-        this.samplingFrequency = in.readInt();
         this.amplitude = in.readFloat();
-        this.maxDelayInMs = in.readFloat();
+        this.maxDelay = in.readFloat();
         this.maxDelayInSamples = in.readInt();
         this.index = in.readLong();
     }
@@ -52,8 +64,8 @@ public class Flanger extends AudioEffect {
         if (input.length == output.length) {
             for (int i = 0; i < input.length; i++) {
                 double phase = Math.abs(Math.cos(2 * Math.PI * index++ *
-                        (rate / (float) samplingFrequency)));
-                if (index == samplingFrequency) {
+                        (rate / (float) getSamplingFrequency())));
+                if (index == getSamplingFrequency()) {
                     index = 0;
                 }
                 int currentDelay = (int) Math.ceil(phase * maxDelayInSamples);
@@ -85,13 +97,13 @@ public class Flanger extends AudioEffect {
     }
 
     /**
-     * Sets the delay.
+     * Sets the maximum amount of delay time.
      *
-     * @param maxDelayInMs  delay in milliseconds
+     * @param maxDelay  maximum delay in seconds.
      */
-    public void setMaxDelayInMs(float maxDelayInMs) {
-        this.maxDelayInMs = maxDelayInMs;
-        maxDelayInSamples = Math.round(maxDelayInMs * samplingFrequency);
+    public void setMaxDelay(float maxDelay) {
+        this.maxDelay = maxDelay;
+        maxDelayInSamples = Math.round(maxDelay * getSamplingFrequency());
     }
 
     /**
@@ -103,11 +115,14 @@ public class Flanger extends AudioEffect {
         this.amplitude = amplitude;
     }
 
-    @Override
+    /**
+     * Sets the sample rate.
+     *
+     * @param sampleRate sample rate
+     */
     public void setSamplingFrequency(int sampleRate) {
         if (sampleRate > 0) {
-            samplingFrequency = sampleRate;
-            setMaxDelayInMs(maxDelayInMs);
+            setMaxDelay(maxDelay);
         }
     }
 
@@ -119,10 +134,9 @@ public class Flanger extends AudioEffect {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeFloat(this.rate);
-        dest.writeInt(this.samplingFrequency);
         dest.writeInt(this.maxDelayInSamples);
         dest.writeFloat(this.amplitude);
-        dest.writeFloat(this.maxDelayInMs);
+        dest.writeFloat(this.maxDelay);
         dest.writeLong(this.index);
     }
 

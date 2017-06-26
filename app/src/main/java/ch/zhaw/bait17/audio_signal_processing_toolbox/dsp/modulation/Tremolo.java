@@ -20,18 +20,26 @@ public class Tremolo extends AudioEffect {
     private static final String LABEL = "Tremolo";
     private static final String DESCRIPTION = "Amplitude modulation";
 
-    private int samplingFrequency = Constants.DEFAULT_SAMPLE_RATE;
     private float modulationFrequency;
     private float amplitude = Constants.TREMOLO_DEFAULT_AMPLITUDE;
     private long index = 0;
 
-    public Tremolo(float modulationFrequency, float amplitude) {
+    /**
+     * * Creates an instance of {@code Tremolo}.
+     *
+     * @param modulationFrequency       the modulation frequency (modulation frequency) must be >= 0
+     * @param amplitude                 the modulation amplitude
+     * @throws IllegalArgumentException if modulation frequency < 0
+     */
+    public Tremolo(float modulationFrequency, float amplitude) throws IllegalArgumentException {
+        if (modulationFrequency < 0) {
+            throw new IllegalArgumentException("Modulation frequency must be >= 0.");
+        }
         this.amplitude = amplitude;
         setModulationFrequency(modulationFrequency);
     }
 
     protected Tremolo(Parcel in) {
-        this.samplingFrequency = in.readInt();
         this.modulationFrequency = in.readFloat();
         this.amplitude = in.readFloat();
         this.index = in.readLong();
@@ -47,7 +55,7 @@ public class Tremolo extends AudioEffect {
         if (input.length == output.length) {
             for (int i = 0; i < input.length; i++) {
                 output[i] = input[i] * (float) (1 + amplitude * Math.sin(2 * Math.PI * index++ *
-                        (modulationFrequency / (float) samplingFrequency)));
+                        (modulationFrequency / (float) getSamplingFrequency())));
             }
         }
     }
@@ -71,20 +79,12 @@ public class Tremolo extends AudioEffect {
     }
 
     @Override
-    public void setSamplingFrequency(int sampleRate) {
-        if (sampleRate > 0) {
-            samplingFrequency = sampleRate;
-        }
-    }
-
-    @Override
     public int describeContents() {
         return hashCode();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.samplingFrequency);
         dest.writeFloat(this.modulationFrequency);
         dest.writeFloat(this.amplitude);
         dest.writeLong(this.index);

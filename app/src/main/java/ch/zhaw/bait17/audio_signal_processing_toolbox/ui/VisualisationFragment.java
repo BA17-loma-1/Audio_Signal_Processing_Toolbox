@@ -193,26 +193,28 @@ public class VisualisationFragment extends Fragment {
      */
     private void setFrequencyViewParameters(@NonNull FrequencyView frequencyView,
                                             @NonNull PCMSampleBlock sampleBlock) {
-        if (frequencyViewUpdateCounter == FREQUENCY_VIEW_RENDER_INTERVALL) {
-            frequencyViewUpdateCounter = 0;
-            VisualisationType visualisationType = frequencyView.getVisualisationType();
-            switch (visualisationType) {
-                case PRE_FX:
-                    frequencyView.setSpectralDensity(
-                            fft.getPowerSpectrum(sampleBlock.getPreFilterSamples(), sampleBlock.getChannels()),
-                            new float[0]);
-                    break;
-                case POST_FX:
-                    frequencyView.setSpectralDensity(
-                            new float[0],
-                            fft.getPowerSpectrum(sampleBlock.getPostFilterSamples(), sampleBlock.getChannels()));
-                    break;
-                default:
-                    frequencyView.setSpectralDensity(
-                            fft.getPowerSpectrum(sampleBlock.getPreFilterSamples(), sampleBlock.getChannels()),
-                            fft.getPowerSpectrum(sampleBlock.getPostFilterSamples(), sampleBlock.getChannels()));
-            }
+        if (frequencyView instanceof SpectrumView &&
+                frequencyViewUpdateCounter < FREQUENCY_VIEW_RENDER_INTERVALL) {
+            frequencyViewUpdateCounter++;
+            return;
         }
-        frequencyViewUpdateCounter++;
+        frequencyViewUpdateCounter = 0;
+        VisualisationType visualisationType = frequencyView.getVisualisationType();
+        switch (visualisationType) {
+            case PRE_FX:
+                frequencyView.setSpectralDensity(
+                        fft.getPowerSpectrum(sampleBlock.getPreFilterSamples(), sampleBlock.getChannels()),
+                        new float[0]);
+                break;
+            case POST_FX:
+                frequencyView.setSpectralDensity(
+                        new float[0],
+                        fft.getPowerSpectrum(sampleBlock.getPostFilterSamples(), sampleBlock.getChannels()));
+                break;
+            default:
+                frequencyView.setSpectralDensity(
+                        fft.getPowerSpectrum(sampleBlock.getPreFilterSamples(), sampleBlock.getChannels()),
+                        fft.getPowerSpectrum(sampleBlock.getPostFilterSamples(), sampleBlock.getChannels()));
+        }
     }
 }

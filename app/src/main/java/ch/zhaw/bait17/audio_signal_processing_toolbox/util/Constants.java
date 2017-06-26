@@ -9,9 +9,9 @@ public class Constants {
     // Decoder and audio player
     public static final int DEFAULT_SAMPLE_RATE = 44100;
     public static final int DEFAULT_CHANNELS = 2;
-    public static final int DEFAULT_FFT_RESOLUTION = 8192;
+    public static final int DEFAULT_FFT_RESOLUTION = 4096;
 
-    // Filter
+    // FIR Filter
     public static final String FREQUENCY_PASS_1 = "fpass1";
     public static final String FREQUENCY_PASS_2 = "fpass2";
     public static final String FREQUENCY_STOP_1 = "fstop1";
@@ -20,6 +20,10 @@ public class Constants {
     public static final String AMOUNT_RIPPLE_PASS_2 = "Apass2";
     public static final String ATTENUATION_STOP_1 = "Astop1";
     public static final String ATTENUATION_STOP_2 = "Astop2";
+
+    // FIR comb filter
+    public static final float FIR_COMB_FILTER_MAX_DELAY = 0.1f;
+    public static final float FIR_COMB_FILTER_DEFAULT_DELAY = 0.005f;
 
     // Bitcrusher
     public static final float BITCRUSHER_MIN_NORM_FREQ = 0;
@@ -64,7 +68,7 @@ public class Constants {
     public static final float FLANGER_MAX_DELAY = 0.015f;
     public static final float FLANGER_DEFAULT_DELAY = 0.003f;
 
-    // Gain
+    // Linear gain
     public static final float GAIN_DEFAULT = 1.0f;
     public static final float GAIN_MAX = 2.0f;
 }

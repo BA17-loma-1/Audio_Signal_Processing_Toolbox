@@ -42,7 +42,7 @@ public class SpectrogramView extends FrequencyView {
 
     private float[] spectralDensity;
     private int fftResolution;
-    private Colour[] gradient = HeatMap.COOL_2;
+    private Colour[] gradient = HeatMap.RAINBOW;
     private Paint paint = new Paint();
     private Bitmap bitmap;
     private Canvas canvas;

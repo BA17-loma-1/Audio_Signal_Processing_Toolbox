@@ -3,11 +3,15 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.dsp;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
+
 /**
  * @author georgrem, stockan1
  */
 
 public abstract class AudioEffect implements Parcelable {
+
+    private int samplingFrequency = Constants.DEFAULT_SAMPLE_RATE;
 
     /**
      * <p>
@@ -42,12 +46,25 @@ public abstract class AudioEffect implements Parcelable {
 
     /**
      * <p>
-     * Sets the sample rate.
+     * Sets the sampling frequency.
      * </p>
      *
-     * @param sampleRate sample rate
+     * @param samplingFrequency sampling frequency
      */
-    public void setSamplingFrequency(int sampleRate) {
+    public void setSamplingFrequency(int samplingFrequency) {
+        if (samplingFrequency > 0) {
+            this.samplingFrequency = samplingFrequency;
+        }
     }
 
+    /**
+     * <p>
+     * Returns the sampling frequency
+     * </p>
+     *
+     * @return  sampling frequency
+     */
+    protected int getSamplingFrequency() {
+        return samplingFrequency;
+    }
 }
