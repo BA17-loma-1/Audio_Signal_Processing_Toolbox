@@ -3,6 +3,7 @@ package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -41,8 +42,8 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.MediaListType;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.LineSpectrumGraphView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrumView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.VisualisationType;
 
 /**
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements
     private static final String TAG_AUDIO_PLAYER_FRAGMENT = "AUDIO_PLAYER";
     private static final String TAG_FILTER_FRAGMENT = "FILTER";
     private static final String TAG_MEDIA_LIST_FRAGMENT = "MEDIA_LIST";
+    private static final String TAG_FX_PARAMS_FRAGMENT = "FX_PARAMS";
     private static final String TAG_SETTINGS_FRAGMENT = "SETTINGS";
     private static final String TAG_VISUALISATION_CONFIGURATION_FRAGMENT = "VISUALISATION_CONFIGURATION";
     private static final String TAG_VISUALISATION_FRAGMENT = "VISUALISATION";
@@ -89,6 +91,8 @@ public class MainActivity extends AppCompatActivity implements
 
         initAudioEffects();
         initFragments();
+
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     }
 
     @Override
@@ -252,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements
         activeViews.add(spectrogramView);
 
         // TODO: remove this part later
-        AudioView lineSpectrumView = new LineSpectrumGraphView(ApplicationContext.getAppContext());
+        AudioView lineSpectrumView = new SpectrumView(ApplicationContext.getAppContext());
         lineSpectrumView.setVisualisationType(VisualisationType.BOTH);
         activeViews.add(lineSpectrumView);
 
@@ -273,6 +277,7 @@ public class MainActivity extends AppCompatActivity implements
         ft.replace(R.id.content_frame, visualisationFragment,
                 TAG_VISUALISATION_FRAGMENT);
         ft.replace(R.id.content_frame, new AproposFragment(), TAG_APROPOS_FRAGMENT);
+        ft.replace(R.id.content_frame, new FXParamsFragment(), TAG_FX_PARAMS_FRAGMENT);
         ft.replace(R.id.content_frame, new SettingsFragment(), TAG_SETTINGS_FRAGMENT);
         ft.replace(R.id.content_frame, mediaListFragment, TAG_MEDIA_LIST_FRAGMENT);
         ft.replace(R.id.audio_player_fragment, audioPlayerFragment, TAG_AUDIO_PLAYER_FRAGMENT);
@@ -333,6 +338,11 @@ public class MainActivity extends AppCompatActivity implements
                 fragment = getFragmentByTag(TAG_FILTER_FRAGMENT);
                 title = getString(R.string.drawer_menu_item_audio_effects_filter);
                 tagFragmentName = TAG_FILTER_FRAGMENT;
+                break;
+            case R.id.nav_fx_params:
+                fragment = getFragmentByTag(TAG_FX_PARAMS_FRAGMENT);
+                title = getString(R.string.drawer_menu_item_fx_params);
+                tagFragmentName = TAG_FX_PARAMS_FRAGMENT;
                 break;
             case R.id.nav_settings:
                 fragment = getFragmentByTag(TAG_SETTINGS_FRAGMENT);

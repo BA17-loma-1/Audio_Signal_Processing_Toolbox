@@ -15,7 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/view_config_view1"
-            android:textAppearance="?android:attr/textAppearanceLarge"></TextView>
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <Spinner
             android:id="@+id/spinner_view1"

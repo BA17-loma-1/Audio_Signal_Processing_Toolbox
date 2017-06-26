@@ -25,24 +25,16 @@ public final class HeatMap {
 
     public static final Colour[] GREY_SCALE = Gradient.createGradient(WHITE, BLACK, NUMBER_OF_STEPS);
 
-    public static final Colour[] YELLOW_ORANGE_BLUE = Gradient.createMultiGradient(
-            new Colour[]{YELLOW, ORANGE, BLUE}, NUMBER_OF_STEPS);
-
-    public static final Colour[] BLUE_YELLOW_RED = Gradient.createMultiGradient(
-            new Colour[]{BLUE, YELLOW, RED}, NUMBER_OF_STEPS);
-
-    public static final Colour[] BLUE_YELLOW = Gradient.createGradient(BLUE, YELLOW, NUMBER_OF_STEPS);
-
-    public static final Colour[] WHITE_RED = Gradient.createGradient(WHITE, RED, NUMBER_OF_STEPS);
-
-    public static final Colour[] BLUE_WHITE_RED = Gradient.createMultiGradient(
-            new Colour[]{BLUE, WHITE, RED}, NUMBER_OF_STEPS);
-
-    /**
-     * The classic rainbow gradient.
-     *
-     */
-    public static final Colour[] LSD = Gradient.createMultiGradient(
+    public static final Colour[] RAINBOW = Gradient.createMultiGradient(
             new Colour[]{BLACK, BLUE, LILA, RED, ORANGE, YELLOW, WHITE}, 2 * NUMBER_OF_STEPS);
 
+    public static final Colour[] HOT_1 = Gradient.createMultiGradient(
+            new Colour[] {WHITE, YELLOW, ORANGE, RED, GREEN, BLUE}, NUMBER_OF_STEPS);
+
+    public static final Colour[] HOT_2 = Gradient.createMultiGradient(
+            new Colour[] {WHITE, YELLOW, ORANGE, RED}, NUMBER_OF_STEPS);
+
+    public static final Colour[] COOL_1 = Gradient.createGradient(BLUE, YELLOW, NUMBER_OF_STEPS);
+
+    public static final Colour[] COOL_2 = Gradient.createGradient(BLUE, WHITE, NUMBER_OF_STEPS);
 }

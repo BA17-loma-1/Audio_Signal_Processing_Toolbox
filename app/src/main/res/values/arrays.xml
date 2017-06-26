@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_fft_resolution_entries">
+        <item>4096</item>
+        <item>8192</item>
+        <item>16384</item>
+    </string-array>
+
+    <string-array name="pref_window_type_entries">
+        <item>Rectangular</item>
+        <item>Triangular</item>
+        <item>Bartlett</item>
+        <item>Hamming</item>
+        <item>Hann</item>
+        <item>Blackman</item>
+        <item>Blackman-Harris</item>
+    </string-array>
+
+    <string-array name="pref_colormap_entries">
+        <item>Greyscale</item>
+        <item>Rainbow</item>
+        <item>Hot 1</item>
+        <item>Hot 2</item>
+        <item>Cool 1</item>
+        <item>Cool 2</item>
+    </string-array>
+
+    <string-array name="pref_db_floor_entries">
+        <item>-150 dB</item>
+        <item>-140 dB</item>
+        <item>-130 dB</item>
+        <item>-120 dB</item>
+        <item>-110 dB</item>
+        <item>-100 dB</item>
+        <item>-90 dB</item>
+        <item>-80 dB</item>
+        <item>-70 dB</item>
+        <item>-60 dB</item>
+        <item>-50 dB</item>
+    </string-array>
+</resources>

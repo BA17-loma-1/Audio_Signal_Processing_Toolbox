@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView xmlns:android="http://schemas.android.com/apk/res/android"
+<ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/spectrogramView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:orientation="vertical"></ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView>
+    android:orientation="vertical" />

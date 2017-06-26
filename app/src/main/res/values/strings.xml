@@ -17,6 +17,7 @@
     <string name="drawer_menu_item_visualisation">Visualisation</string>
     <string name="drawer_menu_item_view_configuration">View configuration</string>
     <string name="drawer_menu_item_audio_effects_filter">Filters and audio effects</string>
+    <string name="drawer_menu_item_fx_params">FX Parameters</string>
     <string name="drawer_menu_item_settings">Settings</string>
     <string name="drawer_menu_item_about_app">About the app</string>
 
@@ -62,11 +63,11 @@
     <string name="tremolo">Tremolo</string>
     <string name="flanger">Flanger</string>
 
-    <!-- Other settings -->
+    <!-- Gain settings -->
     <string name="post_fx_gain">Post FX Gain</string>
     <string name="linear_gain">Linear</string>
 
-    <!-- FX Settings -->
+    <!-- FX Parameters -->
     <string name="ringmod_mod_freq">mod. frequency:</string>
     <string name="tremolo_mod_freq">mod. frequency:</string>
     <string name="flanger_rate">rate:</string>
@@ -95,5 +96,20 @@
     <string name="supervision">Guidance and supervision</string>
     <string name="prof1">Dr. Martin Loeser</string>
     <string name="prof2">Dr. Sigi Wyrsch</string>
+
+    <!-- Application settings (prefs) section -->
+    <!-- pref categories -->
+    <string name="pref_cat_spectral_view_title">Spectral view</string>
+    <string name="pref_cat_spectrogram_title">Spectrogram</string>
+
+    <!-- prefs -->
+    <string name="pref_fft_resolution">FFT resolution</string>
+    <string name="pref_window_type">Window type</string>
+    <string name="pref_colormap_type">Colormap</string>
+    <string name="pref_amplitude_db_floor">Floor</string>
+    <string name="pref_fft_resolution_default">4096</string>
+    <string name="pref_window_type_default">Hanning</string>
+    <string name="pref_colormap_type_default">Rainbow</string>
+    <string name="pref_amplitude_db_floor_default">-60</string>
 
 </resources>

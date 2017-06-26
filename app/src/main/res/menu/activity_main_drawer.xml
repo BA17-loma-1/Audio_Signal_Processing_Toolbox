@@ -10,13 +10,9 @@
             android:id="@+id/nav_stream_list"
             android:icon="@drawable/ic_cloud_download_black_48dp"
             android:title="@string/drawer_menu_item_music_streaming" />
-        <!--<item-->
-            <!--android:id="@+id/nav_microphone"-->
-            <!--android:icon="@drawable/ic_mic_black_48dp"-->
-            <!--android:title="@string/drawer_menu_item_microphone" />-->
         <item
             android:id="@+id/nav_visualisation"
-            android:icon="@drawable/filter"
+            android:icon="@drawable/ic_sound_wave_48dp"
             android:title="@string/drawer_menu_item_visualisation" />
         <item
             android:id="@+id/nav_view"
@@ -26,6 +22,10 @@
             android:id="@+id/nav_filter"
             android:icon="@drawable/lowpass_ir"
             android:title="@string/drawer_menu_item_audio_effects_filter" />
+        <item
+            android:id="@+id/nav_fx_params"
+            android:icon="@drawable/ic_fx_params_48dp"
+            android:title="@string/drawer_menu_item_fx_params" />
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_build_black_18dp"

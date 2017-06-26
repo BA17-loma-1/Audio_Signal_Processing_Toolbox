@@ -64,7 +64,7 @@ public class InstrumentedFFTTest {
     public void testSineWaveTransformM1() throws Exception {
         for (Map.Entry<Integer,Integer> entry : WAVEFORM_RESOURCES.entrySet()) {
             float[] signal = getSamples(entry.getValue());
-            FFT fft = new FFT(WindowType.RECTANGLE);
+            FFT fft = new FFT(WindowType.RECTANGULAR);
             float[] fullDFT = fft.getForwardTransform(signal);
             // Only lower half of DFT is of interest
             float[] dft = new float[fullDFT.length / 2];
@@ -97,7 +97,7 @@ public class InstrumentedFFTTest {
         Iterator<Float> iter = samples.iterator();
         int index = 0;
         while (iter.hasNext()) {
-            signal[index++] = (float) iter.next();
+            signal[index++] = iter.next();
         }
         return signal;
     }

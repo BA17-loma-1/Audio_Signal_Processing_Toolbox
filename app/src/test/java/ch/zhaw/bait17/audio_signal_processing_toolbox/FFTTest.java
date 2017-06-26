@@ -50,7 +50,7 @@ public class FFTTest {
      */
     @Test
     public void testFFTEvenSampleLengthWithoutWindow() {
-        fft = new FFT(WindowType.RECTANGLE);
+        fft = new FFT(WindowType.RECTANGULAR);
         signal = new float[]{2,0,3,0,0,0,3,0};
         final float[] EXPECTED_DFT_REAL = new float[]{8,2,-4,2};
         final float[] EXPECTED_DFT_IMAG = new float[]{0,0,0,0};
@@ -75,7 +75,7 @@ public class FFTTest {
      */
     @Test
     public void testFFTOddSampleLengthWithoutWindow() {
-        fft = new FFT(WindowType.RECTANGLE);
+        fft = new FFT(WindowType.RECTANGULAR);
         signal = new float[]{1,2,2,2,2,2,2};
         final float[] EXPECTED_DFT_REAL = new float[]{13,-1,-1,-1};
         final float[] EXPECTED_DFT_IMAG = new float[]{0,0,0,0};

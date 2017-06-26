@@ -119,12 +119,6 @@ public class FFT {
             onSampleSizeChanged(samples.length);
         }
 
-        /*
-        if (sampleSize != (samples.length / 2) || window == null) {
-            // Important for sampleSize: take only one channel into account.
-            onSampleSizeChanged(samples.length / 2);
-        }*/
-
         float[] x = new float[fftResolution];
         float[] weightedSamples = applyWindowToSamples(PCMUtil.short2FloatArray(samples));
         System.arraycopy(weightedSamples, 0, x, 0, weightedSamples.length);
@@ -181,9 +175,7 @@ public class FFT {
         if (paddingLength > 0) {
             weightedSamples = applyZeroPaddingToSamples(samples, paddingLength);
         }
-
         return weightedSamples;
-
     }
 
     /**
@@ -252,13 +244,7 @@ public class FFT {
         } else {
             exponent = (int) Math.ceil(Math.log(fftResolution) / Math.log(2));
         }
-        /*
-        if (sampleLength >= fftWindowSize) {
-            return sampleLength;
-        }
-        */
         return ((int) Math.pow(2, exponent)) - sampleLength;
-        //return fftWindowSize - sampleLength;
     }
 
     /**
@@ -296,5 +282,4 @@ public class FFT {
         this.sampleSize = sampleSize;
         window = new Window(windowType).getWindow(sampleSize);
     }
-
 }

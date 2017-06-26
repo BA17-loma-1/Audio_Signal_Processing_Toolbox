@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <ListPreference
+        android:key="pref_fft_resolution"
+        android:title="@string/pref_fft_resolution"
+        android:dialogTitle="@string/pref_fft_resolution"
+        android:entries="@array/pref_fft_resolution_entries"
+        android:entryValues="@array/pref_fft_resolution_entries"
+        android:defaultValue="@string/pref_fft_resolution_default" />
+    <ListPreference
+        android:key="pref_window_type"
+        android:title="@string/pref_window_type"
+        android:dialogTitle="@string/pref_window_type"
+        android:entries="@array/pref_window_type_entries"
+        android:entryValues="@array/pref_window_type_entries"
+        android:defaultValue="@string/pref_window_type_default" />
+
+    <ListPreference
+        android:key="pref_colormap"
+        android:title="@string/pref_colormap_type"
+        android:dialogTitle="@string/pref_colormap_type"
+        android:entries="@array/pref_colormap_entries"
+        android:entryValues="@array/pref_colormap_entries"
+        android:defaultValue="@string/pref_colormap_type_default" />
+    <ListPreference
+        android:key="pref_db_floor"
+        android:title="@string/pref_amplitude_db_floor"
+        android:dialogTitle="@string/pref_amplitude_db_floor"
+        android:entries="@array/pref_db_floor_entries"
+        android:entryValues="@array/pref_db_floor_entries"
+        android:defaultValue="@string/pref_amplitude_db_floor_default" />
+</PreferenceScreen>

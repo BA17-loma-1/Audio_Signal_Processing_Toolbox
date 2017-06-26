@@ -97,7 +97,7 @@ public class WindowTest {
     public void testRectangularWindow() {
         float[] rect = new float[0];
         for (Window window : windows) {
-            if (window.toString().equals(WindowType.RECTANGLE.toString())) {
+            if (window.toString().equals(WindowType.RECTANGULAR.toString())) {
                 System.out.println("Window type: rectangular");
                 rect = window.getWindow(sampleSize);
             }

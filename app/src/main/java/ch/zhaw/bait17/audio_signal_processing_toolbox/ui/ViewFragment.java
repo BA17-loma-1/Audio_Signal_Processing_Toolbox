@@ -23,8 +23,8 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.ui.custom.ViewAdapter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.LineSpectrumGraphView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrumView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.ViewName;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.VisualisationType;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView;
@@ -35,9 +35,6 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.WaveformView
 
 public class ViewFragment extends Fragment
         implements AdapterView.OnItemSelectedListener, RadioGroup.OnCheckedChangeListener {
-
-    private static final String BUNDLE_ARGUMENT_AUDIOVIEWS =
-            ViewFragment.class.getSimpleName() + ".AUDIOVIEWS";
 
     private static Map<ViewName, AudioView> views = new HashMap<>();
     private RadioGroup radioGroup1;
@@ -56,7 +53,7 @@ public class ViewFragment extends Fragment
         views.put(ViewName.NO_VIEW, null);
         views.put(ViewName.WAVEFORM, new WaveformView(ApplicationContext.getAppContext()));
         views.put(ViewName.SPECTROGRAM, new SpectrogramView(ApplicationContext.getAppContext()));
-        views.put(ViewName.SPECTRUM, new LineSpectrumGraphView(ApplicationContext.getAppContext()));
+        views.put(ViewName.SPECTRUM, new SpectrumView(ApplicationContext.getAppContext()));
     }
 
     @Override
