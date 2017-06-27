@@ -6,7 +6,9 @@ import android.support.annotation.NonNull;
 import android.view.View;
 
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.LegendRenderer;
+import com.jjoe64.graphview.Viewport;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
@@ -37,36 +39,44 @@ public class SpectrumView extends FrequencyView {
         getGraphView();
 
         // styling grid/labels
-        graphView.getGridLabelRenderer().setHorizontalLabelsColor(Color.DKGRAY);
-        graphView.getGridLabelRenderer().setVerticalLabelsColor(Color.DKGRAY);
-        graphView.getGridLabelRenderer().setHorizontalAxisTitle("Frequency [Hz]");
-        graphView.getGridLabelRenderer().setVerticalAxisTitle("Audio Spectrum [dB]");
-        graphView.getGridLabelRenderer().setHorizontalAxisTitleColor(Color.BLUE);
-        graphView.getGridLabelRenderer().setVerticalAxisTitleColor(Color.BLUE);
-        graphView.getViewport().setYAxisBoundsManual(true);
-        graphView.getViewport().setMaxY(0);
-        graphView.getViewport().setMinY(-120);
+        GridLabelRenderer gridLabelRenderer = graphView.getGridLabelRenderer();
+        gridLabelRenderer.setHorizontalLabelsColor(Color.DKGRAY);
+        gridLabelRenderer.setVerticalLabelsColor(Color.DKGRAY);
+        gridLabelRenderer.setHorizontalAxisTitle("Frequency [Hz]");
+        gridLabelRenderer.setVerticalAxisTitle("Audio Spectrum [dB]");
+        gridLabelRenderer.setHorizontalAxisTitleColor(Color.BLUE);
+        gridLabelRenderer.setVerticalAxisTitleColor(Color.BLUE);
+        gridLabelRenderer.setPadding(50);
+
+        // styling viewport
+        Viewport viewport = graphView.getViewport();
+        viewport.setYAxisBoundsManual(true);
+        viewport.setMaxY(0);
+        viewport.setMinY(-120);
 
         // styling legend
-        graphView.getLegendRenderer().setVisible(true);
-        graphView.getLegendRenderer().setTextSize(30);
-        graphView.getLegendRenderer().setTextColor(Color.BLACK);
-        graphView.getLegendRenderer().setBackgroundColor(Color.WHITE);
-        graphView.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.BOTTOM);
-        graphView.getLegendRenderer().setMargin(30);
-        graphView.getLegendRenderer().setWidth(200);
+        LegendRenderer legendRenderer = graphView.getLegendRenderer();
+        legendRenderer.setVisible(true);
+        legendRenderer.setTextSize(30);
+        legendRenderer.setTextColor(Color.BLACK);
+        legendRenderer.setBackgroundColor(Color.WHITE);
+        legendRenderer.setAlign(LegendRenderer.LegendAlign.BOTTOM);
+        legendRenderer.setMargin(10);
+        legendRenderer.setWidth(200);
     }
 
     private void initPreFilterSeries() {
         // styling series
         preFilterSeries.setTitle("PRE_FX");
         preFilterSeries.setColor(Color.BLACK);
+        preFilterSeries.setThickness(2);
     }
 
     private void initPostFilterSeries() {
         // styling series
         postFilterSeries.setTitle("POST_FX");
         postFilterSeries.setColor(Color.RED);
+        postFilterSeries.setThickness(2);
     }
 
     @Override
