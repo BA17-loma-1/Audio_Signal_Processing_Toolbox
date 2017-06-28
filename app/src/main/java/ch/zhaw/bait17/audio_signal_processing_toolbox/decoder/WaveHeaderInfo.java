@@ -1,6 +1,6 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.decoder;
 
-import android.annotation.SuppressLint;
+import java.util.Locale;
 
 /**
  * Header of a WAV audio file.
@@ -113,10 +113,10 @@ public class WaveHeaderInfo implements HeaderInfo {
         return dataSize;
     }
 
-    @SuppressLint("DefaultLocale")
     @Override
     public String toString() {
-        return String.format("WAVE header:  encoding format=%s  channels=%d  sample rate=%d  bits per sample=%d",
+        return String.format(Locale.getDefault(),
+                "WAVE header:  encoding format=%s  channels=%d  sample rate=%d  bits per sample=%d",
                 AudioCodingFormat.LINEAR_PCM.toString(), channels, sampleRate, bitsPerSample);
     }
 

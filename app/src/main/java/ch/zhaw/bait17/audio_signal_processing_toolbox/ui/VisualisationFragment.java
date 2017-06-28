@@ -17,10 +17,13 @@ import java.util.List;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.fft.FFT;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.fft.WindowType;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.pcm.PCMSampleBlock;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Colour;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.AudioView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.FrequencyView;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrogramView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.SpectrumView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.TimeView;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.VisualisationType;
@@ -28,14 +31,15 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.visualisation.Visualisatio
 /**
  * @author georgrem, stockan1
  */
+
 public class VisualisationFragment extends Fragment {
 
-    private static final int FREQUENCY_VIEW_RENDER_INTERVALL = 10;
+    private static final int SPECTRUM_VIEW_RENDER_INTERVAL = 5;
 
     private FFT fft;
     private List<AudioView> views;
     private View rootView;
-    private int frequencyViewUpdateCounter = 0;
+    private int frequencyViewUpdateCounter = SPECTRUM_VIEW_RENDER_INTERVAL;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -86,15 +90,11 @@ public class VisualisationFragment extends Fragment {
         super.onStart();
         // Register to EventBus
         EventBus.getDefault().register(this);
-
-        fft = new FFT(Constants.DEFAULT_FFT_RESOLUTION);
-        if (views != null) {
-            for (AudioView view : views) {
-                if (view instanceof FrequencyView) {
-                    ((FrequencyView) view).setFFTResolution(Constants.DEFAULT_FFT_RESOLUTION);
-                }
-            }
-        }
+        int fftResolution = ApplicationContext.getPreferredFFTResolution();
+        fft = new FFT(fftResolution);
+        setFFTResolution(fftResolution);
+        WindowType window = ApplicationContext.getPreferredWindow();
+        setWindowType(window);
     }
 
     @Override
@@ -117,6 +117,64 @@ public class VisualisationFragment extends Fragment {
                 if (view != null) {
                     setAudioViewParameters(view, sampleBlock);
                 }
+            }
+        }
+    }
+
+    /**
+     * Sets the FFT resolution.
+     *
+     * @param fftResolution fft resolution a.k.a window size
+     */
+    public void setFFTResolution(int fftResolution) {
+        if (fft != null) {
+            fft.setFFTResolution(fftResolution);
+        }
+        for (AudioView view : views) {
+            if (view instanceof FrequencyView) {
+                ((FrequencyView) view).setFFTResolution(fftResolution);
+            }
+        }
+    }
+
+    /**
+     * Sets the window type.
+     *
+     * @param windowType the type of window
+     */
+    public void setWindowType(WindowType windowType) {
+        if (fft != null) {
+            fft.setWindowType(windowType);
+        }
+        for (AudioView view : views) {
+            if (view instanceof FrequencyView) {
+                ((FrequencyView) view).setWindowName(windowType.toString());
+            }
+        }
+    }
+
+    /**
+     * Sets the magnitude floor used in the visualisation.
+     *
+     * @param dBFloor   the magnitude floor
+     */
+    public void setMagnitudeFloor(int dBFloor) {
+        for (AudioView view : views) {
+            if (view instanceof  FrequencyView) {
+                ((FrequencyView) view).setMagnitudeFloor(dBFloor);
+            }
+        }
+    }
+
+    /**
+     * Sets the colormap used to draw the bitmap of the spectrogram.
+     *
+     * @param colormap  an array of {@code Colour}
+     */
+    public void setColormap(Colour[] colormap) {
+        for (AudioView view : views) {
+            if (view instanceof SpectrogramView) {
+                ((SpectrogramView) view).setColormap(colormap);
             }
         }
     }
@@ -193,12 +251,14 @@ public class VisualisationFragment extends Fragment {
      */
     private void setFrequencyViewParameters(@NonNull FrequencyView frequencyView,
                                             @NonNull PCMSampleBlock sampleBlock) {
-        if (frequencyView instanceof SpectrumView &&
-                frequencyViewUpdateCounter < FREQUENCY_VIEW_RENDER_INTERVALL) {
-            frequencyViewUpdateCounter++;
-            return;
+        if (frequencyView instanceof SpectrumView) {
+            if (frequencyViewUpdateCounter < SPECTRUM_VIEW_RENDER_INTERVAL) {
+                frequencyViewUpdateCounter++;
+                return;
+            }
+            frequencyViewUpdateCounter = 0;
         }
-        frequencyViewUpdateCounter = 0;
+
         VisualisationType visualisationType = frequencyView.getVisualisationType();
         switch (visualisationType) {
             case PRE_FX:

@@ -65,13 +65,13 @@ public class Util {
     /**
      * Computes the font size based on the text appearance.
      *
-     * @param textAppearance    a text appearance value
+     * @param idTextAppearance  a text appearance value
      * @return                  font size expressed as a {@code float} value
      */
-    public static float getFontSize(int textAppearance) {
+    public static float getFontSize(int idTextAppearance) {
         TypedValue typedValue = new TypedValue();
         ApplicationContext.getAppContext().getTheme().resolveAttribute(
-                textAppearance, typedValue, true);
+                idTextAppearance, typedValue, true);
         int[] textSizeAttr = new int[]{android.R.attr.textSize};
         TypedArray arr = ApplicationContext.getAppContext().obtainStyledAttributes(
                 typedValue.data, textSizeAttr);

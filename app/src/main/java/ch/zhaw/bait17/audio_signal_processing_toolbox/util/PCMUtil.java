@@ -17,11 +17,21 @@ import java.nio.ByteOrder;
  *
  * @author georgrem, stockan1
  */
+
 public class PCMUtil {
 
     private static final String TAG = PCMUtil.class.getSimpleName();
-    public static final int BIAS_8_BIT = 128;
-    public static final float BIAS_16_BIT = 32768.0f;
+    private static final int BIAS_8_BIT = 128;
+    private static final float FULL_SCALE = 32768.0f;
+
+    /**
+     * Returns the maximum value, that is the maximum signal amplitude of a 16-bit PCM sample.
+     *
+     * @return  full scale value
+     */
+    public static float getFullScaleValue() {
+        return FULL_SCALE;
+    }
 
     /**
      * <p>
@@ -36,8 +46,7 @@ public class PCMUtil {
      * @return          a 32-bit {@code float}
      */
     public static float shortByte2Float(short sample) {
-        //float f = ((float) sample) / (float) BIAS_16_BIT;
-        float f = ((float) sample) * (1.0f / BIAS_16_BIT);
+        float f = ((float) sample) * (1.0f / FULL_SCALE);
         if (f > 1) {
             Log.d(TAG, "Hard clipping float > 1");
         } else if (f < -1) {
@@ -61,7 +70,7 @@ public class PCMUtil {
     public static float[] short2FloatArray(short[] samples) {
         float[] output = new float[samples.length];
         for (int i = 0; i < output.length; i++) {
-            output[i] = ((float) samples[i]) * (1.0f / BIAS_16_BIT);
+            output[i] = ((float) samples[i]) * (1.0f / FULL_SCALE);
         }
         return output;
     }
@@ -78,7 +87,7 @@ public class PCMUtil {
      * @return         a {@code float}
      */
     public static float short2Float(short sample) {
-        return (float) sample * (1.0f / BIAS_16_BIT);
+        return (float) sample * (1.0f / FULL_SCALE);
     }
 
     /**
@@ -91,13 +100,13 @@ public class PCMUtil {
      * @return          a 16-bit {@code short}
      */
     public static short float2Short(float sample) {
-        float f = sample * BIAS_16_BIT;
-        if (f > BIAS_16_BIT - 1) {
-            f = BIAS_16_BIT - 1;
-            //Log.d(TAG, "Hard clipping short > " + (BIAS_16_BIT - 1));
-        } else if (f < -BIAS_16_BIT) {
-            f = -BIAS_16_BIT;
-            //Log.d(TAG, "Hard clipping short < -" + BIAS_16_BIT);
+        float f = sample * FULL_SCALE;
+        if (f > FULL_SCALE - 1) {
+            f = FULL_SCALE - 1;
+            //Log.d(TAG, "Hard clipping short > " + (FULL_SCALE - 1));
+        } else if (f < -FULL_SCALE) {
+            f = -FULL_SCALE;
+            //Log.d(TAG, "Hard clipping short < -" + FULL_SCALE);
         }
         return (short) f;
     }
@@ -113,7 +122,7 @@ public class PCMUtil {
     public static short[] float2ShortArray(float[] samples) {
         short[] output = new short[samples.length];
         for (int i = 0; i < output.length; i++) {
-            double out =  samples[i] * BIAS_16_BIT;
+            double out =  samples[i] * FULL_SCALE;
             if (out < Short.MIN_VALUE) {
                 out = Short.MIN_VALUE;
             } else if (out > Short.MAX_VALUE) {
@@ -179,7 +188,7 @@ public class PCMUtil {
     public static byte[] float8Bit2ByteArray(float[] samples) {
         ByteBuffer buffer = ByteBuffer.allocate(samples.length);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
-        float f = 0;
+        float f;
         for (int i = 0; i < samples.length; i++) {
             f = samples[i] * BIAS_8_BIT;
             f += BIAS_8_BIT;
@@ -202,14 +211,13 @@ public class PCMUtil {
     public static byte[] float16Bit2ByteArray(float[] samples) {
         ByteBuffer buffer = ByteBuffer.allocate(samples.length * 4);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
-        float f = 0;
+        float f;
         for (int i = 0; i < samples.length; i++) {
-            f = samples[i] * BIAS_16_BIT;
-            if (f < -BIAS_16_BIT) f = -BIAS_16_BIT;
-            if (f > BIAS_16_BIT - 1) f = (BIAS_16_BIT - 1);
+            f = samples[i] * FULL_SCALE;
+            if (f < -FULL_SCALE) f = -FULL_SCALE;
+            if (f > FULL_SCALE - 1) f = (FULL_SCALE - 1);
             buffer.putShort(i, (short) f).array();
         }
         return buffer.array();
     }
-
 }

@@ -36,6 +36,20 @@ public abstract class FrequencyView extends AudioView {
     public abstract void setFFTResolution(int fftResolution);
 
     /**
+     * Sets the name of the window function being used.
+     *
+     * @param windowName        the name of the window function
+     */
+    public abstract void setWindowName(String windowName);
+
+    /**
+     * Sets the magnitude floor used in the visualisation.
+     *
+     * @param dBFloor   the magnitude floor
+     */
+    public abstract void setMagnitudeFloor(int dBFloor);
+
+    /**
      * Sets the power spectral density to be displayed in the {@code FrequencyView}.
      * {@code preFilterMagnitude} represents the power spectral density of the unfiltered samples.
      * {@code postFilterMagnitude} represents the power spectral density of the filtered samples.
@@ -45,5 +59,4 @@ public abstract class FrequencyView extends AudioView {
      */
     public abstract void setSpectralDensity(@NonNull float[] preFilterMagnitude,
                                             @NonNull float[] postFilterMagnitude);
-
 }

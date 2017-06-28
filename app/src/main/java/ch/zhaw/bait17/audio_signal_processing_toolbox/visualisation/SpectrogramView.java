@@ -26,28 +26,42 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Colour;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.util.HeatMap;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.PCMUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Util;
+
+/**
+ * <p>
+ *      Draws the spectrogram onto a {@code Canvas}. <br>
+ *      Spectra of transformed PCM sample blocks are "laid side by side" to form the spectrogram. <br>
+ *      This corresponds to computing the squared magnitude of short-time Fourier transform (STFT).
+ * </p>
+ */
 
 public class SpectrogramView extends FrequencyView {
 
-    private static final int db_PEAK = 50;
-    private static final int dB_FLOOR = -60;
-    private static final int dB_RANGE = Math.abs(dB_FLOOR) + db_PEAK;
+    private static final float FULL_SCALE = PCMUtil.getFullScaleValue();
+    private static final float OFFSET_TOP = Util.getFontSize(android.R.attr.textAppearanceSmall) + 10;
+    private static final int MAGNITUDE_AXIS_WIDTH = 80;
+    private static final int FREQUENCY_AXIS_WIDTH = 70;
+    private static final int db_PEAK = 0;
     private static final int SPECTROGRAM_PAINT_STROKE_WIDTH = 3;
 
     private float[] spectralDensity;
     private int fftResolution;
-    private Colour[] gradient = HeatMap.RAINBOW;
-    private Paint paint = new Paint();
+    private String windowName;
+    private Colour[] colormap;
+    private Paint bitmapPaint;
+    private Paint textPaint;
     private Bitmap bitmap;
     private Canvas canvas;
     private int pos;
     private int width, height;
+    private int dBFloor = ApplicationContext.getPreferredDBFloor();
 
     /**
      *
@@ -85,7 +99,7 @@ public class SpectrogramView extends FrequencyView {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         width = w;
-        height = h;
+        height = (int) (h - OFFSET_TOP);
         if (bitmap != null) {
             bitmap.recycle();
         }
@@ -112,6 +126,37 @@ public class SpectrogramView extends FrequencyView {
     @Override
     public void setFFTResolution(int fftResolution) {
         this.fftResolution = fftResolution;
+    }
+
+    /**
+     * Sets the name of the window function being used.
+     *
+     * @param windowName        the name of the window function
+     */
+    @Override
+    public void setWindowName(String windowName) {
+        this.windowName = windowName;
+    }
+
+    /**
+     * Sets the magnitude floor used in the visualisation.
+     *
+     * @param magnitudeFloor   the magnitude floor
+     */
+    @Override
+    public void setMagnitudeFloor(int magnitudeFloor) {
+        dBFloor = magnitudeFloor;
+    }
+
+    /**
+     * Sets the colormap used to draw the bitmap of the spectrogram.
+     *
+     * @param colormap  an array of {@code Colour}
+     */
+    public void setColormap(Colour[] colormap) {
+        if (this.colormap.length == colormap.length) {
+            System.arraycopy(colormap, 0, this.colormap, 0, colormap.length);
+        }
     }
 
     /**
@@ -144,100 +189,79 @@ public class SpectrogramView extends FrequencyView {
             return;
         }
 
-        final int magnitudeAxisWidth = 80;
-        final int frequencyAxisWidth = 70;
-        final int spectrogramWidth = width - magnitudeAxisWidth - frequencyAxisWidth;
-        double mindB = 0;
-        double maxdB = 0;
+        float[] magnitudes = new float[spectralDensity.length];
+        System.arraycopy(spectralDensity, 0, magnitudes, 0, spectralDensity.length);
 
-        paint.setStrokeWidth(SPECTROGRAM_PAINT_STROKE_WIDTH);
+        final int spectrogramWidth = width - MAGNITUDE_AXIS_WIDTH - FREQUENCY_AXIS_WIDTH;
 
-        // Update buffer bitmap
         for (int i = 0; i < height; i++) {
             float j = getValueFromRelativePosition(
                     (height - i) / (float) height, 1, getSampleRate() / 2);
-            float mag = spectralDensity[(int) (j * spectralDensity.length / 2)];
-            double dB = 10 * Math.log10(mag);
-            if (i == 0) {
-                mindB = dB;
-            }
-            if (dB > maxdB) {
-                maxdB = dB;
-            }
-            if (dB < mindB) {
-                mindB = dB;
-            }
-            paint.setColor(getColour(dB).getRGB());
-            this.canvas.drawPoint(pos % spectrogramWidth, i, paint);
+            float mag = magnitudes[(int) (j * magnitudes.length / 2)];
+            // Compute dB relative to full scale (dBFS)
+            // Full scale is the maximum value of a PCM sample
+            double dBFS = 10 * Math.log10(Math.abs(mag) / FULL_SCALE);
+            bitmapPaint.setColor(getColour(dBFS).getRGB());
+            this.canvas.drawPoint(pos % spectrogramWidth, i, bitmapPaint);
         }
 
-        // Draw bitmap
+        // Draw the spectrogram as a bitmap
         if (pos < spectrogramWidth) {
-            canvas.drawBitmap(bitmap, magnitudeAxisWidth, 0, paint);
+            canvas.drawBitmap(bitmap, MAGNITUDE_AXIS_WIDTH, OFFSET_TOP, bitmapPaint);
         } else {
-            canvas.drawBitmap(bitmap, (float) magnitudeAxisWidth - (pos % spectrogramWidth),
-                    0, paint);
-            canvas.drawBitmap(bitmap, (float) magnitudeAxisWidth +
-                    (spectrogramWidth - pos % spectrogramWidth), 0, paint);
+            // Draw "old" squared magnitude of short-time Fourier transform (STFT)
+            canvas.drawBitmap(bitmap, (float) MAGNITUDE_AXIS_WIDTH - (pos % spectrogramWidth),
+                    OFFSET_TOP, bitmapPaint);
+            // Draw "new" squared magnitude of short-time Fourier transform (STFT)
+            canvas.drawBitmap(bitmap, (float) MAGNITUDE_AXIS_WIDTH +
+                    (spectrogramWidth - pos % spectrogramWidth), OFFSET_TOP, bitmapPaint);
         }
 
-        drawMagnitudeAxis(canvas, magnitudeAxisWidth);
-        drawFrequencyAxis(canvas, magnitudeAxisWidth, spectrogramWidth);
+        drawMagnitudeAxis(canvas);
+        drawFrequencyAxis(canvas, spectrogramWidth);
+        drawInfo(canvas);
 
-        pos += paint.getStrokeWidth();
+        pos += bitmapPaint.getStrokeWidth();
     }
 
-    private void drawFrequencyAxis(@NonNull Canvas canvas, final int gradientWidth,
-                                   final int spectrogramWidth) {
+    private void drawFrequencyAxis(@NonNull Canvas canvas, final int spectrogramWidth) {
         final int frequencyStep = 1000;
-        paint.setColor(Color.WHITE);
-        canvas.drawRect(gradientWidth + spectrogramWidth, 0, width, height, paint);
-        paint.setColor(Color.BLACK);
-        paint.setTextSize(Util.getFontSize(android.R.attr.textAppearanceSmall));
-        canvas.drawText("kHz", spectrogramWidth + gradientWidth, paint.getTextSize(), paint);
+        bitmapPaint.setColor(Color.WHITE);
+        canvas.drawRect(MAGNITUDE_AXIS_WIDTH + spectrogramWidth, 0, width, height + OFFSET_TOP, bitmapPaint);
+        canvas.drawText("kHz", spectrogramWidth + MAGNITUDE_AXIS_WIDTH, textPaint.getTextSize(), textPaint);
         for (int i = 0; i < (getSampleRate() - (frequencyStep / 2)) / 2; i += frequencyStep) {
-            float y = height * (1.0f - (float) i / (getSampleRate() / 2));
-            canvas.drawText(" " + (i / frequencyStep), spectrogramWidth + gradientWidth, y, paint);
+            float y = OFFSET_TOP + (height * (1.0f - (float) i / (getSampleRate() / 2)));
+            canvas.drawText(" " + (i / frequencyStep), spectrogramWidth + MAGNITUDE_AXIS_WIDTH, y, textPaint);
         }
     }
 
-    private void drawMagnitudeAxis(@NonNull Canvas canvas, final int gradientWidth) {
-        final float textWidth = gradientWidth * 0.75f;
+    private void drawMagnitudeAxis(@NonNull Canvas canvas) {
+        final float textWidth = MAGNITUDE_AXIS_WIDTH * 0.75f;
         final int dBStep = 10;
 
-        paint.setColor(Color.WHITE);
-        canvas.drawRect(0, 0, gradientWidth, height, paint);
+        bitmapPaint.setColor(Color.WHITE);
+        canvas.drawRect(0, 0, MAGNITUDE_AXIS_WIDTH, height + OFFSET_TOP, bitmapPaint);
 
-        // Heat map
+        // Colormap
         for (int i = 0; i < height; i++) {
-            int index = (int) (gradient.length - 1 - (i / (float) height) * (gradient.length - 1));
-            Colour colour = gradient[index];
-            paint.setColor(colour.getRGB());
-            canvas.drawLine(0, i, gradientWidth - textWidth, i, paint);
+            int index = (int) (colormap.length - 1 - (i / (float) height) * (colormap.length - 1));
+            Colour colour = colormap[index];
+            bitmapPaint.setColor(colour.getRGB());
+            canvas.drawLine(0, i + OFFSET_TOP, MAGNITUDE_AXIS_WIDTH - textWidth, i + OFFSET_TOP, bitmapPaint);
         }
 
         // Axis label
-        paint.setColor(Color.BLACK);
-        paint.setTextSize(Util.getFontSize(android.R.attr.textAppearanceSmall));
-        canvas.drawText("dB", gradientWidth - textWidth, paint.getTextSize(), paint);
-        for (int i = dB_RANGE; i >= 0; i -= dBStep) {
-            canvas.drawText(Integer.toString(dB_FLOOR + i), gradientWidth - textWidth,
-                    height * (1f - (float) i / dB_RANGE), paint);
+        final int magnitudeRange = Math.abs(dBFloor);
+        canvas.drawText("dB", MAGNITUDE_AXIS_WIDTH - textWidth, textPaint.getTextSize(), textPaint);
+        for (int i = db_PEAK; i >= -magnitudeRange; i -= dBStep) {
+            canvas.drawText(Integer.toString(i), MAGNITUDE_AXIS_WIDTH - textWidth,
+                    OFFSET_TOP + textPaint.getTextSize() + ((height - textPaint.getTextSize()) * (1.0f - ((magnitudeRange + i) / (float) magnitudeRange))), textPaint);
         }
     }
 
-    /**
-     * If onDraw() is not called after invalidate(), this method does the job.
-     * See <a href="http://stackoverflow.com/questions/17595546/why-ondraw-is-not-called-after-invalidate#17595671">stackoverflow.com</a>
-     *
-     */
-    private void initialiseView() {
-        setWillNotDraw(false);
-        paint.setAntiAlias(true);
-    }
-
-    private float getValueFromRelativePosition(float position, float minValue, float maxValue) {
-        return (minValue + position * (maxValue - minValue)) / maxValue;
+    private void drawInfo(@NonNull Canvas canvas) {
+        canvas.drawText(String.format(Locale.getDefault(), "  FFT resolution: %d  |  Window: %s",
+                fftResolution, windowName), MAGNITUDE_AXIS_WIDTH, textPaint.getTextSize(), textPaint);
     }
 
     /**
@@ -247,14 +271,45 @@ public class SpectrogramView extends FrequencyView {
      * @return      a {@code Colour}
      */
     private Colour getColour(double dB) {
-        if (dB <= dB_FLOOR || Double.compare(dB, Double.NEGATIVE_INFINITY) == 0) {
-            dB = dB_FLOOR;
+        final int magnitudeFloor = dBFloor;
+
+        if (dB <= magnitudeFloor || Double.compare(dB, Double.NEGATIVE_INFINITY) == 0) {
+            dB = magnitudeFloor;
         }
         if (dB >= db_PEAK || Double.compare(dB, Double.POSITIVE_INFINITY) == 0) {
             dB = db_PEAK;
         }
-        double dbScaled = dB + Math.abs(dB_FLOOR);
-        int index = (int) ((dbScaled / dB_RANGE) * (gradient.length - 1));
-        return gradient[index];
+        int index = (int) (colormap.length - 1 - (Math.abs(dB) / Math.abs(magnitudeFloor) * (colormap.length - 1)));
+        return colormap[index];
+    }
+
+    /**
+     * If onDraw() is not called after invalidate(), this method does the job.
+     * See <a href="http://stackoverflow.com/questions/17595546/why-ondraw-is-not-called-after-invalidate#17595671">stackoverflow.com</a>
+     *
+     */
+    private void initialiseView() {
+        setWillNotDraw(false);
+        initialiseBitmapPaint();
+        initialiseTextPaint();
+        colormap = ApplicationContext.getPreferredColormap();
+    }
+
+    private float getValueFromRelativePosition(float position, float minValue, float maxValue) {
+        return (minValue + position * (maxValue - minValue)) / maxValue;
+    }
+
+    private void initialiseBitmapPaint() {
+        bitmapPaint = new Paint();
+        bitmapPaint.setStrokeWidth(SPECTROGRAM_PAINT_STROKE_WIDTH);
+        bitmapPaint.setColor(Color.WHITE);
+        bitmapPaint.setAntiAlias(true);
+    }
+
+    private void initialiseTextPaint() {
+        textPaint = new Paint();
+        textPaint.setColor(Color.BLACK);
+        textPaint.setTextSize(Util.getFontSize(android.R.attr.textAppearanceSmall) - 4.0f);
+        textPaint.setAntiAlias(true);
     }
 }

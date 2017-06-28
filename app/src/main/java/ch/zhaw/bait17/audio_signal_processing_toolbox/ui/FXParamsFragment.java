@@ -1,6 +1,5 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.content.Context;
@@ -13,6 +12,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
+import java.util.Locale;
 
 import ch.zhaw.bait17.audio_signal_processing_toolbox.R;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.delay.Flanger;
@@ -34,6 +34,7 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
     private static final int DEFAULT_SEEK_BAR_STEPS = 100;
     private final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
 
+    private Locale locale = Locale.getDefault();
     private View view;
 
     private TextView textViewGainCurrentValue;
@@ -74,7 +75,6 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
         }
     }
 
-    @SuppressLint({"DefaultLocale", "SetTextI18n"})
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (view == null) {
@@ -132,14 +132,15 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
 
             seekBarSoftClipperClippingFactor = (SeekBar) view.findViewById(
                     R.id.seekbar_soft_clipper_clipping_factor);
-            seekBarSoftClipperClippingFactor.setMax(Constants.SOFT_CLIPPER_MAX_CLIPPING_FACTOR - 1);
+            seekBarSoftClipperClippingFactor.setMax(DEFAULT_SEEK_BAR_STEPS * 10);
             seekBarSoftClipperClippingFactor.setProgress((int) ((Constants.SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR *
-                    DEFAULT_SEEK_BAR_STEPS) / Constants.SOFT_CLIPPER_MAX_CLIPPING_FACTOR));
+                    (DEFAULT_SEEK_BAR_STEPS * 10) / Constants.SOFT_CLIPPER_MAX_CLIPPING_FACTOR)));
 
             seekBarWaveshaperThreshold = (SeekBar) view.findViewById(
                     R.id.seekbar_waveshaper_threshold);
-            seekBarWaveshaperThreshold.setMax(Constants.WAVESHAPER_MAX_THRESHOLD + 1);
-            seekBarWaveshaperThreshold.setProgress(Constants.WAVESHAPER_DEFAULT_THRESHOLD);
+            seekBarWaveshaperThreshold.setMax(DEFAULT_SEEK_BAR_STEPS);
+            seekBarWaveshaperThreshold.setProgress((int) (Constants.WAVESHAPER_DEFAULT_THRESHOLD *
+                            DEFAULT_SEEK_BAR_STEPS / Constants.WAVESHAPER_MAX_THRESHOLD));
 
             seekBarTubeDistortionGain = (SeekBar) view.findViewById(
                     R.id.seekbar_tube_distortion_gain);
@@ -160,17 +161,17 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
 
             textViewFIRCombFilterDelayCurrentValue = (TextView) view.findViewById(
                     R.id.fir_comb_filter_delay_current_value);
-            textViewFIRCombFilterDelayCurrentValue.setText(String.format("%.3f s",
+            textViewFIRCombFilterDelayCurrentValue.setText(String.format(locale, "%.3f s",
                     Constants.FIR_COMB_FILTER_DEFAULT_DELAY));
 
             textViewRingModFreqCurrentValue = (TextView) view.findViewById(
                     R.id.ringmod_freq_current_value);
-            textViewRingModFreqCurrentValue.setText(String.format("%d Hz",
+            textViewRingModFreqCurrentValue.setText(String.format(locale, "%d Hz",
                     (int) Constants.RING_MODULATOR_DEFAULT_FREQUENCY));
 
             textViewTremoloModFreqCurrentValue = (TextView) view.findViewById(
                     R.id.tremolo_freq_current_value);
-            textViewTremoloModFreqCurrentValue.setText(String.format("%1.2f Hz",
+            textViewTremoloModFreqCurrentValue.setText(String.format(locale, "%1.2f Hz",
                     Constants.TREMOLO_DEFAULT_MOD_FREQUENCY));
 
             textViewTremoloModAmplCurrentValue = (TextView) view.findViewById(
@@ -180,7 +181,7 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
 
             textViewFlangerRateCurrentValue = (TextView) view.findViewById(
                     R.id.flanger_rate_current_value);
-            textViewFlangerRateCurrentValue.setText(String.format("%1.2f Hz",
+            textViewFlangerRateCurrentValue.setText(String.format(locale, "%1.2f Hz",
                     Constants.FLANGER_DEFAULT_RATE));
 
             textViewFlangerModAmplCurrentValue = (TextView) view.findViewById(
@@ -190,7 +191,7 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
 
             textViewFlangerModDelayCurrentValue = (TextView) view.findViewById(
                     R.id.flanger_delay_current_value);
-            textViewFlangerModDelayCurrentValue.setText(String.format("%.3f s",
+            textViewFlangerModDelayCurrentValue.setText(String.format(locale, "%.3f s",
                     Constants.FLANGER_DEFAULT_DELAY));
 
             textViewBitcrusherNormFreqCurrentValue = (TextView) view.findViewById(
@@ -200,18 +201,18 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
 
             textViewBitcrusherBitDepthCurrentValue = (TextView) view.findViewById(
                     R.id.bitcrusher_bit_depth_current_value);
-            textViewBitcrusherBitDepthCurrentValue.setText(Integer.toString(
-                    Constants.BITCRUSHER_DEFAULT_BITS));
+            textViewBitcrusherBitDepthCurrentValue.setText(
+                    String.format(locale, "%d", Constants.BITCRUSHER_DEFAULT_BITS));
 
             textViewSoftClipperClippingFactorCurrentValue = (TextView) view.findViewById(
                     R.id.soft_clipper_clipping_factor_current_value);
             textViewSoftClipperClippingFactorCurrentValue.setText(
-                    Float.toString(Constants.SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR));
+                    String.format(locale, "%3.1f", Constants.SOFT_CLIPPER_DEFAULT_CLIPPING_FACTOR));
 
             textViewWaveshaperThresholdCurrentValue = (TextView) view.findViewById(
                     R.id.waveshaper_threshold_current_value);
             textViewWaveshaperThresholdCurrentValue.setText(
-                    Float.toString(Constants.WAVESHAPER_DEFAULT_THRESHOLD));
+                    String.format(locale, "%2.1f", Constants.WAVESHAPER_DEFAULT_THRESHOLD));
 
             textViewTubeDistortionGainCurrentValue = (TextView) view.findViewById(
                     R.id.tube_distortion_gain_current_value);
@@ -245,7 +246,6 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
         return view;
     }
 
-    @SuppressLint({"DefaultLocale", "SetTextI18n"})
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         MainActivity activity = (MainActivity) getActivity();
@@ -269,7 +269,7 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
                             (progress / (float) (DEFAULT_SEEK_BAR_STEPS * 10));
                     firCombFilter.setDelay(delay);
                     if (textViewFIRCombFilterDelayCurrentValue != null) {
-                        textViewFIRCombFilterDelayCurrentValue.setText(String.format("%.3f s", delay));
+                        textViewFIRCombFilterDelayCurrentValue.setText(String.format(locale, "%.3f s", delay));
                     }
                 }
                 break;
@@ -278,7 +278,7 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
                 if (ringMod != null) {
                     ringMod.setModulationFrequency(progress);
                     if (textViewRingModFreqCurrentValue != null) {
-                        textViewRingModFreqCurrentValue.setText(String.format("%d Hz", progress));
+                        textViewRingModFreqCurrentValue.setText(String.format(locale, "%d Hz", progress));
                     }
                 }
                 break;
@@ -289,7 +289,7 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
                             (progress / (float) DEFAULT_SEEK_BAR_STEPS);
                     tremolo.setModulationFrequency(modFreq);
                     if (textViewTremoloModFreqCurrentValue != null) {
-                        textViewTremoloModFreqCurrentValue.setText(String.format("%1.2f Hz", modFreq));
+                        textViewTremoloModFreqCurrentValue.setText(String.format(locale, "%1.2f Hz", modFreq));
                     }
                 }
                 break;
@@ -311,7 +311,7 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
                             (progress / (float) DEFAULT_SEEK_BAR_STEPS);
                     flanger.setRate(rate);
                     if (textViewFlangerRateCurrentValue != null) {
-                        textViewFlangerRateCurrentValue.setText(String.format("%1.2f Hz", rate));
+                        textViewFlangerRateCurrentValue.setText(String.format(locale, "%1.2f Hz", rate));
                     }
                 }
                 break;
@@ -332,7 +332,7 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
                     float normDelay = (float) (Constants.FLANGER_MAX_DELAY * (progress / (double) DEFAULT_SEEK_BAR_STEPS));
                     flanger.setMaxDelay(normDelay);
                     if (textViewFlangerModDelayCurrentValue != null) {
-                        textViewFlangerModDelayCurrentValue.setText(String.format("%.3f s", normDelay));
+                        textViewFlangerModDelayCurrentValue.setText(String.format(locale, "%.3f s", normDelay));
                     }
                 }
                 break;
@@ -353,30 +353,34 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
                     int bits = progress + 1;
                     bitcrusher.setBits(bits);
                     if (textViewBitcrusherBitDepthCurrentValue != null) {
-                        textViewBitcrusherBitDepthCurrentValue.setText(Integer.toString(bits));
+                        textViewBitcrusherBitDepthCurrentValue.setText(
+                                String.format(locale, "%d", bits));
                     }
                 }
                 break;
             case R.id.seekbar_soft_clipper_clipping_factor:
                 SoftClipper softClipper = (SoftClipper) activity.getAudioEffectFromType(SoftClipper.class);
                 if (softClipper != null) {
-                    int clippingFactor = progress + 1;
-                    softClipper.setClippingFactor((float) clippingFactor);
+                    float clippingFactor = 1.0f + ((Constants.SOFT_CLIPPER_MAX_CLIPPING_FACTOR - 1) *
+                            (progress / (float) (DEFAULT_SEEK_BAR_STEPS * 10)));
+                    softClipper.setClippingFactor(clippingFactor);
                     if (textViewSoftClipperClippingFactorCurrentValue != null) {
                         textViewSoftClipperClippingFactorCurrentValue.setText(
-                                Integer.toString(clippingFactor));
+                                String.format(locale, "%3.1f", clippingFactor));
                     }
                 }
                 break;
             case R.id.seekbar_waveshaper_threshold:
                 Waveshaper waveshaper = (Waveshaper) activity.getAudioEffectFromType(Waveshaper.class);
                 if (waveshaper != null) {
-                    float threshold = progress + 1.0f;
+                    float threshold = 1.0f + ((Constants.WAVESHAPER_MAX_THRESHOLD - 1) *
+                            (progress / (float) DEFAULT_SEEK_BAR_STEPS));
                     waveshaper.setThreshold(threshold);
                     if (textViewWaveshaperThresholdCurrentValue != null) {
                         textViewWaveshaperThresholdCurrentValue.setText(DECIMAL_FORMAT.format(threshold));
                     }
                 }
+                break;
             case R.id.seekbar_tube_distortion_gain:
                 tubeDistortion = (TubeDistortion) activity.getAudioEffectFromType(TubeDistortion.class);
                 if (tubeDistortion != null) {
@@ -399,6 +403,7 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
                 }
                 break;
             default:
+                break;
         }
     }
 

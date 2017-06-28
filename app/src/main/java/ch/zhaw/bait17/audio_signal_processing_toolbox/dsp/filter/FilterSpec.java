@@ -1,9 +1,10 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter;
 
-import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+
+import java.util.Locale;
 
 /**
  * @author georgrem, stockan1
@@ -76,24 +77,28 @@ public class FilterSpec implements Parcelable {
         return getDescription();
     }
 
-    @SuppressLint("DefaultLocale")
     public String getDescription() {
         String output = "";
+        Locale locale = Locale.getDefault();
         switch (filterType) {
             case LOWPASS:
-                output = String.format("FIR, order %d, fpass %5.0f Hz, Apass %.2f dB, fstop %5.0f Hz, Astop %3.0f dB",
+                output = String.format(locale,
+                        "FIR, order %d, fpass %5.0f Hz, Apass %.2f dB, fstop %5.0f Hz, Astop %3.0f dB",
                         order, fpass1, Apass1, fstop1, Astop1);
                 break;
             case HIGHPASS:
-                output = String.format("FIR, order %d, fstop %5.0f Hz, Astop %3.0f dB, fpass %5.0f Hz, Apass %.2f dB",
+                output = String.format(locale,
+                        "FIR, order %d, fstop %5.0f Hz, Astop %3.0f dB, fpass %5.0f Hz, Apass %.2f dB",
                         order, fstop1, Astop1, fpass1, Apass1);
                 break;
             case BANDPASS:
-                output = String.format("FIR, order %d, fstop1 %5.0f Hz, Astop1 %3.0f dB, fpass1 %5.0f Hz, Apass %.2f dB, fpass2 %5.0f Hz, fstop2 %5.0f Hz, Astop2 %3.0f dB",
+                output = String.format(locale,
+                        "FIR, order %d, fstop1 %5.0f Hz, Astop1 %3.0f dB, fpass1 %5.0f Hz, Apass %.2f dB, fpass2 %5.0f Hz, fstop2 %5.0f Hz, Astop2 %3.0f dB",
                         order, fstop1, Astop1, fpass1, Apass1, fpass2, fstop2, Astop2);
                 break;
             case BANDSTOP:
-                output = String.format("FIR, order %d, fpass1 %5.0f Hz, Apass1 %.2f dB, fstop1 %5.0f Hz, Astop %3.0f dB, fstop2 %5.0f Hz, fpass2 %5.0f Hz, Apass2 %.2f dB",
+                output = String.format(locale,
+                        "FIR, order %d, fpass1 %5.0f Hz, Apass1 %.2f dB, fstop1 %5.0f Hz, Astop %3.0f dB, fstop2 %5.0f Hz, fpass2 %5.0f Hz, Apass2 %.2f dB",
                         order, fpass1, Apass1, fstop1, Astop1, fstop2, fpass2, Apass2);
                 break;
             default:
@@ -285,5 +290,4 @@ public class FilterSpec implements Parcelable {
             return new FilterSpec[size];
         }
     };
-
 }

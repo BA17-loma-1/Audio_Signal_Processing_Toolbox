@@ -243,6 +243,20 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
+     * Applies the application preferences globally.
+     *
+     */
+    public void updateApplicationSettings() {
+        Fragment fragment = getFragmentByTag(TAG_VISUALISATION_FRAGMENT);
+        if (fragment != null && fragment instanceof VisualisationFragment) {
+            ((VisualisationFragment) fragment).setFFTResolution(ApplicationContext.getPreferredFFTResolution());
+            ((VisualisationFragment) fragment).setWindowType(ApplicationContext.getPreferredWindow());
+            ((VisualisationFragment) fragment).setMagnitudeFloor(ApplicationContext.getPreferredDBFloor());
+            ((VisualisationFragment) fragment).setColormap(ApplicationContext.getPreferredColormap());
+        }
+    }
+
+    /**
      * Loads all fragments into the {@code FrameLayout} placeholders.
      */
     private void initFragments() {

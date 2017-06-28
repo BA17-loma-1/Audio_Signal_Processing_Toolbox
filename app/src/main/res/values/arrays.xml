@@ -6,23 +6,42 @@
         <item>16384</item>
     </string-array>
 
-    <string-array name="pref_window_type_entries">
+    <string-array name="pref_window_entries">
         <item>Rectangular</item>
         <item>Triangular</item>
-        <item>Bartlett</item>
         <item>Hamming</item>
         <item>Hann</item>
         <item>Blackman</item>
+        <item>Nuttal</item>
+        <item>Welch</item>
+        <item>Bartlett</item>
+        <item>Bartlett-Hann</item>
         <item>Blackman-Harris</item>
+        <item>Blackman-Nuttal</item>
     </string-array>
 
     <string-array name="pref_colormap_entries">
         <item>Greyscale</item>
+        <item>Greyscale inverse</item>
         <item>Rainbow</item>
+        <item>Colour normal</item>
+        <item>Colour inverse</item>
         <item>Hot 1</item>
         <item>Hot 2</item>
         <item>Cool 1</item>
         <item>Cool 2</item>
+    </string-array>
+
+    <string-array name="pref_colormap_values">
+        <item>GREYSCALE</item>
+        <item>INVERSE_GREYSCALE</item>
+        <item>RAINBOW</item>
+        <item>NORMAL_COLOUR</item>
+        <item>INVERSE_COLOUR</item>
+        <item>HOT1</item>
+        <item>HOT2</item>
+        <item>COOL1</item>
+        <item>COOL2</item>
     </string-array>
 
     <string-array name="pref_db_floor_entries">
@@ -38,4 +57,5 @@
         <item>-60 dB</item>
         <item>-50 dB</item>
     </string-array>
+
 </resources>

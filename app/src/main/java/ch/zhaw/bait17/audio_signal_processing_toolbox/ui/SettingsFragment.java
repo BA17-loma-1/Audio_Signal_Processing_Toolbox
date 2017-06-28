@@ -1,7 +1,11 @@
 package ch.zhaw.bait17.audio_signal_processing_toolbox.ui;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.ListPreference;
+import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.support.annotation.Nullable;
 
@@ -20,6 +24,9 @@ public class SettingsFragment extends PreferenceFragment
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
+        for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); i++) {
+            initSummary(getPreferenceScreen().getPreference(i));
+        }
     }
 
     @Override
@@ -34,8 +41,6 @@ public class SettingsFragment extends PreferenceFragment
         getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
 
-
-
     /**
      * Called when a shared preference is changed, added, or removed. This
      * may be called even if a preference is set to its existing value.
@@ -48,6 +53,29 @@ public class SettingsFragment extends PreferenceFragment
      */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        updatePrefSummary(findPreference(key));
+        Activity activity = getActivity();
+        // Global update of application settings
+        if (activity instanceof MainActivity) {
+            ((MainActivity) activity).updateApplicationSettings();
+        }
+    }
 
+    private void initSummary(Preference p) {
+        if (p instanceof PreferenceCategory) {
+            PreferenceCategory prefCat = (PreferenceCategory) p;
+            for (int i = 0; i < prefCat.getPreferenceCount(); i++) {
+                initSummary(prefCat.getPreference(i));
+            }
+        } else {
+            updatePrefSummary(p);
+        }
+    }
+
+    private void updatePrefSummary(Preference p) {
+        if (p instanceof ListPreference) {
+            ListPreference listPref = (ListPreference) p;
+            p.setSummary(listPref.getEntry());
+        }
     }
 }

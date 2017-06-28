@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 import org.jtransforms.fft.FloatFFT_1D;
 
-import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.PCMUtil;
 
 /**
@@ -21,9 +21,8 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.util.PCMUtil;
  */
 public class FFT {
 
-    private static final String TAG = FFT.class.getSimpleName();
-    private WindowType windowType = WindowType.HAMMING;
-    private int fftResolution = Constants.DEFAULT_FFT_RESOLUTION;
+    private WindowType windowType = ApplicationContext.getPreferredWindow();
+    private int fftResolution = ApplicationContext.getPreferredFFTResolution();
     private FloatFFT_1D fft_1D;
     private int sampleSize = 0;
     private float[] window = null;
@@ -105,7 +104,9 @@ public class FFT {
             throw new IllegalArgumentException("Stereo: Sample block length must be even.");
         }
 
-        if (samples.length > fftResolution) {
+        final int windowSize = fftResolution;
+
+        if (samples.length > windowSize) {
             /*
                 We can't process the samples because the FFT resolution is too small.
                 One solution would be to cut sample block into smaller pieces and process FFT.
@@ -119,36 +120,14 @@ public class FFT {
             onSampleSizeChanged(samples.length);
         }
 
-        float[] x = new float[fftResolution];
+        float[] x = new float[windowSize];
         float[] weightedSamples = applyWindowToSamples(PCMUtil.short2FloatArray(samples));
         System.arraycopy(weightedSamples, 0, x, 0, weightedSamples.length);
 
-        /*
-        if (channels == 2) {
-            // STEREO
-            short[] leftChannel = new short[samples.length / channels];
-            for (int i = 0; i < leftChannel.length; i++) {
-                // Copy only even samples to left channel array
-                leftChannel[i] = samples[2*i];
-            }
-
-            float[] weightedSamples = applyWindowToSamples(PCMUtil.short2FloatArray(leftChannel));
-
-            // Zero-padding: not necessary since Java initialises the array with zeros.
-            // Transform: short[] -> float[]
-            System.arraycopy(weightedSamples, 0, x, 0, weightedSamples.length);
-        } else {
-            // MONO
-            float[] weightedSamples = applyWindowToSamples(PCMUtil.short2FloatArray(samples));
-            // Zero-padding: not necessary since Java initialises the array with zeros.
-            // Transform: short[] -> float[]
-            System.arraycopy(weightedSamples, 0, x, 0, weightedSamples.length);
-        }*/
-
-        // Perform FFT: Time domain -> Frequency domain
+        // Compute FFT: Time domain -> Frequency domain
         fft_1D.realForward(x);
-        float[] hMag = new float[fftResolution / 2];
-        for (int i = 0; i < fftResolution / 2; i++) {
+        float[] hMag = new float[windowSize / 2];
+        for (int i = 0; i < windowSize / 2; i++) {
             hMag[i] = (x[2*i] * x[2*i]) + (x[(2*i) + 1] * x[(2*i) + 1]);
         }
         return hMag;
@@ -207,10 +186,19 @@ public class FFT {
     /**
      * Returns the FFT resolution.
      *
-     * @return  FFT resolution
+     * @return  the FFT resolution
      */
     public int getFFTResolution() {
         return fftResolution;
+    }
+
+    /**
+     * Sets the FFT resolution.
+     *
+     * @param fftResolution fft resolution a.k.a window size
+     */
+    public void setFFTResolution(int fftResolution) {
+        this.fftResolution = fftResolution;
     }
 
     /**
@@ -220,6 +208,16 @@ public class FFT {
      */
     public WindowType getWindowType() {
         return windowType;
+    }
+
+    /**
+     * Sets the window type.
+     *
+     * @param windowType    the type of window to be used when applying weighting to the sample blocks
+     */
+    public void setWindowType(WindowType windowType) {
+        this.windowType = windowType;
+        createWindow();
     }
 
     private void initialise() {
@@ -238,7 +236,7 @@ public class FFT {
         if (sampleLength < 0) {
             throw new IllegalArgumentException("Illegal sample length: " + sampleLength);
         }
-        int exponent = 0;
+        int exponent;
         if (fftResolution <= sampleLength) {
             exponent = (int) Math.ceil(Math.log(sampleLength) / Math.log(2));
         } else {
@@ -280,6 +278,14 @@ public class FFT {
 
     private void onSampleSizeChanged(int sampleSize) {
         this.sampleSize = sampleSize;
-        window = new Window(windowType).getWindow(sampleSize);
+        createWindow();
+    }
+
+    private void createWindow() {
+        if (sampleSize > 0) {
+            window = new Window(windowType).getWindow(sampleSize);
+        } else {
+            window = null;
+        }
     }
 }
