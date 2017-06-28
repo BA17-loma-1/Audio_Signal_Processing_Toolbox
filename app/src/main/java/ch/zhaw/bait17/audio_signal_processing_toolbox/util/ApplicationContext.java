@@ -83,16 +83,18 @@ public final class ApplicationContext extends Application {
     public static Colour[] getPreferredColormap() {
         final String key = "pref_colormap";
         String colormapName = prefs.getString(key, context.getString(R.string.pref_colormap_type_default));
-        Colour[] colormap = HeatMap.RAINBOW;
-        Field[] fields = HeatMap.class.getDeclaredFields();
-        for (Field field : fields) {
-            if (field.getName().equalsIgnoreCase(colormapName)) {
-                try {
-                    colormap = (Colour[]) field.get(null);
-                } catch (IllegalAccessException e) {
-                    Log.e(TAG, e.getMessage());
-                }
+        Colour[] colormap;
+        try {
+            Field field = HeatMap.class.getField(colormapName);
+            if (field != null) {
+                colormap = (Colour[]) field.get(null);
+            } else {
+                throw new Exception();
             }
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            // Default colormap --> RAINBOW
+            colormap = HeatMap.RAINBOW;
         }
         return colormap;
     }

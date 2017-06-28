@@ -108,7 +108,7 @@
     <string name="pref_fft_resolution">FFT resolution</string>
     <string name="pref_window_type">Window type</string>
     <string name="pref_colormap_type">Colormap</string>
-    <string name="pref_magnitude_db_floor">dB Floor</string>
+    <string name="pref_magnitude_db_floor">Magnitude Floor</string>
     <string name="pref_fft_resolution_default">4096</string>
     <string name="pref_window_type_default">Hamming</string>
     <string name="pref_colormap_type_default">Rainbow</string>
