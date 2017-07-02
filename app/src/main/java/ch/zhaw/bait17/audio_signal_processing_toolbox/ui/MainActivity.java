@@ -38,6 +38,7 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FilterUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.modulation.RingModulation;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.modulation.Tremolo;
+import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.time.WahWah;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.player.Track;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.ApplicationContext;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
@@ -419,6 +420,7 @@ public class MainActivity extends AppCompatActivity implements
                 Constants.TREMOLO_DEFAULT_AMPLITUDE));
         audioEffects.add(new Flanger(Constants.FLANGER_DEFAULT_RATE,
                 Constants.FLANGER_DEFAULT_AMPLITUDE, Constants.FLANGER_DEFAULT_DELAY));
+        audioEffects.add(new WahWah());
     }
 
     private void initAudioPlayerFragment() {
