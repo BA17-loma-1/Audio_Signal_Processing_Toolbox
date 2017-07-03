@@ -99,16 +99,12 @@ public class WahWah extends AudioEffect {
                         f1 = (float) (2 * Math.sin((Math.PI * currentTriangleWaveFrequency) / sampleRate));
                     }
 
-                    if (Math.abs(yb[i]) > maxYb)
-                        maxYb = Math.abs(yb[i]);
+                    output[i] = yb[i];
                 }
             }
             yh_previous = yh[input.length - 1];
             yb_previous = yb[input.length - 1];
             yl_previous = yl[input.length - 1];
-
-            for (int i = 0; i < input.length; i++)
-                output[i] = yb[i] / maxYb; // apply normalised value
         }
     }
 
