@@ -44,6 +44,7 @@ public final class AudioPlayer {
 
     private static final String TAG = AudioPlayer.class.getSimpleName();
     private static final AudioPlayer INSTANCE = new AudioPlayer();
+    private static final int MIN_BUFFER_SIZE = 44100;
     private static final int BUFFER_LENGTH_PER_CHANNEL_IN_SECONDS = 1;
 
     private static short[] decodedSamples;
@@ -468,7 +469,7 @@ public final class AudioPlayer {
      * }
      */
     private int getOptimalBufferSize() {
-        return sampleRate * channels * BUFFER_LENGTH_PER_CHANNEL_IN_SECONDS;
+        return Math.max(MIN_BUFFER_SIZE, sampleRate * channels * BUFFER_LENGTH_PER_CHANNEL_IN_SECONDS);
     }
 
     /**

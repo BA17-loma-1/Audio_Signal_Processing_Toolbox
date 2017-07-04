@@ -33,7 +33,6 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Bitcrusher;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.SoftClipper;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.TubeDistortion;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Waveshaper;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FIRCombFilter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.Filter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FilterUtil;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.modulation.RingModulation;
@@ -409,7 +408,6 @@ public class MainActivity extends AppCompatActivity implements
         audioEffects = new ArrayList<>();
         audioEffects.add(null);          // No filter
         audioEffects.addAll(getAllFilters());
-        audioEffects.add(new FIRCombFilter(Constants.FIR_COMB_FILTER_DEFAULT_DELAY));
         audioEffects.add(new Bitcrusher(Constants.BITCRUSHER_DEFAULT_NORM_FREQUENCY,
                 Constants.BITCRUSHER_DEFAULT_BITS));
         audioEffects.add(new Waveshaper(Constants.WAVESHAPER_DEFAULT_THRESHOLD));
