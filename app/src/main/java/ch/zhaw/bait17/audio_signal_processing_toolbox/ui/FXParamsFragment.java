@@ -20,7 +20,6 @@ import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Bitcrusher;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.SoftClipper;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.TubeDistortion;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.distortion.Waveshaper;
-import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.filter.FIRCombFilter;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.modulation.RingModulation;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.dsp.modulation.Tremolo;
 import ch.zhaw.bait17.audio_signal_processing_toolbox.util.Constants;
@@ -38,7 +37,6 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
     private View view;
 
     private TextView textViewGainCurrentValue;
-    private TextView textViewFIRCombFilterDelayCurrentValue;
     private TextView textViewRingModFreqCurrentValue;
     private TextView textViewTremoloModFreqCurrentValue;
     private TextView textViewTremoloModAmplCurrentValue;
@@ -53,7 +51,6 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
     private TextView textViewTubeDistortionMixCurrentValue;
 
     private SeekBar seekBarGain;
-    private SeekBar seekBarFIRCombFilterDelay;
     private SeekBar seekBarRingModulationFrequency;
     private SeekBar seekBarTremoloModulationFrequency;
     private SeekBar seekBarTremoloModulationAmplitude;
@@ -84,11 +81,6 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
             seekBarGain.setMax(DEFAULT_SEEK_BAR_STEPS);
             int defaultGain = (int) (Constants.GAIN_DEFAULT / Constants.GAIN_MAX * DEFAULT_SEEK_BAR_STEPS);
             seekBarGain.setProgress(defaultGain);
-
-            seekBarFIRCombFilterDelay = (SeekBar) view.findViewById(R.id.seekbar_fir_comb_filter);
-            seekBarFIRCombFilterDelay.setMax(DEFAULT_SEEK_BAR_STEPS * 10);
-            seekBarFIRCombFilterDelay.setProgress((int) (Constants.FIR_COMB_FILTER_DEFAULT_DELAY *
-                    (DEFAULT_SEEK_BAR_STEPS * 10) / Constants.FIR_COMB_FILTER_MAX_DELAY));
 
             seekBarRingModulationFrequency = (SeekBar) view.findViewById(R.id.seekbar_ringmod);
             seekBarRingModulationFrequency.setMax(Constants.RING_MODULATOR_MAX_MOD_FREQUENCY);
@@ -159,11 +151,6 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
                     R.id.linear_gain_current_value);
             textViewGainCurrentValue.setText(DECIMAL_FORMAT.format(Constants.GAIN_DEFAULT));
 
-            textViewFIRCombFilterDelayCurrentValue = (TextView) view.findViewById(
-                    R.id.fir_comb_filter_delay_current_value);
-            textViewFIRCombFilterDelayCurrentValue.setText(String.format(locale, "%.3f s",
-                    Constants.FIR_COMB_FILTER_DEFAULT_DELAY));
-
             textViewRingModFreqCurrentValue = (TextView) view.findViewById(
                     R.id.ringmod_freq_current_value);
             textViewRingModFreqCurrentValue.setText(String.format(locale, "%d Hz",
@@ -228,7 +215,6 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
         MainActivity activity = (MainActivity) getActivity();
         if (activity.getAudioEffects() != null && activity.getAudioEffects().size() > 0) {
             seekBarGain.setOnSeekBarChangeListener(this);
-            seekBarFIRCombFilterDelay.setOnSeekBarChangeListener(this);
             seekBarRingModulationFrequency.setOnSeekBarChangeListener(this);
             seekBarTremoloModulationFrequency.setOnSeekBarChangeListener(this);
             seekBarTremoloModulationAmplitude.setOnSeekBarChangeListener(this);
@@ -260,17 +246,6 @@ public class FXParamsFragment extends Fragment implements SeekBar.OnSeekBarChang
                 activity.setGain(gain);
                 if (textViewGainCurrentValue != null) {
                     textViewGainCurrentValue.setText(DECIMAL_FORMAT.format(gain));
-                }
-                break;
-            case R.id.seekbar_fir_comb_filter:
-                FIRCombFilter firCombFilter = (FIRCombFilter) activity.getAudioEffectFromType(FIRCombFilter.class);
-                if (firCombFilter != null) {
-                    float delay = Constants.FIR_COMB_FILTER_MAX_DELAY *
-                            (progress / (float) (DEFAULT_SEEK_BAR_STEPS * 10));
-                    firCombFilter.setDelay(delay);
-                    if (textViewFIRCombFilterDelayCurrentValue != null) {
-                        textViewFIRCombFilterDelayCurrentValue.setText(String.format(locale, "%.3f s", delay));
-                    }
                 }
                 break;
             case R.id.seekbar_ringmod:

@@ -59,7 +59,6 @@
     <string name="high_pass_filter">High pass filter</string>
     <string name="band_pass_filter">Band pass filter</string>
     <string name="band_stop_filter">Band stop filter</string>
-    <string name="fir_comb_filter">FIR comb filter</string>
     <string name="ring_modulation">Ring modulation</string>
     <string name="tremolo">Tremolo</string>
     <string name="flanger">Flanger</string>
@@ -69,7 +68,6 @@
     <string name="linear_gain">Linear</string>
 
     <!-- FX Parameters -->
-    <string name="fir_comb_filter_delay">Delay:</string>
     <string name="ringmod_mod_freq">mod. frequency:</string>
     <string name="tremolo_mod_freq">mod. frequency:</string>
     <string name="flanger_rate">rate:</string>

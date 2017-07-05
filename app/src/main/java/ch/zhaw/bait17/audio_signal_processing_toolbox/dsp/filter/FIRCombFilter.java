@@ -34,7 +34,6 @@ public class FIRCombFilter extends AudioEffect {
     protected FIRCombFilter(Parcel in) {
         this.delayLine = in.createFloatArray();
         this.delayInSamples = in.readInt();
-
     }
 
     /**

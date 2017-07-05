@@ -37,8 +37,8 @@ public class Limiter {
      * @param inputGain     input gain applied to each sample
      */
     public void apply(@NonNull float[] input, float inputGain) {
-        float attackTime = 0.02f;
-        float releaseTime = 0.5f;
+        float attackTime = 0.0002f;
+        float releaseTime = 0.001f;
         float peak = 0.f;
         float[] output = new float[input.length];
 
